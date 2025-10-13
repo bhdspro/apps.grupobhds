@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Anúncio de Veículo</title>
+    <!-- Incluindo Tailwind CSS para um design moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Adicionando a fonte moderna 'Inter' do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Biblioteca para gerar QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilo para a animação do switch do câmbio */
+        .peer:checked ~ .peer-checked\:after\:translate-x-full::after {
+            transform: translateX(100%);
+        }
+        .peer:checked ~ .peer-checked\:bg-red-600 {
+            background-color: #DC2626; /* red-600 */
+        }
+        /* Estilização para o placeholder do input de arquivo */
+        input[type="file"]::file-selector-button {
+            @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg cursor-pointer transition-colors duration-300;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <!-- Cabeçalho -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-red-500">Gerador de Anúncio de Veículo</h1>
+            <p class="text-gray-400 mt-2">Preencha os dados, anexe uma foto e crie sua imagem de venda na hora.</p>
+        </header>
+
+        <!-- Conteúdo principal: formulário e prévia -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Coluna do Formulário -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl">
+                <form id="vehicleForm" class="space-y-6">
+                    <!-- Foto do Veículo -->
+                    <div>
+                        <label for="vehiclePhoto" class="block text-sm font-medium text-gray-300 mb-2">1. Foto do Veículo</label>
+                        <input type="file" id="vehiclePhoto" accept="image/*" required class="block w-full text-sm text-gray-400 file:mr-4 file:border-0 rounded-lg">
+                    </div>
+
+                    <hr class="border-gray-600">
+                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">2. Personalização</h2>
+
+                    <!-- Logo -->
+                     <div>
+                        <label for="logoPhoto" class="block text-sm font-medium text-gray-300 mb-2">Logo da Empresa (Opcional)</label>
+                        <input type="file" id="logoPhoto" accept="image/*" class="block w-full text-sm text-gray-400 file:mr-4 file:border-0 rounded-lg">
+                    </div>
+                    
+                    <hr class="border-gray-600">
+                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">3. Detalhes do Anúncio</h2>
+
+                    <!-- Ano do Veículo -->
+                    <div>
+                        <label for="ano" class="block text-sm font-medium text-gray-300">Ano</label>
+                        <input type="text" id="ano" placeholder="Ex: 2018/2019" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                    </div>
+
+                    <!-- Cilindrada -->
+                    <div>
+                        <label for="cilindrada" class="block text-sm font-medium text-gray-300">Motor</label>
+                        <input type="text" id="cilindrada" placeholder="Ex: 1.6" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                    </div>
+                    
+                    <!-- Câmbio -->
+                    <div class="flex items-center justify-between">
+                         <label for="cambio" class="block text-sm font-medium text-gray-300">Câmbio</label>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-medium text-gray-400">Manual</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="cambio" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            </label>
+                             <span class="text-sm font-medium text-gray-400">Automático</span>
+                        </div>
+                    </div>
+
+                    <!-- Observação -->
+                    <div>
+                        <label for="observacao" class="block text-sm font-medium text-gray-300">Observação</label>
+                        <input type="text" id="observacao" placeholder="Ex: Completo" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                    </div>
+
+                    <hr class="border-gray-600">
+                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">4. Contato</h2>
+                     <!-- Telefone -->
+                    <div>
+                        <label for="telefone" class="block text-sm font-medium text-gray-300">Telefone para WhatsApp</label>
+                        <input type="tel" id="telefone" maxlength="15" placeholder="(00) 90000-0000" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Coluna da Prévia -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl flex flex-col items-center justify-center min-h-[400px]">
+                <div id="previewArea" class="w-full aspect-video bg-gray-700 rounded-md flex items-center justify-center text-gray-500 border-2 border-dashed border-gray-600">
+                    <span class="text-center">A prévia da imagem aparecerá aqui<br>após carregar uma foto.</span>
+                </div>
+                <a id="downloadLink" href="#" download="anuncio-veiculo.jpg" class="hidden mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors text-lg">
+                    Baixar Imagem Final
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            // --- Referências aos elementos do DOM ---
+            const form = document.getElementById('vehicleForm');
+            const fileInput = document.getElementById('vehiclePhoto');
+            const logoInput = document.getElementById('logoPhoto');
+            const telefoneInput = document.getElementById('telefone');
+            const previewArea = document.getElementById('previewArea');
+            const downloadLink = document.getElementById('downloadLink');
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.className = "rounded-md shadow-lg w-full h-auto";
+
+            let uploadedImage = null;
+            let uploadedLogo = null;
+            const adColor = '#ce191f'; // Cor vermelha fixa, baseada na imagem
+
+            // --- Inicialização ---
+            telefoneInput.addEventListener('input', (e) => e.target.value = maskPhone(e.target.value));
+
+            // --- Event Listeners ---
+            fileInput.addEventListener('change', (e) => handleImageUpload(e, 'vehicle'));
+            logoInput.addEventListener('change', (e) => handleImageUpload(e, 'logo'));
+            form.addEventListener('input', () => setTimeout(updatePreview, 50));
+
+            // --- Funções ---
+            function maskPhone(value) {
+                value = value.replace(/\D/g, '');
+                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+                return value;
+            }
+
+            function handleImageUpload(e, type) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            if (type === 'vehicle') {
+                                uploadedImage = img;
+                                previewArea.innerHTML = '';
+                                previewArea.appendChild(canvas);
+                            } else {
+                                uploadedLogo = img;
+                            }
+                            setTimeout(updatePreview, 100);
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            async function updatePreview() {
+                if (!uploadedImage) return;
+
+                const data = {
+                    ano: document.getElementById('ano').value.trim(),
+                    cilindrada: document.getElementById('cilindrada').value.trim(),
+                    cambio: document.getElementById('cambio').checked ? 'Automático' : 'Manual',
+                    observacao: document.getElementById('observacao').value.trim(),
+                    telefone: document.getElementById('telefone').value.trim()
+                };
+                const hasData = Object.values(data).some(val => val !== '');
+                
+                const baseHeight = uploadedImage.height;
+                const sidebarWidth = hasData ? uploadedImage.width * 0.7 : 0; 
+
+                canvas.width = sidebarWidth + uploadedImage.width;
+                canvas.height = baseHeight;
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (hasData) {
+                    await drawModernSidebar(sidebarWidth, baseHeight, data);
+                }
+                
+                const imgX = sidebarWidth;
+                const imgY = 0;
+                const imgW = uploadedImage.width;
+                const imgH = uploadedImage.height;
+                const radius = 40;
+                const borderWidth = 20;
+
+                ctx.save();
+                drawRoundedRect(ctx, imgX, imgY, imgW, imgH, radius);
+                ctx.clip();
+                ctx.drawImage(uploadedImage, imgX, imgY, imgW, imgH);
+                ctx.restore();
+
+                ctx.strokeStyle = adColor;
+                ctx.lineWidth = borderWidth;
+                drawRoundedRect(ctx, imgX, imgY, imgW, imgH, radius);
+                ctx.stroke();
+
+                downloadLink.href = canvas.toDataURL('image/jpeg', 0.95);
+                downloadLink.classList.remove('hidden');
+            }
+            
+            async function drawModernSidebar(width, height, data) {
+                ctx.fillStyle = adColor;
+                ctx.fillRect(0, 0, width, height);
+                
+                const padding = width * 0.1;
+                let topMargin = height * 0.05;
+
+                if (uploadedLogo) {
+                    const logoMaxHeight = height * 0.15;
+                    const logoMaxWidth = width - padding * 2;
+                    const scale = Math.min(logoMaxWidth / uploadedLogo.width, logoMaxHeight / uploadedLogo.height);
+                    const logoW = uploadedLogo.width * scale;
+                    const logoH = uploadedLogo.height * scale;
+                    const logoX = padding;
+                    const logoY = topMargin;
+                    ctx.drawImage(uploadedLogo, logoX, logoY, logoW, logoH);
+                    topMargin += logoH + height * 0.05;
+                }
+
+                const lines = buildLines(data);
+                const totalContentHeight = calculateContentHeight(height, lines, data.telefone);
+                let currentY = topMargin + (height - topMargin - totalContentHeight) / 2;
+                
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'center';
+
+                lines.forEach(line => {
+                    const size = getFontSize(height, line.type);
+                    ctx.font = `${getFontWeight(line.type)} ${size}px 'Inter', sans-serif`;
+
+                    if (line.type === 'title') {
+                        drawTitleWithBackground(ctx, line.text, width, currentY, size);
+                    } else {
+                        ctx.fillStyle = 'white';
+                        ctx.fillText(line.text.toUpperCase(), width / 2, currentY);
+                    }
+                    currentY += size * 1.5;
+                });
+                
+                const phoneNumber = data.telefone.replace(/\D/g, '');
+                if (phoneNumber.length >= 10 && typeof QRCode !== 'undefined') {
+                    const qrSize = height * 0.18;
+                    const qrX = (width - qrSize) / 2;
+                    const qrY = currentY;
+                    const qrUrl = `https://wa.me/55${phoneNumber}`;
+                     try {
+                        const qrDataUrl = await QRCode.toDataURL(qrUrl, { errorCorrectionLevel: 'H', margin: 1, width: qrSize, color: { dark: '#000000', light: '#FFFFFF' }});
+                        const qrImage = await new Promise((resolve, reject) => {
+                            const img = new Image();
+                            img.onload = () => resolve(img);
+                            img.onerror = (err) => reject(err);
+                            img.src = qrDataUrl;
+                        });
+                        ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+                    } catch (err) { 
+                        console.error('QR Code generation failed:', err);
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(qrX, qrY, qrSize, qrSize);
+                        ctx.fillStyle = 'black';
+                        ctx.font = `${qrSize * 0.2}px 'Inter'`;
+                        ctx.fillText('QR Error', qrX + qrSize/2, qrY + qrSize/2);
+                    }
+                }
+            }
+            
+            function drawTitleWithBackground(ctx, text, barWidth, y, size) {
+                const textMetrics = ctx.measureText(text.toUpperCase());
+                const boxWidth = barWidth;
+                const boxHeight = size * 1.5;
+                const boxY = y - boxHeight / 2;
+
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, boxY, boxWidth, boxHeight);
+
+                ctx.fillStyle = adColor;
+                ctx.fillText(text.toUpperCase(), barWidth / 2, y);
+            }
+
+            function buildLines(data) {
+                 const lines = [];
+                 lines.push({ text: 'VENDE-SE', type: 'title' });
+                 if(data.ano) lines.push({ text: `🗓️ Ano ${data.ano}`, type: 'detail' });
+                 
+                 const motorInfo = `${data.cilindrada} ${data.cambio}`.trim();
+                 if(motorInfo) lines.push({ text: `⚙️ ${motorInfo}`, type: 'detail' });
+                 
+                 if(data.observacao) lines.push({ text: `ℹ️ ${data.observacao}`, type: 'detail'});
+                 if(data.telefone) lines.push({ text: `☎️ ${data.telefone}`, type: 'phone' });
+
+                 return lines;
+            }
+
+            function calculateContentHeight(h, lines, phone) {
+                 let total = lines.reduce((acc, line) => acc + getFontSize(h, line.type) * 1.5, 0);
+                 if (phone && phone.replace(/\D/g, '').length >= 10) {
+                    total += h * 0.18 + h * 0.02; // QR size + margin
+                 }
+                 return total;
+            }
+            
+            function getFontSize(h, type) {
+                if (type === 'title') return h * 0.12;
+                if (type === 'phone') return h * 0.07;
+                return h * 0.06; // detail
+            }
+
+            function getFontWeight(type) {
+                 if (type === 'title') return '900';
+                 if (type === 'phone') return '700';
+                 return '700';
+            }
+
+            function drawRoundedRect(ctx, x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.arcTo(x + w, y, x + w, y + h, r);
+                ctx.arcTo(x + w, y + h, x, y + h, r);
+                ctx.arcTo(x, y + h, x, y, r);
+                ctx.arcTo(x, y, x + w, y, r);
+                ctx.closePath();
+            }
+        });
+    </script>
+</body>
+</html>
+
