@@ -43,7 +43,7 @@
                 <form id="vehicleForm" class="space-y-6">
                     <!-- Foto do Veículo -->
                     <div>
-                        <label for="vehiclePhoto" class="block text-sm font-medium text-gray-300 mb-2">1. Foto do Veículo</label>
+                        <label for="vehiclePhoto" class="block text-lg font-semibold text-gray-200 mb-2">1. Foto do Veículo</label>
                         <input type="file" id="vehiclePhoto" accept="image/*" required class="block w-full text-sm text-gray-400 file:mr-4 file:border-0 rounded-lg">
                     </div>
                     
@@ -95,6 +95,12 @@
                         </div>
                     </div>
 
+                    <!-- Observação -->
+                    <div>
+                        <label for="observacao" class="block text-sm font-medium text-gray-300">Observação</label>
+                        <input type="text" id="observacao" placeholder="Ex: Completo" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                    </div>
+
                     <!-- Preço -->
                      <div>
                         <label for="preco" class="block text-sm font-medium text-gray-300">Preço</label>
@@ -117,7 +123,7 @@
                     <span class="text-center">A prévia da imagem aparecerá aqui<br>após carregar uma foto.</span>
                 </div>
                 <a id="downloadLink" href="#" download="anuncio-veiculo.jpg" class="hidden mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors text-lg">
-                    Baixar Imagem Final
+                    Baixar Anúncio
                 </a>
             </div>
         </main>
@@ -154,9 +160,13 @@
             const mapsIcon = new Image();
             mapsIcon.src = "https://apps.grupobhds.com/gerador-anuncio/images/logo-maps.png";
             mapsIcon.crossOrigin = "Anonymous";
+            
+            const toolsIcon = new Image();
+            toolsIcon.src = "https://apps.grupobhds.com/gerador-anuncio/images/logo-tools.png";
+            toolsIcon.crossOrigin = "Anonymous";
 
             // Redesenha a prévia quando os ícones carregam
-            [fixedLogo, phoneIcon, mapsIcon].forEach(img => {
+            [fixedLogo, phoneIcon, mapsIcon, toolsIcon].forEach(img => {
                 img.onload = () => updatePreview();
             });
 
@@ -240,6 +250,7 @@
                     preco: document.getElementById('preco').value.trim(),
                     cilindrada: document.getElementById('cilindrada').value.trim(),
                     cambio: document.getElementById('cambio').checked ? 'Automático' : 'Manual',
+                    observacao: document.getElementById('observacao').value.trim(),
                     telefone: document.getElementById('telefone').value.trim(),
                     endereco: fixedAddress,
                 };
@@ -318,12 +329,28 @@
                 ctx.fillRect(0, contactBarStartY, width, contactBarHeight);
                 
                 ctx.fillStyle = 'white';
-                ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const centralText = `${data.cambio.toUpperCase()} • ${data.cilindrada} • ${formatKmDisplay(data.km)}`;
+                let centralText = `${data.cambio.toUpperCase()}   |   ${data.cilindrada}   |   ${formatKmDisplay(data.km)}`;
+                if (data.observacao) {
+                    centralText += `   |   ${data.observacao.toUpperCase()}`;
+                }
                 const vehicleInfoFont = `700 ${infoBarHeight * 0.5}px 'Inter'`;
                 ctx.font = vehicleInfoFont;
-                ctx.fillText(centralText, width / 2, footerStartY + infoBarHeight / 2);
+                
+                const centralIconSize = infoBarHeight * 0.5;
+                const centralIconGap = centralIconSize * 0.4;
+                const centralTextMetrics = ctx.measureText(centralText);
+                const totalCentralWidth = centralIconSize + centralIconGap + centralTextMetrics.width;
+
+                const centralY = footerStartY + infoBarHeight / 2;
+                const centralStartX = width - padding - totalCentralWidth;
+
+                ctx.textAlign = 'left';
+                if (toolsIcon.complete && toolsIcon.naturalWidth !== 0) {
+                    ctx.drawImage(toolsIcon, centralStartX, centralY - centralIconSize / 2, centralIconSize, centralIconSize);
+                }
+                ctx.fillText(centralText, centralStartX + centralIconSize + centralIconGap, centralY);
+
 
                 const contactY = contactBarStartY + contactBarHeight / 2;
                 const iconSize = infoBarHeight * 0.5;
@@ -353,7 +380,7 @@
                     const scale = Math.min(logoMaxWidth / fixedLogo.width, logoMaxHeight / fixedLogo.height);
                     logoW = fixedLogo.width * scale;
                 }
-
+                
                 const contactAreaStart = (padding + logoW) + itemGap;
                 const contactAreaWidth = width - contactAreaStart - padding;
                 let currentX = contactAreaStart + (contactAreaWidth - totalContactWidth) / 2;
