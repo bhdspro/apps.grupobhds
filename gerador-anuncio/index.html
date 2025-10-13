@@ -10,8 +10,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <!-- Biblioteca para gerar QR Code -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -256,18 +254,19 @@
                 });
                 
                 const phoneNumber = data.telefone.replace(/\D/g, '');
-                if (phoneNumber.length >= 10 && typeof QRCode !== 'undefined') {
-                    const qrSize = height * 0.18;
+                if (phoneNumber.length >= 10) {
+                    const qrSize = Math.floor(height * 0.22);
                     const qrX = (width - qrSize) / 2;
                     const qrY = currentY;
                     const qrUrl = `https://wa.me/55${phoneNumber}`;
                      try {
-                        const qrDataUrl = await QRCode.toDataURL(qrUrl, { errorCorrectionLevel: 'H', margin: 1, width: qrSize, color: { dark: '#000000', light: '#FFFFFF' }});
+                        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(qrUrl)}&margin=1&color=${adColor.substring(1)}&bgcolor=ffffff`;
                         const qrImage = await new Promise((resolve, reject) => {
                             const img = new Image();
+                            img.crossOrigin = "Anonymous"; 
                             img.onload = () => resolve(img);
                             img.onerror = (err) => reject(err);
-                            img.src = qrDataUrl;
+                            img.src = qrApiUrl;
                         });
                         ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
                     } catch (err) { 
@@ -282,7 +281,6 @@
             }
             
             function drawTitleWithBackground(ctx, text, barWidth, y, size) {
-                const textMetrics = ctx.measureText(text.toUpperCase());
                 const boxWidth = barWidth;
                 const boxHeight = size * 1.5;
                 const boxY = y - boxHeight / 2;
@@ -311,7 +309,7 @@
             function calculateContentHeight(h, lines, phone) {
                  let total = lines.reduce((acc, line) => acc + getFontSize(h, line.type) * 1.5, 0);
                  if (phone && phone.replace(/\D/g, '').length >= 10) {
-                    total += h * 0.18 + h * 0.02; // QR size + margin
+                    total += h * 0.22 + h * 0.02; // QR size + margin
                  }
                  return total;
             }
