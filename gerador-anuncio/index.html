@@ -9,7 +9,7 @@
     <!-- Adicionando a fonte moderna 'Inter' do Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -46,29 +46,40 @@
                         <label for="vehiclePhoto" class="block text-sm font-medium text-gray-300 mb-2">1. Foto do Veículo</label>
                         <input type="file" id="vehiclePhoto" accept="image/*" required class="block w-full text-sm text-gray-400 file:mr-4 file:border-0 rounded-lg">
                     </div>
-
-                    <hr class="border-gray-600">
-                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">2. Personalização</h2>
-
-                    <!-- Logo -->
-                     <div>
-                        <label for="logoPhoto" class="block text-sm font-medium text-gray-300 mb-2">Logo da Empresa (Opcional)</label>
-                        <input type="file" id="logoPhoto" accept="image/*" class="block w-full text-sm text-gray-400 file:mr-4 file:border-0 rounded-lg">
-                    </div>
                     
                     <hr class="border-gray-600">
-                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">3. Detalhes do Anúncio</h2>
+                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">2. Detalhes do Anúncio</h2>
 
-                    <!-- Ano do Veículo -->
-                    <div>
-                        <label for="ano" class="block text-sm font-medium text-gray-300">Ano</label>
-                        <input type="text" id="ano" placeholder="Ex: 2018/2019" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Marca -->
+                        <div>
+                            <label for="marca" class="block text-sm font-medium text-gray-300">Marca</label>
+                            <input type="text" id="marca" placeholder="Ex: Hyundai" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                        </div>
+                        <!-- Modelo -->
+                        <div>
+                            <label for="modelo" class="block text-sm font-medium text-gray-300">Modelo</label>
+                            <input type="text" id="modelo" placeholder="Ex: HB20 Comfort" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Ano do Veículo -->
+                        <div>
+                            <label for="ano" class="block text-sm font-medium text-gray-300">Ano</label>
+                            <input type="text" id="ano" placeholder="Ex: 2022" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                        </div>
+                        <!-- Kilometragem -->
+                        <div>
+                            <label for="km" class="block text-sm font-medium text-gray-300">Kilometragem</label>
+                            <input type="text" id="km" placeholder="Ex: 50000" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                        </div>
                     </div>
 
-                    <!-- Cilindrada -->
+                    <!-- Motor -->
                     <div>
                         <label for="cilindrada" class="block text-sm font-medium text-gray-300">Motor</label>
-                        <input type="text" id="cilindrada" placeholder="Ex: 1.6" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                        <input type="text" id="cilindrada" placeholder="Ex: 1.0" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
                     </div>
                     
                     <!-- Câmbio -->
@@ -84,14 +95,14 @@
                         </div>
                     </div>
 
-                    <!-- Observação -->
-                    <div>
-                        <label for="observacao" class="block text-sm font-medium text-gray-300">Observação</label>
-                        <input type="text" id="observacao" placeholder="Ex: Completo" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
+                    <!-- Preço -->
+                     <div>
+                        <label for="preco" class="block text-sm font-medium text-gray-300">Preço</label>
+                        <input type="text" id="preco" placeholder="Ex: 59900" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-white">
                     </div>
 
                     <hr class="border-gray-600">
-                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">4. Contato</h2>
+                    <h2 class="text-lg font-semibold text-gray-200 !mt-4">3. Contato</h2>
                      <!-- Telefone -->
                     <div>
                         <label for="telefone" class="block text-sm font-medium text-gray-300">Telefone para WhatsApp</label>
@@ -117,8 +128,9 @@
             // --- Referências aos elementos do DOM ---
             const form = document.getElementById('vehicleForm');
             const fileInput = document.getElementById('vehiclePhoto');
-            const logoInput = document.getElementById('logoPhoto');
             const telefoneInput = document.getElementById('telefone');
+            const precoInput = document.getElementById('preco');
+            const kmInput = document.getElementById('km');
             const previewArea = document.getElementById('previewArea');
             const downloadLink = document.getElementById('downloadLink');
 
@@ -127,39 +139,88 @@
             canvas.className = "rounded-md shadow-lg w-full h-auto";
 
             let uploadedImage = null;
-            let uploadedLogo = null;
-            const adColor = '#ce191f'; // Cor vermelha fixa, baseada na imagem
+            const adColor = '#ce191f';
+            const fixedAddress = "Rua David Nasser, 339";
+            
+            // Carregando logos e ícones fixos
+            const fixedLogo = new Image();
+            fixedLogo.src = "https://apps.grupobhds.com/gerador-anuncio/images/logo.png";
+            fixedLogo.crossOrigin = "Anonymous";
 
-            // --- Inicialização ---
-            telefoneInput.addEventListener('input', (e) => e.target.value = maskPhone(e.target.value));
+            const phoneIcon = new Image();
+            phoneIcon.src = "https://apps.grupobhds.com/gerador-anuncio/images/logo-zap.png";
+            phoneIcon.crossOrigin = "Anonymous";
 
-            // --- Event Listeners ---
-            fileInput.addEventListener('change', (e) => handleImageUpload(e, 'vehicle'));
-            logoInput.addEventListener('change', (e) => handleImageUpload(e, 'logo'));
-            form.addEventListener('input', () => setTimeout(updatePreview, 50));
+            const mapsIcon = new Image();
+            mapsIcon.src = "https://apps.grupobhds.com/gerador-anuncio/images/logo-maps.png";
+            mapsIcon.crossOrigin = "Anonymous";
 
-            // --- Funções ---
-            function maskPhone(value) {
-                value = value.replace(/\D/g, '');
-                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-                value = value.replace(/(\d)(\d{4})$/, '$1-$2');
-                return value;
+            // Redesenha a prévia quando os ícones carregam
+            [fixedLogo, phoneIcon, mapsIcon].forEach(img => {
+                img.onload = () => updatePreview();
+            });
+
+
+            // --- Local Storage Functions ---
+            function saveData() {
+                localStorage.setItem('savedTelefone', telefoneInput.value);
             }
 
-            function handleImageUpload(e, type) {
+            function loadSavedData() {
+                telefoneInput.value = localStorage.getItem('savedTelefone') || '';
+            }
+            
+            loadSavedData(); // Carrega os dados ao iniciar
+
+            // --- Event Listeners ---
+            fileInput.addEventListener('change', (e) => handleImageUpload(e));
+            form.addEventListener('input', () => setTimeout(updatePreview, 50));
+            telefoneInput.addEventListener('input', () => {
+                telefoneInput.value = maskPhone(telefoneInput.value);
+                saveData();
+            });
+            precoInput.addEventListener('input', (e) => {
+                e.target.value = formatPriceInput(e.target.value);
+            });
+             kmInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+
+
+            // --- Funções de Formatação ---
+            function maskPhone(value) {
+                value = value.replace(/\D/g, '');
+                value = value.replace(/^(\d{2})(\d)/, '($1) $2'); // Adiciona espaço
+                value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2'); // Hífen
+                return value;
+            }
+            
+            function formatPriceInput(value) {
+                return value.replace(/\D/g, '');
+            }
+
+            function formatPriceDisplay(price) {
+                const number = parseFloat(price);
+                if (isNaN(number)) return "";
+                return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+
+            function formatKmDisplay(km) {
+                const number = parseInt(km, 10);
+                if (isNaN(number)) return "";
+                return `${number.toLocaleString('pt-BR')} KM`;
+            }
+
+            function handleImageUpload(e) {
                 const file = e.target.files[0];
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         const img = new Image();
                         img.onload = () => {
-                            if (type === 'vehicle') {
-                                uploadedImage = img;
-                                previewArea.innerHTML = '';
-                                previewArea.appendChild(canvas);
-                            } else {
-                                uploadedLogo = img;
-                            }
+                            uploadedImage = img;
+                            previewArea.innerHTML = '';
+                            previewArea.appendChild(canvas);
                             setTimeout(updatePreview, 100);
                         };
                         img.src = event.target.result;
@@ -172,182 +233,146 @@
                 if (!uploadedImage) return;
 
                 const data = {
+                    marca: document.getElementById('marca').value.trim(),
+                    modelo: document.getElementById('modelo').value.trim(),
                     ano: document.getElementById('ano').value.trim(),
+                    km: document.getElementById('km').value.trim(),
+                    preco: document.getElementById('preco').value.trim(),
                     cilindrada: document.getElementById('cilindrada').value.trim(),
                     cambio: document.getElementById('cambio').checked ? 'Automático' : 'Manual',
-                    observacao: document.getElementById('observacao').value.trim(),
-                    telefone: document.getElementById('telefone').value.trim()
+                    telefone: document.getElementById('telefone').value.trim(),
+                    endereco: fixedAddress,
                 };
-                const hasData = Object.values(data).some(val => val !== '');
                 
-                const baseHeight = uploadedImage.height;
-                const sidebarWidth = hasData ? uploadedImage.width * 0.7 : 0; 
+                const headerHeight = uploadedImage.height * 0.15;
+                const footerHeight = uploadedImage.height * 0.18;
 
-                canvas.width = sidebarWidth + uploadedImage.width;
-                canvas.height = baseHeight;
+                canvas.width = uploadedImage.width;
+                canvas.height = uploadedImage.height + headerHeight + footerHeight;
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                const radius = 40;
-                const borderWidth = 20;
+                ctx.drawImage(uploadedImage, 0, headerHeight, uploadedImage.width, uploadedImage.height);
 
-                // Clip para arredondar a imagem inteira
-                ctx.save();
-                drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, radius);
-                ctx.clip();
-
-                // Desenha a barra lateral
-                if (hasData) {
-                    await drawModernSidebar(sidebarWidth, baseHeight, data);
-                }
-                
-                // Desenha a imagem do veículo
-                const imgX = sidebarWidth;
-                const imgY = 0;
-                const imgW = uploadedImage.width;
-                const imgH = uploadedImage.height;
-                ctx.drawImage(uploadedImage, imgX, imgY, imgW, imgH);
-                
-                // Desenha a borda por cima da imagem, mas apenas na área da imagem
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(imgX, imgY, imgW, imgH);
-                ctx.clip(); // Restringe a borda a esta área
-                
-                ctx.strokeStyle = adColor;
-                ctx.lineWidth = borderWidth * 2; // O dobro da espessura para compensar o clip
-                drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, radius); // Usa o mesmo caminho do clip principal
-                ctx.stroke();
-
-                ctx.restore(); // Remove o clip da borda
-                ctx.restore(); // Remove o clip principal
+                drawOverlays(canvas.width, uploadedImage.height, headerHeight, footerHeight, data);
 
                 downloadLink.href = canvas.toDataURL('image/jpeg', 0.95);
                 downloadLink.classList.remove('hidden');
             }
             
-            async function drawModernSidebar(width, height, data) {
+            function drawOverlays(width, imgHeight, headerHeight, footerHeight, data) {
+                const padding = width * 0.03;
+                
+                // --- Desenha Header ---
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                ctx.fillRect(0, 0, width, headerHeight);
+
                 ctx.fillStyle = adColor;
-                ctx.fillRect(0, 0, width, height);
-                
-                const padding = width * 0.1;
-                let topMargin = height * 0.05;
-
-                if (uploadedLogo) {
-                    const logoMaxHeight = height * 0.15;
-                    const logoMaxWidth = width - padding * 2;
-                    const scale = Math.min(logoMaxWidth / uploadedLogo.width, logoMaxHeight / uploadedLogo.height);
-                    const logoW = uploadedLogo.width * scale;
-                    const logoH = uploadedLogo.height * scale;
-                    const logoX = padding;
-                    const logoY = topMargin;
-                    ctx.drawImage(uploadedLogo, logoX, logoY, logoW, logoH);
-                    topMargin += logoH + height * 0.05;
-                }
-
-                const lines = buildLines(data);
-                const totalContentHeight = calculateContentHeight(height, lines, data.telefone);
-                let currentY = topMargin + (height - topMargin - totalContentHeight) / 2;
-                
-                ctx.textBaseline = 'middle';
-                ctx.textAlign = 'center';
-
-                lines.forEach(line => {
-                    const size = getFontSize(height, line.type);
-                    ctx.font = `${getFontWeight(line.type)} ${size}px 'Inter', sans-serif`;
-
-                    if (line.type === 'title') {
-                        drawTitleWithBackground(ctx, line.text, width, currentY, size);
-                    } else {
-                        ctx.fillStyle = 'white';
-                        ctx.fillText(line.text.toUpperCase(), width / 2, currentY);
-                    }
-                    currentY += size * 1.5;
-                });
-                
-                const phoneNumber = data.telefone.replace(/\D/g, '');
-                if (phoneNumber.length >= 10) {
-                    const qrSize = Math.floor(height * 0.25);
-                    const qrX = (width - qrSize) / 2;
-                    const qrY = currentY;
-                    const qrUrl = `https://wa.me/55${phoneNumber}`;
-                     try {
-                        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(qrUrl)}&margin=1&color=${adColor.substring(1)}&bgcolor=ffffff`;
-                        const qrImage = await new Promise((resolve, reject) => {
-                            const img = new Image();
-                            img.crossOrigin = "Anonymous"; 
-                            img.onload = () => resolve(img);
-                            img.onerror = (err) => reject(err);
-                            img.src = qrApiUrl;
-                        });
-                        ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
-                    } catch (err) { 
-                        console.error('QR Code generation failed:', err);
-                        ctx.fillStyle = 'white';
-                        ctx.fillRect(qrX, qrY, qrSize, qrSize);
-                        ctx.fillStyle = 'black';
-                        ctx.font = `${qrSize * 0.2}px 'Inter'`;
-                        ctx.fillText('QR Error', qrX + qrSize/2, qrY + qrSize/2);
-                    }
-                }
-            }
-            
-            function drawTitleWithBackground(ctx, text, barWidth, y, size) {
-                const boxWidth = barWidth;
-                const boxHeight = size * 1.5;
-                const boxY = y - boxHeight / 2;
+                ctx.beginPath();
+                ctx.moveTo(width * 0.6, 0);
+                ctx.lineTo(width, 0);
+                ctx.lineTo(width, headerHeight);
+                ctx.lineTo(width * 0.65, headerHeight);
+                ctx.closePath();
+                ctx.fill();
 
                 ctx.fillStyle = 'white';
-                ctx.fillRect(0, boxY, boxWidth, boxHeight);
-
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                
+                const marcaY = headerHeight * 0.3;
+                ctx.font = `900 ${headerHeight * 0.3}px 'Inter'`;
+                ctx.fillText(data.marca.toUpperCase(), padding, marcaY);
+                
+                const modeloY = headerHeight * 0.65;
+                ctx.font = `700 ${headerHeight * 0.23}px 'Inter'`;
+                ctx.fillText(data.modelo.toUpperCase(), padding, modeloY);
+                
+                const modeloMetrics = ctx.measureText(data.modelo.toUpperCase());
+                const anoX = padding + modeloMetrics.width + width * 0.02;
+                
+                ctx.font = `700 ${headerHeight * 0.18}px 'Inter'`;
+                const anoMetrics = ctx.measureText(data.ano);
+                
                 ctx.fillStyle = adColor;
-                ctx.fillText(text.toUpperCase(), barWidth / 2, y);
-            }
+                ctx.fillRect(anoX - 5, modeloY - (headerHeight * 0.18)/2 - 5, anoMetrics.width + 10, headerHeight * 0.22 + 5);
+                
+                ctx.fillStyle = 'white';
+                ctx.fillText(data.ano, anoX, modeloY);
 
-            function buildLines(data) {
-                 const lines = [];
-                 lines.push({ text: 'VENDE-SE', type: 'title' });
-                 if(data.ano) lines.push({ text: `🗓️ Ano ${data.ano}`, type: 'detail' });
-                 
-                 const motorInfo = `${data.cilindrada} ${data.cambio}`.trim();
-                 if(motorInfo) lines.push({ text: `⚙️ ${motorInfo}`, type: 'detail' });
-                 
-                 if(data.observacao) lines.push({ text: `ℹ️ ${data.observacao}`, type: 'detail'});
-                 if(data.telefone) lines.push({ text: `☎️ ${data.telefone}`, type: 'phone' });
+                ctx.textAlign = 'right';
+                ctx.font = `900 ${headerHeight * 0.4}px 'Inter'`;
+                ctx.fillText(formatPriceDisplay(data.preco), width - padding, headerHeight / 2);
 
-                 return lines;
-            }
+                // --- Desenha Footer ---
+                const footerStartY = imgHeight + headerHeight;
+                const infoBarHeight = footerHeight * 0.4;
+                const contactBarStartY = footerStartY + infoBarHeight;
+                const contactBarHeight = footerHeight - infoBarHeight;
 
-            function calculateContentHeight(h, lines, phone) {
-                 let total = lines.reduce((acc, line) => acc + getFontSize(h, line.type) * 1.5, 0);
-                 if (phone && phone.replace(/\D/g, '').length >= 10) {
-                    total += h * 0.25 + h * 0.02; // QR size + margin
-                 }
-                 return total;
-            }
-            
-            function getFontSize(h, type) {
-                if (type === 'title') return h * 0.12;
-                if (type === 'phone') return h * 0.07;
-                return h * 0.06; // detail
-            }
+                ctx.fillStyle = adColor; 
+                ctx.fillRect(0, footerStartY, width, infoBarHeight);
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.85)';
+                ctx.fillRect(0, contactBarStartY, width, contactBarHeight);
+                
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const centralText = `${data.cambio.toUpperCase()} • ${data.cilindrada} • ${formatKmDisplay(data.km)}`;
+                const vehicleInfoFont = `700 ${infoBarHeight * 0.5}px 'Inter'`;
+                ctx.font = vehicleInfoFont;
+                ctx.fillText(centralText, width / 2, footerStartY + infoBarHeight / 2);
 
-            function getFontWeight(type) {
-                 if (type === 'title') return '900';
-                 if (type === 'phone') return '700';
-                 return '700';
-            }
+                const contactY = contactBarStartY + contactBarHeight / 2;
+                const iconSize = infoBarHeight * 0.5;
+                const textIconGap = iconSize * 0.4;
+                const itemGap = width * 0.03;
 
-            function drawRoundedRect(ctx, x, y, w, h, r) {
-                if (w < 2 * r) r = w / 2;
-                if (h < 2 * r) r = h / 2;
-                ctx.beginPath();
-                ctx.moveTo(x + r, y);
-                ctx.arcTo(x + w, y, x + w, y + h, r);
-                ctx.arcTo(x + w, y + h, x, y + h, r);
-                ctx.arcTo(x, y + h, x, y, r);
-                ctx.arcTo(x, y, x + w, y, r);
-                ctx.closePath();
+                ctx.font = vehicleInfoFont;
+                
+                const items = [
+                    { icon: phoneIcon, text: data.telefone },
+                    { icon: mapsIcon, text: data.endereco }
+                ];
+
+                let totalContactWidth = 0;
+                const itemWidths = items.map(item => {
+                    const textMetrics = ctx.measureText(item.text.toUpperCase());
+                    const width = iconSize + textIconGap + textMetrics.width;
+                    totalContactWidth += width;
+                    return width;
+                });
+                totalContactWidth += itemGap * (items.length - 1);
+
+                let logoW = 0;
+                if (fixedLogo.complete && fixedLogo.naturalWidth !== 0) {
+                    const logoMaxHeight = footerHeight * 1.1; 
+                    const logoMaxWidth = width * 0.4;
+                    const scale = Math.min(logoMaxWidth / fixedLogo.width, logoMaxHeight / fixedLogo.height);
+                    logoW = fixedLogo.width * scale;
+                }
+
+                const contactAreaStart = (padding + logoW) + itemGap;
+                const contactAreaWidth = width - contactAreaStart - padding;
+                let currentX = contactAreaStart + (contactAreaWidth - totalContactWidth) / 2;
+                
+                ctx.textAlign = 'left';
+
+                items.forEach((item, index) => {
+                    if (item.icon.complete && item.icon.naturalWidth !== 0) {
+                        ctx.drawImage(item.icon, currentX, contactY - iconSize / 2, iconSize, iconSize);
+                    }
+                    ctx.fillText(item.text.toUpperCase(), currentX + iconSize + textIconGap, contactY);
+                    currentX += itemWidths[index] + itemGap;
+                });
+
+                if (fixedLogo.complete && fixedLogo.naturalWidth !== 0) {
+                    const logoH = fixedLogo.height * (logoW / fixedLogo.width);
+                    const logoY = footerStartY - (logoH - footerHeight) / 2;
+                    ctx.drawImage(fixedLogo, padding, logoY, logoW, logoH);
+                }
             }
         });
     </script>
