@@ -188,27 +188,39 @@
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+                const radius = 40;
+                const borderWidth = 20;
+
+                // Clip para arredondar a imagem inteira
+                ctx.save();
+                drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, radius);
+                ctx.clip();
+
+                // Desenha a barra lateral
                 if (hasData) {
                     await drawModernSidebar(sidebarWidth, baseHeight, data);
                 }
                 
+                // Desenha a imagem do veículo
                 const imgX = sidebarWidth;
                 const imgY = 0;
                 const imgW = uploadedImage.width;
                 const imgH = uploadedImage.height;
-                const radius = 40;
-                const borderWidth = 20;
-
-                ctx.save();
-                drawRoundedRect(ctx, imgX, imgY, imgW, imgH, radius);
-                ctx.clip();
                 ctx.drawImage(uploadedImage, imgX, imgY, imgW, imgH);
-                ctx.restore();
-
+                
+                // Desenha a borda por cima da imagem, mas apenas na área da imagem
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(imgX, imgY, imgW, imgH);
+                ctx.clip(); // Restringe a borda a esta área
+                
                 ctx.strokeStyle = adColor;
-                ctx.lineWidth = borderWidth;
-                drawRoundedRect(ctx, imgX, imgY, imgW, imgH, radius);
+                ctx.lineWidth = borderWidth * 2; // O dobro da espessura para compensar o clip
+                drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, radius); // Usa o mesmo caminho do clip principal
                 ctx.stroke();
+
+                ctx.restore(); // Remove o clip da borda
+                ctx.restore(); // Remove o clip principal
 
                 downloadLink.href = canvas.toDataURL('image/jpeg', 0.95);
                 downloadLink.classList.remove('hidden');
@@ -255,7 +267,7 @@
                 
                 const phoneNumber = data.telefone.replace(/\D/g, '');
                 if (phoneNumber.length >= 10) {
-                    const qrSize = Math.floor(height * 0.22);
+                    const qrSize = Math.floor(height * 0.25);
                     const qrX = (width - qrSize) / 2;
                     const qrY = currentY;
                     const qrUrl = `https://wa.me/55${phoneNumber}`;
@@ -309,7 +321,7 @@
             function calculateContentHeight(h, lines, phone) {
                  let total = lines.reduce((acc, line) => acc + getFontSize(h, line.type) * 1.5, 0);
                  if (phone && phone.replace(/\D/g, '').length >= 10) {
-                    total += h * 0.22 + h * 0.02; // QR size + margin
+                    total += h * 0.25 + h * 0.02; // QR size + margin
                  }
                  return total;
             }
