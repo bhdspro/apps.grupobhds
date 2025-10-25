@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferidor de Loteria</title>
+    <!-- Tailwind CSS CDN --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ícones (Heroicons) --><script src="https://unpkg.com/heroicons@2.1.3/24/outline/dist/index.js"></script>
+
+    <style>
+        /* Estilo base */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Classes de cor para Lotofácil */
+        .color-lotofacil-base { --primary-color-base: #9333ea; } /* purple-600 */
+        .color-lotofacil-hover { --primary-color-hover: #7e22ce; } /* purple-700 */
+        .color-lotofacil-ring { --primary-color-ring: #a855f7; } /* purple-500 */
+        .color-lotofacil-lighter-bg { --lighter-bg-color: #f3e8ff; } /* purple-100 */
+        .color-lotofacil-darker-text { --darker-text-color: #6b21a8; } /* purple-800 */
+
+        /* Classes de cor para Mega-Sena */
+        .color-megasena-base { --primary-color-base: #16a34a; } /* green-600 */
+        .color-megasena-hover { --primary-color-hover: #15803d; } /* green-700 */
+        .color-megasena-ring { --primary-color-ring: #22c55e; } /* green-500 */
+        .color-megasena-lighter-bg { --lighter-bg-color: #dcfce7; } /* green-100 */
+        .color-megasena-darker-text { --darker-text-color: #14532d; } /* green-800 */
+
+        /* Estilo customizado para o botão de upload e "Último Concurso" */
+        .file-selector-btn,
+        .custom-file-selector-button {
+            margin-right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 0;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background-color: var(--primary-color-base);
+        }
+
+        .file-selector-btn:hover,
+        .custom-file-selector-button:hover {
+            background-color: var(--primary-color-hover);
+        }
+
+        input[type="file"]::file-selector-button {
+            background-color: var(--primary-color-base);
+            margin-right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 0;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background-color: var(--primary-color-hover);
+        }
+
+        /* Animação do Spinner */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        .spinner-dark {
+             border: 4px solid rgba(0, 0, 0, 0.1);
+             border-top-color: var(--primary-color-base);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-lg transition-all duration-300 color-lotofacil-base color-lotofacil-hover color-lotofacil-ring color-lotofacil-lighter-bg color-lotofacil-darker-text">
+        
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6">
+            Conferidor de Loteria
+        </h1>
+
+        <!-- Seletor de Loteria (Switch) --><div class="mb-6">
+            <div id="lottery-toggle" class="relative w-full h-14 bg-gray-200 rounded-full flex items-center p-1 cursor-pointer">
+                <!-- Slider --><div id="lottery-toggle-slider" class="absolute top-1 left-1 w-1/2 h-12 rounded-full shadow-md transition-all duration-300" style="background-color: var(--primary-color-base);"></div>
+                
+                <!-- Opções --><div class="w-1/2 h-full z-10 flex items-center justify-center">
+                    <span id="label-lotofacil" class="font-bold text-white transition-colors duration-300">Lotofácil</span>
+                </div>
+                <div class="w-1/2 h-full z-10 flex items-center justify-center">
+                    <span id="label-megasena" class="font-medium text-gray-600 transition-colors duration-300">Mega-Sena</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulário --><div class="space-y-5">
+            
+            <!-- Input do Concurso --><div>
+                <label for="contest-number" class="block text-sm font-medium text-gray-700 mb-1">
+                    Número do Concurso
+                </label>
+                <div class="flex space-x-2 items-stretch">
+                    <input type="number" id="contest-number" placeholder="Ex: 3000" class="flex-grow w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all" style="focus-ring-color: var(--primary-color-ring);">
+                    <button id="fetch-latest-btn" class="custom-file-selector-button flex-shrink-0 flex items-center justify-center whitespace-nowrap" style="min-width: 130px;">
+                        <span id="fetch-btn-text">Último Concurso</span>
+                        <div id="fetch-spinner" class="spinner hidden" style="width: 20px; height: 20px; border-width: 3px;"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload da Imagem --><div>
+                <label for="image-upload" class="block text-sm font-medium text-gray-700 mb-1">
+                    Anexe seu Bilhete
+                </label>
+                <input type="file" id="image-upload" accept="image/*" class="block w-full text-sm text-gray-500 file:cursor-pointer file:py-3 file:px-5 file:rounded-full file:border-0 file:text-sm file:font-semibold file:text-white transition-all duration-300">
+                
+                <!-- Preview da Imagem --><img id="image-preview" src="" alt="Preview do bilhete" class="hidden mt-4 rounded-lg shadow-md w-full max-h-60 object-contain">
+            </div>
+
+            <!-- Botão de Conferir --><button id="check-results-btn" class="w-full text-white font-bold py-4 px-4 rounded-lg shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center text-lg disabled:opacity-50" disabled style="background-color: var(--primary-color-base); hover-background-color: var(--primary-color-hover); focus-ring-color: var(--primary-color-ring);">
+                <span id="check-btn-text">Conferir</span>
+                <div id="check-spinner" class="spinner hidden ml-3"></div>
+            </button>
+        </div>
+
+        <!-- Área de Resultados --><div id="results-area" class="mt-6 text-center">
+            <!-- Mensagem de Erro --><div id="error-message" class="hidden p-4 rounded-lg" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
+                <p id="error-text"></p>
+            </div>
+            
+            <!-- Mensagem de Sucesso --><div id="success-message" class="hidden p-4 rounded-lg space-y-3" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
+                <h3 id="success-title" class="text-xl font-bold"></h3>
+                <p id="success-official-label" class="text-sm font-medium text-gray-600"></p>
+                <p id="success-official-numbers" class="text-2xl font-bold tracking-wider"></p>
+                
+                <hr class="my-2 border-gray-300">
+                
+                <p id="success-user-label" class="text-sm font-medium text-gray-600"></p>
+                <p id="success-user-numbers" class="text-lg font-medium"></p>
+                
+                <hr class="my-2 border-gray-300">
+                
+                <p id="success-matches-label" class="text-sm font-medium text-gray-600"></p>
+                <p id="success-matches-numbers" class="text-xl font-bold"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        // --- API e Estado ---
+        const apiKey = ""; // Deixe em branco, será tratado pelo ambiente
+        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        let currentLotteryType = 'lotofacil'; // 'lotofacil' ou 'megasena'
+        let uploadedImageFile = null;
+
+        // --- Seletores do DOM ---
+        const appContainer = document.getElementById('app-container');
+        const lotteryToggle = document.getElementById('lottery-toggle');
+        const lotteryToggleSlider = document.getElementById('lottery-toggle-slider');
+        const labelLotofacil = document.getElementById('label-lotofacil');
+        const labelMegasena = document.getElementById('label-megasena');
+        
+        const contestNumberInput = document.getElementById('contest-number');
+        const fetchLatestBtn = document.getElementById('fetch-latest-btn');
+        const fetchBtnText = document.getElementById('fetch-btn-text');
+        const fetchSpinner = document.getElementById('fetch-spinner');
+
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const checkResultsBtn = document.getElementById('check-results-btn');
+        const checkBtnText = document.getElementById('check-btn-text');
+        const checkSpinner = document.getElementById('check-spinner');
+
+        const resultsArea = document.getElementById('results-area');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const successMessage = document.getElementById('success-message');
+        const successTitle = document.getElementById('success-title');
+        const successOfficialLabel = document.getElementById('success-official-label');
+        const successOfficialNumbers = document.getElementById('success-official-numbers');
+        const successUserLabel = document.getElementById('success-user-label');
+        const successUserNumbers = document.getElementById('success-user-numbers');
+        const successMatchesLabel = document.getElementById('success-matches-label');
+        const successMatchesNumbers = document.getElementById('success-matches-numbers');
+        
+        // --- Funções de UI ---
+
+        function updateUIForLotteryType() {
+            clearMessages();
+            const isLotofacil = currentLotteryType === 'lotofacil';
+
+            // Remove classes de cor antigas e adiciona as novas ao container principal
+            appContainer.classList.remove(
+                'color-lotofacil-base', 'color-lotofacil-hover', 'color-lotofacil-ring', 'color-lotofacil-lighter-bg', 'color-lotofacil-darker-text',
+                'color-megasena-base', 'color-megasena-hover', 'color-megasena-ring', 'color-megasena-lighter-bg', 'color-megasena-darker-text'
+            );
+            appContainer.classList.add(
+                isLotofacil ? 'color-lotofacil-base' : 'color-megasena-base',
+                isLotofacil ? 'color-lotofacil-hover' : 'color-megasena-hover',
+                isLotofacil ? 'color-lotofacil-ring' : 'color-megasena-ring',
+                isLotofacil ? 'color-lotofacil-lighter-bg' : 'color-megasena-lighter-bg',
+                isLotofacil ? 'color-lotofacil-darker-text' : 'color-megasena-darker-text'
+            );
+
+            // Atualiza o slider
+            lotteryToggleSlider.style.backgroundColor = `var(--primary-color-base)`;
+            lotteryToggleSlider.classList.toggle('translate-x-0', isLotofacil);
+            lotteryToggleSlider.classList.toggle('translate-x-full', !isLotofacil);
+
+            // Labels do Toggle
+            labelLotofacil.classList.toggle('font-bold', isLotofacil);
+            labelLotofacil.classList.toggle('text-white', isLotofacil);
+            labelLotofacil.classList.toggle('font-medium', !isLotofacil);
+            labelLotofacil.classList.toggle('text-gray-600', !isLotofacil);
+
+            labelMegasena.classList.toggle('font-bold', !isLotofacil);
+            labelMegasena.classList.toggle('text-white', !isLotofacil);
+            labelMegasena.classList.toggle('font-medium', isLotofacil);
+            labelMegasena.classList.toggle('text-gray-600', isLotofacil);
+
+            // Atualiza estilos inline para os botões e input (para pegar as variáveis CSS)
+            contestNumberInput.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`); // Tailwind ring color
+            fetchLatestBtn.style.backgroundColor = `var(--primary-color-base)`;
+            fetchLatestBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`); // Custom property for hover
+            checkResultsBtn.style.backgroundColor = `var(--primary-color-base)`;
+            checkResultsBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`); // Custom property for hover
+            checkResultsBtn.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`); // Tailwind ring color
+
+            // Atualiza cores das mensagens de erro/sucesso
+            errorMessage.style.backgroundColor = `var(--lighter-bg-color)`;
+            errorMessage.style.color = `var(--darker-text-color)`;
+            successMessage.style.backgroundColor = `var(--lighter-bg-color)`;
+            successMessage.style.color = `var(--darker-text-color)`;
+
+            // Resetar formulário
+            imageUpload.value = '';
+            uploadedImageFile = null;
+            imagePreview.classList.add('hidden');
+            checkResultsBtn.disabled = true;
+        }
+
+        function validateForm() {
+            const hasContest = contestNumberInput.value.trim() !== '';
+            const hasImage = uploadedImageFile !== null;
+            checkResultsBtn.disabled = !(hasContest && hasImage);
+        }
+
+        function showLoading(buttonType, isLoading) {
+            if (buttonType === 'fetch') {
+                fetchSpinner.classList.toggle('hidden', !isLoading);
+                fetchBtnText.classList.toggle('hidden', isLoading);
+                fetchLatestBtn.disabled = isLoading;
+            } else if (buttonType === 'check') {
+                checkSpinner.classList.toggle('hidden', !isLoading);
+                checkBtnText.classList.toggle('hidden', isLoading);
+                checkResultsBtn.disabled = isLoading;
+                // Desabilitar outros campos
+                fetchLatestBtn.disabled = isLoading;
+                contestNumberInput.disabled = isLoading;
+                imageUpload.disabled = isLoading;
+            }
+        }
+        
+        function clearMessages() {
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+            errorText.textContent = '';
+        }
+
+        function showError(message) {
+            clearMessages();
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function showSuccess(contest, officialNumbers, userNumbers, matches) {
+            clearMessages();
+            const lotteryName = currentLotteryType === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena';
+            
+            successTitle.textContent = `Resultado: ${matches.length} Acerto(s)!`;
+            
+            successOfficialLabel.textContent = `Números Sorteados (${lotteryName} ${contest}):`;
+            successOfficialNumbers.textContent = officialNumbers.join(' - ');
+            
+            successUserLabel.textContent = "Sua Aposta:";
+            successUserNumbers.textContent = userNumbers.join(' - ');
+            
+            successMatchesLabel.textContent = "Números Acertados:";
+            successMatchesNumbers.textContent = matches.length > 0 ? matches.join(' - ') : "Nenhum";
+            
+            successMessage.classList.remove('hidden');
+        }
+        
+        // --- Funções de API ---
+
+        /**
+         * Converte um arquivo para base64
+         */
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        /**
+         * Chama a API Gemini com retentativa exponencial
+         */
+        async function callGeminiAPI(payload, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(geminiApiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erro na API: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    if (!text) {
+                        throw new Error("A API não retornou uma resposta válida.");
+                    }
+                    
+                    return text;
+
+                } catch (error) {
+                    console.error(`Tentativa ${i + 1} falhou:`, error);
+                    if (i === retries - 1) throw error; // Lança o erro na última tentativa
+                    await new Promise(res => setTimeout(res, delay * Math.pow(2, i))); // Backoff
+                }
+            }
+        }
+
+        /**
+         * Tenta extrair um array JSON de uma string de texto.
+         */
+        function extractJsonArray(text) {
+            // Tenta encontrar um bloco JSON na resposta
+            const jsonMatch = text.match(/\[(.*?)\]/s);
+            if (jsonMatch) {
+                try {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    if (Array.isArray(parsed)) {
+                        return parsed.map(n => Number(n)).filter(n => !isNaN(n));
+                    }
+                } catch (e) {
+                    // Se falhar, tenta interpretar números separados por vírgula
+                }
+            }
+            
+            // Fallback: tenta extrair números da string
+            const numbers = text.match(/\d+/g);
+            if (numbers) {
+                return numbers.map(n => Number(n));
+            }
+            
+            throw new Error("Não foi possível extrair os números da resposta.");
+        }
+
+
+        // --- Handlers de Eventos ---
+
+        function handleLotteryToggleClick() {
+            currentLotteryType = currentLotteryType === 'lotofacil' ? 'megasena' : 'lotofacil';
+            updateUIForLotteryType();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadedImageFile = file;
+                imagePreview.src = URL.createObjectURL(file);
+                imagePreview.classList.remove('hidden');
+                clearMessages();
+            } else {
+                uploadedImageFile = null;
+                imagePreview.classList.add('hidden');
+            }
+            validateForm();
+        }
+
+        async function handleFetchLatestContest() {
+            showLoading('fetch', true);
+            clearMessages();
+            
+            const lotteryName = currentLotteryType === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena';
+            const systemPrompt = `Você é um assistente de loteria. Encontre o número do último concurso da ${lotteryName}. Responda APENAS com o número. Exemplo: 3000`;
+            const userQuery = `número do último concurso ${currentLotteryType} caixa`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            try {
+                const responseText = await callGeminiAPI(payload);
+                const contestNum = responseText.match(/\d+/); // Pega o primeiro número na resposta
+                if (contestNum) {
+                    contestNumberInput.value = contestNum[0];
+                    validateForm();
+                } else {
+                    showError("Não consegui encontrar o número do último concurso.");
+                }
+            } catch (error) {
+                console.error(error);
+                showError("Erro ao buscar último concurso. Tente novamente.");
+            } finally {
+                showLoading('fetch', false);
+            }
+        }
+
+        async function handleCheckResults() {
+            if (!uploadedImageFile || !contestNumberInput.value) {
+                showError("Por favor, preencha o número do concurso e anexe o bilhete.");
+                return;
+            }
+
+            showLoading('check', true);
+            clearMessages();
+
+            const contestNum = contestNumberInput.value;
+            const lotteryName = currentLotteryType === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena';
+            
+            let userNumbers = [];
+            let officialNumbers = [];
+
+            try {
+                // --- Etapa 1: Ler a imagem ---
+                const base64Image = await fileToBase64(uploadedImageFile);
+                const imageSystemPrompt = `Você é um leitor de bilhetes de loteria. Extraia os números apostados da imagem. O tipo é ${lotteryName}. Retorne um array JSON de números ordenados. Exemplo: [1, 2, 3, 4, 5]`;
+                const imagePayload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: `Extraia os números deste bilhete da ${lotteryName}.` },
+                            { inlineData: { mimeType: uploadedImageFile.type, data: base64Image } }
+                        ]
+                    }],
+                    systemInstruction: { parts: [{ text: imageSystemPrompt }] }
+                };
+
+                let userNumbersText;
+                try {
+                    userNumbersText = await callGeminiAPI(imagePayload);
+                    userNumbers = extractJsonArray(userNumbersText);
+                    if (userNumbers.length === 0) throw new Error("Nenhum número lido.");
+                } catch (imgError) {
+                    console.error("Erro ao ler imagem:", imgError, "Resposta recebida:", userNumbersText);
+                    throw new Error("Não consegui ler os números do seu bilhete. Tente uma foto melhor.");
+                }
+
+                // --- Etapa 2: Buscar resultados oficiais ---
+                const resultsSystemPrompt = `Você é um assistente de loteria. Encontre os números sorteados para a ${lotteryName} concurso ${contestNum}. Retorne APENAS um array JSON de números ordenados. Exemplo: [1, 2, 3, 4, 5]`;
+                const resultsUserQuery = `números sorteados ${currentLotteryType} ${contestNum} oficial`;
+                const resultsPayload = {
+                    contents: [{ parts: [{ text: resultsUserQuery }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: { parts: [{ text: resultsSystemPrompt }] }
+                };
+                
+                let officialNumbersText;
+                try {
+                    officialNumbersText = await callGeminiAPI(resultsPayload);
+                    officialNumbers = extractJsonArray(officialNumbersText);
+                    if (officialNumbers.length === 0) throw new Error("Nenhum número encontrado.");
+                } catch (searchError) {
+                    console.error("Erro ao buscar resultados:", searchError, "Resposta recebida:", officialNumbersText);
+                    throw new Error(`Não consegui encontrar os resultados oficiais para o concurso ${contestNum}.`);
+                }
+                
+                // --- Etapa 3: Comparar e Mostrar ---
+                const matches = userNumbers.filter(num => officialNumbers.includes(num));
+                
+                showSuccess(contestNum, officialNumbers.sort((a, b) => a - b), userNumbers.sort((a, b) => a - b), matches.sort((a, b) => a - b));
+
+            } catch (error) {
+                console.error(error);
+                showError(error.message || "Ocorreu um erro desconhecido.");
+            } finally {
+                showLoading('check', false);
+                // Re-habilitar campos
+                fetchLatestBtn.disabled = false;
+                contestNumberInput.disabled = false;
+                imageUpload.disabled = false;
+            }
+        }
+
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUIForLotteryType();
+
+            // Listeners
+            lotteryToggle.addEventListener('click', handleLotteryToggleClick);
+            fetchLatestBtn.addEventListener('click', handleFetchLatestContest);
+            checkResultsBtn.addEventListener('click', handleCheckResults);
+            imageUpload.addEventListener('change', handleImageUpload);
+            
+            // Validação em tempo real
+            contestNumberInput.addEventListener('input', validateForm);
+        });
+
+    </script>
+</body>
+</html>
+
