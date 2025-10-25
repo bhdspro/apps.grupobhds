@@ -315,10 +315,56 @@
          */
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
+                if (!file) {
+                    return reject(new Error("Arquivo não fornecido para fileToBase64."));
+                }
+                
+                // Validação extra do tipo de arquivo
+                if (!file.type.startsWith('image/')) {
+                    return reject(new Error("Tipo de arquivo inválido. Apenas imagens são permitidas."));
+                }
+
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
+                
+                reader.onload = () => {
+                    const result = reader.result;
+                    if (result && typeof result === 'string') {
+                        const base64Data = result.split(',')[1];
+                        if (base64Data) {
+                            resolve(base64Data);
+                        } else {
+                            reject(new Error("Não foi possível extrair dados base64 do arquivo."));
+                        }
+                    } else {
+                        reject(new Error("FileReader não retornou uma string válida."));
+                    }
+                };
+                
+                reader.onerror = (errorEvent) => {
+                    console.error("FileReader Error:", errorEvent);
+                    let errorMessage = "Erro desconhecido ao ler o arquivo.";
+                    
+                    // Tenta pegar o erro específico do leitor
+                    if (errorEvent.target && errorEvent.target.error) {
+                        const readerError = errorEvent.target.error;
+                        console.error("FileReader DOMError:", readerError.name, readerError.message);
+                        switch(readerError.name) {
+                            case "NotReadableError":
+                                errorMessage = "Não foi possível ler o arquivo. Verifique as permissões ou se o arquivo está em uso.";
+                                break;
+                            case "SecurityError":
+                                errorMessage = "Erro de segurança ao ler o arquivo. Isso pode acontecer em alguns navegadores.";
+                                break;
+                            case "NotFoundError":
+                                errorMessage = "Arquivo não encontrado.";
+                                break;
+                            default:
+                                errorMessage = `Erro do leitor: ${readerError.name}`;
+                        }
+                    }
+                    reject(new Error(errorMessage));
+                };
             });
         }
 
@@ -392,6 +438,16 @@
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
+                // Validação de tipo de arquivo
+                if (!file.type.startsWith('image/')) {
+                    showError('Tipo de arquivo inválido. Por favor, envie uma imagem (JPG, PNG, WebP, etc.).');
+                    uploadedImageFile = null;
+                    imagePreview.classList.add('hidden');
+                    event.target.value = ''; // Limpa o input
+                    validateForm();
+                    return;
+                }
+
                 uploadedImageFile = file;
                 imagePreview.src = URL.createObjectURL(file);
                 imagePreview.classList.remove('hidden');
@@ -453,7 +509,15 @@
 
             try {
                 // --- Etapa 1: Ler a imagem ---
-                const base64Image = await fileToBase64(uploadedImageFile);
+                let base64Image;
+                try {
+                    base64Image = await fileToBase64(uploadedImageFile);
+                } catch (fileError) {
+                    console.error("Erro ao converter arquivo:", fileError);
+                    // Agora, o fileError.message terá a mensagem detalhada da função fileToBase64
+                    throw new Error(fileError.message || "Houve um problema ao processar a imagem.");
+                }
+                
                 const imageSystemPrompt = `Você é um leitor de bilhetes de loteria. Extraia os números apostados da imagem. O tipo é ${lotteryName}. Retorne um array JSON de números ordenados. Exemplo: [1, 2, 3, 4, 5]`;
                 const imagePayload = {
                     contents: [{
@@ -501,8 +565,11 @@
                 showSuccess(contestNum, officialNumbers.sort((a, b) => a - b), userNumbers.sort((a, b) => a - b), matches.sort((a, b) => a - b));
 
             } catch (error) {
-                console.error(error);
+                console.error("Erro capturado em handleCheckResults:", error);
+                
+                // Usa a mensagem de erro se existir, senão usa a mensagem genérica
                 showError(error.message || "Ocorreu um erro desconhecido.");
+                
             } finally {
                 showLoading('check', false);
                 // Re-habilitar campos
@@ -529,4 +596,6 @@
     </script>
 </body>
 </html>
+
+
 
