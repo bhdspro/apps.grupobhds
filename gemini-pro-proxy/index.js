@@ -26,19 +26,10 @@ app.use(express.json());
 // o backend irá REJEITÁ-LA.
 
 const allowedOrigins = [
-  // --- ADICIONE SEUS DOMÍNIOS PERSONALIZADOS AQUI ---
-  // Exemplo 1 (com www):
-  // 'https://www.meuprojeto1.com',
-  
-  // Exemplo 2 (sem www):
-  // 'https://meuapp2.com',
-  
-  // --- DOMÍNIO DO GITHUB PAGES (se você ainda usar) ---
+  'https://apps.grupobhds.com',
   'https://bhdspro.github.io', 
-  
-  // --- PARA TESTES NO SEU COMPUTADOR (OPCIONAL) ---
-  'http://localhost:3000', // Para React/Vue/etc.
-  'http://127.0.0.1:5500' // Para "Live Server" do VS Code
+  'http://localhost:3000',
+  'http://127.0.0.1:5500'
 ];
 
 // 3. CORS (Cross-Origin Resource Sharing)
@@ -123,3 +114,4 @@ app.listen(PORT, () => {
   console.log(`Servidor proxy rodando na porta ${PORT}`);
   console.log('Permitindo requisições dos seguintes domínios:', allowedOrigins);
 });
+
