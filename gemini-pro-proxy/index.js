@@ -32,8 +32,8 @@ app.use(cors({
 // --- Configuração da API Gemini ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// ⚠️ Modelo atualizado — compatível com o endpoint atual (v1)
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+// ✅ Use o modelo correto e ativo (compatível com v1)
+const model = genAI.getGenerativeModel({ model: 'models/gemini-1.5-pro' });
 
 // --- Rotas ---
 app.get('/', (req, res) => {
@@ -60,8 +60,6 @@ app.post('/api/generate', async (req, res) => {
 
   } catch (error) {
     console.error('Erro ao chamar a API Gemini:', error.message);
-
-    // Retorna o erro original para debug mais detalhado
     res.status(500).json({
       error: 'Erro interno no servidor ao processar a requisição.',
       details: error.message,
