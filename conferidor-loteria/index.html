@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conferidor de Loteria</title>
-    <!-- Tailwind CSS CDN --><script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Inter --><link rel="preconnect" href="https://fonts.googleapis.com">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Ícones (Heroicons) --><script src="https://unpkg.com/heroicons@2.1.3/24/outline/dist/index.js"></script>
+    
+    <!-- Heroicons -->
+    <script src="https://unpkg.com/heroicons@2.1.3/24/outline/dist/index.js"></script>
 
     <style>
         /* Estilo base */
@@ -95,11 +101,15 @@
             Conferidor de Loteria
         </h1>
 
-        <!-- Seletor de Loteria (Switch) --><div class="mb-6">
+        <!-- Seletor de Loteria -->
+        <div class="mb-6">
             <div id="lottery-toggle" class="relative w-full h-14 bg-gray-200 rounded-full flex items-center p-1 cursor-pointer">
-                <!-- Slider --><div id="lottery-toggle-slider" class="absolute top-1 left-1 w-1/2 h-12 rounded-full shadow-md transition-all duration-300" style="background-color: var(--primary-color-base);"></div>
                 
-                <!-- Opções --><div class="w-1/2 h-full z-10 flex items-center justify-center">
+                <!-- Slider -->
+                <div id="lottery-toggle-slider" class="absolute top-1 left-1 w-1/2 h-12 rounded-full shadow-md transition-all duration-300" style="background-color: var(--primary-color-base);"></div>
+                
+                <!-- Opções -->
+                <div class="w-1/2 h-full z-10 flex items-center justify-center">
                     <span id="label-lotofacil" class="font-bold text-white transition-colors duration-300">Lotofácil</span>
                 </div>
                 <div class="w-1/2 h-full z-10 flex items-center justify-center">
@@ -108,9 +118,11 @@
             </div>
         </div>
 
-        <!-- Formulário --><div class="space-y-5">
+        <!-- Formulário Principal -->
+        <div class="space-y-5">
             
-            <!-- Input do Concurso --><div>
+            <!-- Input Concurso -->
+            <div>
                 <label for="contest-number" class="block text-sm font-medium text-gray-700 mb-1">
                     Número do Concurso
                 </label>
@@ -123,27 +135,34 @@
                 </div>
             </div>
 
-            <!-- Upload da Imagem --><div>
+            <!-- Input Imagem -->
+            <div>
                 <label for="image-upload" class="block text-sm font-medium text-gray-700 mb-1">
                     Anexe seu Bilhete
                 </label>
-                <input type="file" id="image-upload" accept="image/*" class="block w-full text-sm text-gray-500 file:cursor-pointer file:py-3 file:px-5 file:rounded-full file:border-0 file:text-sm file:font-semibold file:text-white transition-all duration-300">
+                <input type="file" id="image-upload" accept="image/png, image/jpeg, image/webp" class="block w-full text-sm text-gray-500 file:cursor-pointer file:py-3 file:px-5 file:rounded-full file:border-0 file:text-sm file:font-semibold file:text-white transition-all duration-300">
                 
-                <!-- Preview da Imagem --><img id="image-preview" src="" alt="Preview do bilhete" class="hidden mt-4 rounded-lg shadow-md w-full max-h-60 object-contain">
+                <!-- Preview da Imagem -->
+                <img id="image-preview" src="" alt="Preview do bilhete" class="hidden mt-4 rounded-lg shadow-md w-full max-h-60 object-contain">
             </div>
 
-            <!-- Botão de Conferir --><button id="check-results-btn" class="w-full text-white font-bold py-4 px-4 rounded-lg shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center text-lg disabled:opacity-50" disabled style="background-color: var(--primary-color-base); hover-background-color: var(--primary-color-hover); focus-ring-color: var(--primary-color-ring);">
+            <!-- Botão Conferir -->
+            <button id="check-results-btn" class="w-full text-white font-bold py-4 px-4 rounded-lg shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center text-lg disabled:opacity-50" disabled style="background-color: var(--primary-color-base); hover-background-color: var(--primary-color-hover); focus-ring-color: var(--primary-color-ring);">
                 <span id="check-btn-text">Conferir</span>
                 <div id="check-spinner" class="spinner hidden ml-3"></div>
             </button>
         </div>
 
-        <!-- Área de Resultados --><div id="results-area" class="mt-6 text-center">
-            <!-- Mensagem de Erro --><div id="error-message" class="hidden p-4 rounded-lg" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
+        <!-- Área de Resultados -->
+        <div id="results-area" class="mt-6 text-center">
+            
+            <!-- Mensagem de Erro -->
+            <div id="error-message" class="hidden p-4 rounded-lg" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
                 <p id="error-text"></p>
             </div>
             
-            <!-- Mensagem de Sucesso --><div id="success-message" class="hidden p-4 rounded-lg space-y-3" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
+            <!-- Mensagem de Sucesso -->
+            <div id="success-message" class="hidden p-4 rounded-lg space-y-3" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
                 <h3 id="success-title" class="text-xl font-bold"></h3>
                 <p id="success-official-label" class="text-sm font-medium text-gray-600"></p>
                 <p id="success-official-numbers" class="text-2xl font-bold tracking-wider"></p>
@@ -164,8 +183,13 @@
 
     <script type="module">
         // --- API e Estado ---
-        const apiKey = ""; // Deixe em branco, será tratado pelo ambiente
-        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        
+        // =================================================================
+        // ATUALIZAÇÃO: Apontando para o seu servidor proxy no Render.
+        // A função callApi usará POST (e não GET) para este endpoint,
+        // pois precisa enviar o corpo da requisição (payload).
+        const apiProxyUrl = 'https://ia-proxy.onrender.com/gemini';
+        // =================================================================
 
         let currentLotteryType = 'lotofacil'; // 'lotofacil' ou 'megasena'
         let uploadedImageFile = null;
@@ -315,80 +339,57 @@
          */
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
-                if (!file) {
-                    return reject(new Error("Arquivo não fornecido para fileToBase64."));
+                // Validação extra
+                if (!file.type.startsWith('image/')) {
+                    return reject(new Error('Tipo de arquivo inválido. Por favor, envie uma imagem.'));
                 }
                 
-                // Validação extra do tipo de arquivo
-                if (!file.type.startsWith('image/')) {
-                    return reject(new Error("Tipo de arquivo inválido. Apenas imagens são permitidas."));
-                }
-
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 
                 reader.onload = () => {
-                    const result = reader.result;
-                    if (result && typeof result === 'string') {
-                        const base64Data = result.split(',')[1];
-                        if (base64Data) {
-                            resolve(base64Data);
-                        } else {
-                            reject(new Error("Não foi possível extrair dados base64 do arquivo."));
-                        }
+                    if (reader.result) {
+                        resolve(reader.result.split(',')[1]);
                     } else {
-                        reject(new Error("FileReader não retornou uma string válida."));
+                        reject(new Error('Não foi possível ler o arquivo. Resultado vazio.'));
                     }
                 };
                 
-                reader.onerror = (errorEvent) => {
-                    console.error("FileReader Error:", errorEvent);
-                    let errorMessage = "Erro desconhecido ao ler o arquivo.";
-                    
-                    // Tenta pegar o erro específico do leitor
-                    if (errorEvent.target && errorEvent.target.error) {
-                        const readerError = errorEvent.target.error;
-                        console.error("FileReader DOMError:", readerError.name, readerError.message);
-                        switch(readerError.name) {
-                            case "NotReadableError":
-                                errorMessage = "Não foi possível ler o arquivo. Verifique as permissões ou se o arquivo está em uso.";
-                                break;
-                            case "SecurityError":
-                                errorMessage = "Erro de segurança ao ler o arquivo. Isso pode acontecer em alguns navegadores.";
-                                break;
-                            case "NotFoundError":
-                                errorMessage = "Arquivo não encontrado.";
-                                break;
-                            default:
-                                errorMessage = `Erro do leitor: ${readerError.name}`;
-                        }
-                    }
-                    reject(new Error(errorMessage));
+                reader.onerror = () => {
+                    console.error("FileReader error:", reader.error);
+                    reject(new Error('Não foi possível ler o arquivo. Verifique as permissões ou se o arquivo está em uso.'));
                 };
             });
         }
 
         /**
-         * Chama a API Gemini com retentativa exponencial
+         * Chama a API (via seu proxy) com retentativa exponencial
          */
-        async function callGeminiAPI(payload, retries = 3, delay = 1000) {
+        async function callApiProxy(payload, retries = 3, delay = 1000) {
             for (let i = 0; i < retries; i++) {
                 try {
-                    const response = await fetch(geminiApiUrl, {
-                        method: 'POST',
+                    const response = await fetch(apiProxyUrl, {
+                        method: 'POST', // Sempre POST
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
 
                     if (!response.ok) {
-                        throw new Error(`Erro na API: ${response.statusText}`);
+                        let errorMsg = `Erro no servidor proxy: ${response.statusText}`;
+                        try {
+                            const errorBody = await response.json();
+                            errorMsg = errorBody.error || errorMsg;
+                        } catch(e) {
+                            // O corpo do erro não era JSON, usa o statusText
+                        }
+                        throw new Error(errorMsg);
                     }
 
                     const result = await response.json();
                     const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
                     if (!text) {
-                        throw new Error("A API não retornou uma resposta válida.");
+                        throw new Error("O servidor proxy não retornou uma resposta válida.");
                     }
                     
                     return text;
@@ -411,7 +412,7 @@
                 try {
                     const parsed = JSON.parse(jsonMatch[0]);
                     if (Array.isArray(parsed)) {
-                        return parsed.map(n => Number(n)).filter(n => !isNaN(n));
+                        return parsed.map(n => Number(n)).filter(n => !isNaN(n) && n > 0);
                     }
                 } catch (e) {
                     // Se falhar, tenta interpretar números separados por vírgula
@@ -421,10 +422,10 @@
             // Fallback: tenta extrair números da string
             const numbers = text.match(/\d+/g);
             if (numbers) {
-                return numbers.map(n => Number(n));
+                return numbers.map(n => Number(n)).filter(n => n > 0);
             }
             
-            throw new Error("Não foi possível extrair os números da resposta.");
+            throw new Error("Não foi possível extrair os números da resposta da API.");
         }
 
 
@@ -436,26 +437,29 @@
         }
 
         function handleImageUpload(event) {
+            clearMessages();
             const file = event.target.files[0];
-            if (file) {
-                // Validação de tipo de arquivo
-                if (!file.type.startsWith('image/')) {
-                    showError('Tipo de arquivo inválido. Por favor, envie uma imagem (JPG, PNG, WebP, etc.).');
-                    uploadedImageFile = null;
-                    imagePreview.classList.add('hidden');
-                    event.target.value = ''; // Limpa o input
-                    validateForm();
-                    return;
-                }
-
-                uploadedImageFile = file;
-                imagePreview.src = URL.createObjectURL(file);
-                imagePreview.classList.remove('hidden');
-                clearMessages();
-            } else {
+            
+            if (!file) {
                 uploadedImageFile = null;
                 imagePreview.classList.add('hidden');
+                validateForm();
+                return;
             }
+
+            // Validação de tipo de arquivo
+            if (!file.type.startsWith('image/')) {
+                showError('Tipo de arquivo inválido. Por favor, envie uma imagem (JPEG, PNG, WEBP).');
+                imageUpload.value = ''; // Limpa o seletor
+                uploadedImageFile = null;
+                imagePreview.classList.add('hidden');
+                validateForm();
+                return;
+            }
+
+            uploadedImageFile = file;
+            imagePreview.src = URL.createObjectURL(file);
+            imagePreview.classList.remove('hidden');
             validateForm();
         }
 
@@ -476,7 +480,7 @@
             };
 
             try {
-                const responseText = await callGeminiAPI(payload);
+                const responseText = await callApiProxy(payload);
                 const contestNum = responseText.match(/\d+/); // Pega o primeiro número na resposta
                 if (contestNum) {
                     contestNumberInput.value = contestNum[0];
@@ -486,7 +490,7 @@
                 }
             } catch (error) {
                 console.error(error);
-                showError("Erro ao buscar último concurso. Tente novamente.");
+                showError(error.message || "Erro ao buscar último concurso. Tente novamente.");
             } finally {
                 showLoading('fetch', false);
             }
@@ -513,11 +517,9 @@
                 try {
                     base64Image = await fileToBase64(uploadedImageFile);
                 } catch (fileError) {
-                    console.error("Erro ao converter arquivo:", fileError);
-                    // Agora, o fileError.message terá a mensagem detalhada da função fileToBase64
-                    throw new Error(fileError.message || "Houve um problema ao processar a imagem.");
+                    throw new Error(fileError.message);
                 }
-                
+
                 const imageSystemPrompt = `Você é um leitor de bilhetes de loteria. Extraia os números apostados da imagem. O tipo é ${lotteryName}. Retorne um array JSON de números ordenados. Exemplo: [1, 2, 3, 4, 5]`;
                 const imagePayload = {
                     contents: [{
@@ -532,7 +534,7 @@
 
                 let userNumbersText;
                 try {
-                    userNumbersText = await callGeminiAPI(imagePayload);
+                    userNumbersText = await callApiProxy(imagePayload);
                     userNumbers = extractJsonArray(userNumbersText);
                     if (userNumbers.length === 0) throw new Error("Nenhum número lido.");
                 } catch (imgError) {
@@ -551,7 +553,7 @@
                 
                 let officialNumbersText;
                 try {
-                    officialNumbersText = await callGeminiAPI(resultsPayload);
+                    officialNumbersText = await callApiProxy(resultsPayload);
                     officialNumbers = extractJsonArray(officialNumbersText);
                     if (officialNumbers.length === 0) throw new Error("Nenhum número encontrado.");
                 } catch (searchError) {
@@ -565,11 +567,8 @@
                 showSuccess(contestNum, officialNumbers.sort((a, b) => a - b), userNumbers.sort((a, b) => a - b), matches.sort((a, b) => a - b));
 
             } catch (error) {
-                console.error("Erro capturado em handleCheckResults:", error);
-                
-                // Usa a mensagem de erro se existir, senão usa a mensagem genérica
+                console.error(error);
                 showError(error.message || "Ocorreu um erro desconhecido.");
-                
             } finally {
                 showLoading('check', false);
                 // Re-habilitar campos
@@ -596,6 +595,4 @@
     </script>
 </body>
 </html>
-
-
 
