@@ -1,0 +1,16 @@
+{
+  "name": "ia-proxy",
+  "version": "1.0.0",
+  "description": "Proxy transparente para Gemini PRO e ChatGPT (gpt-3.5-turbo) com CORS restrito",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "express": "^4.18.2"
+  }
+}
