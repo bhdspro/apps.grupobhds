@@ -17,26 +17,20 @@
     <script src="https://unpkg.com/heroicons@2.1.3/24/outline/dist/index.js"></script>
 
     <style>
-        /* Estilo base */
+        /* Estilos (sem alterações) */
         body {
             font-family: 'Inter', sans-serif;
         }
-
-        /* Classes de cor para Lotofácil */
-        .color-lotofacil-base { --primary-color-base: #9333ea; } /* purple-600 */
-        .color-lotofacil-hover { --primary-color-hover: #7e22ce; } /* purple-700 */
-        .color-lotofacil-ring { --primary-color-ring: #a855f7; } /* purple-500 */
-        .color-lotofacil-lighter-bg { --lighter-bg-color: #f3e8ff; } /* purple-100 */
-        .color-lotofacil-darker-text { --darker-text-color: #6b21a8; } /* purple-800 */
-
-        /* Classes de cor para Mega-Sena */
-        .color-megasena-base { --primary-color-base: #16a34a; } /* green-600 */
-        .color-megasena-hover { --primary-color-hover: #15803d; } /* green-700 */
-        .color-megasena-ring { --primary-color-ring: #22c55e; } /* green-500 */
-        .color-megasena-lighter-bg { --lighter-bg-color: #dcfce7; } /* green-100 */
-        .color-megasena-darker-text { --darker-text-color: #14532d; } /* green-800 */
-
-        /* Estilo customizado para o botão de upload e "Último Concurso" */
+        .color-lotofacil-base { --primary-color-base: #9333ea; }
+        .color-lotofacil-hover { --primary-color-hover: #7e22ce; }
+        .color-lotofacil-ring { --primary-color-ring: #a855f7; }
+        .color-lotofacil-lighter-bg { --lighter-bg-color: #f3e8ff; }
+        .color-lotofacil-darker-text { --darker-text-color: #6b21a8; }
+        .color-megasena-base { --primary-color-base: #16a34a; }
+        .color-megasena-hover { --primary-color-hover: #15803d; }
+        .color-megasena-ring { --primary-color-ring: #22c55e; }
+        .color-megasena-lighter-bg { --lighter-bg-color: #dcfce7; }
+        .color-megasena-darker-text { --darker-text-color: #14532d; }
         .file-selector-btn,
         .custom-file-selector-button {
             margin-right: 1rem;
@@ -50,12 +44,10 @@
             transition: background-color 0.2s;
             background-color: var(--primary-color-base);
         }
-
         .file-selector-btn:hover,
         .custom-file-selector-button:hover {
             background-color: var(--primary-color-hover);
         }
-
         input[type="file"]::file-selector-button {
             background-color: var(--primary-color-base);
             margin-right: 1rem;
@@ -71,8 +63,6 @@
         input[type="file"]::file-selector-button:hover {
             background-color: var(--primary-color-hover);
         }
-
-        /* Animação do Spinner */
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -104,11 +94,7 @@
         <!-- Seletor de Loteria -->
         <div class="mb-6">
             <div id="lottery-toggle" class="relative w-full h-14 bg-gray-200 rounded-full flex items-center p-1 cursor-pointer">
-                
-                <!-- Slider -->
                 <div id="lottery-toggle-slider" class="absolute top-1 left-1 w-1/2 h-12 rounded-full shadow-md transition-all duration-300" style="background-color: var(--primary-color-base);"></div>
-                
-                <!-- Opções -->
                 <div class="w-1/2 h-full z-10 flex items-center justify-center">
                     <span id="label-lotofacil" class="font-bold text-white transition-colors duration-300">Lotofácil</span>
                 </div>
@@ -141,8 +127,6 @@
                     Anexe seu Bilhete
                 </label>
                 <input type="file" id="image-upload" accept="image/png, image/jpeg, image/webp" class="block w-full text-sm text-gray-500 file:cursor-pointer file:py-3 file:px-5 file:rounded-full file:border-0 file:text-sm file:font-semibold file:text-white transition-all duration-300">
-                
-                <!-- Preview da Imagem -->
                 <img id="image-preview" src="" alt="Preview do bilhete" class="hidden mt-4 rounded-lg shadow-md w-full max-h-60 object-contain">
             </div>
 
@@ -155,25 +139,17 @@
 
         <!-- Área de Resultados -->
         <div id="results-area" class="mt-6 text-center">
-            
-            <!-- Mensagem de Erro -->
             <div id="error-message" class="hidden p-4 rounded-lg" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
                 <p id="error-text"></p>
             </div>
-            
-            <!-- Mensagem de Sucesso -->
             <div id="success-message" class="hidden p-4 rounded-lg space-y-3" style="background-color: var(--lighter-bg-color); color: var(--darker-text-color);">
                 <h3 id="success-title" class="text-xl font-bold"></h3>
                 <p id="success-official-label" class="text-sm font-medium text-gray-600"></p>
                 <p id="success-official-numbers" class="text-2xl font-bold tracking-wider"></p>
-                
                 <hr class="my-2 border-gray-300">
-                
                 <p id="success-user-label" class="text-sm font-medium text-gray-600"></p>
                 <p id="success-user-numbers" class="text-lg font-medium"></p>
-                
                 <hr class="my-2 border-gray-300">
-                
                 <p id="success-matches-label" class="text-sm font-medium text-gray-600"></p>
                 <p id="success-matches-numbers" class="text-xl font-bold"></p>
             </div>
@@ -185,17 +161,9 @@
         // --- API e Estado ---
         
         // =================================================================
-        // ATUALIZAÇÃO: Implementando o fluxo de "GET" para chave, "POST" para Google
-        
-        // PASSO 1: URL para FAZER O GET da sua chave de API
-        const apiKeyServerUrl = 'https://ia-proxy.onrender.com/gemini';
-        
-        // URL da API do Google que usaremos no PASSO 4
-        const googleApiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
-        
-        // PASSO 3: Variável para guardar a chave
-        let geminiApiKey = null;
-        let apiKeyPromise = null; // Promessa para garantir que a chave foi buscada
+        // MODO PROXY (para hospedar no Render)
+        // Esta URL chama o NOSSO servidor (server.js), não o Google.
+        const apiProxyUrl = '/api/generateContent'; 
         // =================================================================
 
         let currentLotteryType = 'lotofacil'; // 'lotofacil' ou 'megasena'
@@ -207,18 +175,15 @@
         const lotteryToggleSlider = document.getElementById('lottery-toggle-slider');
         const labelLotofacil = document.getElementById('label-lotofacil');
         const labelMegasena = document.getElementById('label-megasena');
-        
         const contestNumberInput = document.getElementById('contest-number');
         const fetchLatestBtn = document.getElementById('fetch-latest-btn');
         const fetchBtnText = document.getElementById('fetch-btn-text');
         const fetchSpinner = document.getElementById('fetch-spinner');
-
         const imageUpload = document.getElementById('image-upload');
         const imagePreview = document.getElementById('image-preview');
         const checkResultsBtn = document.getElementById('check-results-btn');
         const checkBtnText = document.getElementById('check-btn-text');
         const checkSpinner = document.getElementById('check-spinner');
-
         const resultsArea = document.getElementById('results-area');
         const errorMessage = document.getElementById('error-message');
         const errorText = document.getElementById('error-text');
@@ -232,11 +197,12 @@
         const successMatchesNumbers = document.getElementById('success-matches-numbers');
         
         // --- Funções de UI ---
+        // (Todas as funções de UI - updateUIForLotteryType, validateForm, etc. -
+        // permanecem idênticas ao código anterior do sandbox)
 
         function updateUIForLotteryType() {
             clearMessages();
             const isLotofacil = currentLotteryType === 'lotofacil';
-
             appContainer.classList.remove(
                 'color-lotofacil-base', 'color-lotofacil-hover', 'color-lotofacil-ring', 'color-lotofacil-lighter-bg', 'color-lotofacil-darker-text',
                 'color-megasena-base', 'color-megasena-hover', 'color-megasena-ring', 'color-megasena-lighter-bg', 'color-megasena-darker-text'
@@ -248,60 +214,38 @@
                 isLotofacil ? 'color-lotofacil-lighter-bg' : 'color-megasena-lighter-bg',
                 isLotofacil ? 'color-lotofacil-darker-text' : 'color-megasena-darker-text'
             );
-
             lotteryToggleSlider.style.backgroundColor = `var(--primary-color-base)`;
             lotteryToggleSlider.classList.toggle('translate-x-0', isLotofacil);
             lotteryToggleSlider.classList.toggle('translate-x-full', !isLotofacil);
-
             labelLotofacil.classList.toggle('font-bold', isLotofacil);
             labelLotofacil.classList.toggle('text-white', isLotofacil);
             labelLotofacil.classList.toggle('font-medium', !isLotofacil);
             labelLotofacil.classList.toggle('text-gray-600', !isLotofacil);
-
             labelMegasena.classList.toggle('font-bold', !isLotofacil);
             labelMegasena.classList.toggle('text-white', !isLotofacil);
             labelMegasena.classList.toggle('font-medium', isLotofacil);
             labelMegasena.classList.toggle('text-gray-600', isLotofacil);
-
             contestNumberInput.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`);
             fetchLatestBtn.style.backgroundColor = `var(--primary-color-base)`;
             fetchLatestBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`);
             checkResultsBtn.style.backgroundColor = `var(--primary-color-base)`;
             checkResultsBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`);
             checkResultsBtn.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`);
-
             errorMessage.style.backgroundColor = `var(--lighter-bg-color)`;
             errorMessage.style.color = `var(--darker-text-color)`;
             successMessage.style.backgroundColor = `var(--lighter-bg-color)`;
             successMessage.style.color = `var(--darker-text-color)`;
-
             imageUpload.value = '';
             uploadedImageFile = null;
             imagePreview.classList.add('hidden');
-            
-            // Re-valida o formulário. O botão "Conferir" será desabilitado
-            // se a chave da API ainda não tiver sido carregada.
             validateForm();
         }
 
         function validateForm() {
             const hasContest = contestNumberInput.value.trim() !== '';
             const hasImage = uploadedImageFile !== null;
-            const hasApiKey = geminiApiKey !== null; // Verifica se a chave já foi carregada
-
-            checkResultsBtn.disabled = !(hasContest && hasImage && hasApiKey);
-            
-            // Atualiza o texto do botão se a API estiver carregando
-            if (!hasApiKey && !errorMessage.classList.contains('hidden')) {
-                // Se deu erro ao carregar a chave, mantém o erro
-                checkBtnText.textContent = "FALHA NA API";
-                checkResultsBtn.disabled = true;
-            } else if (!hasApiKey) {
-                checkBtnText.textContent = "Carregando API...";
-                checkResultsBtn.disabled = true;
-            } else {
-                 checkBtnText.textContent = "Conferir";
-            }
+            checkResultsBtn.disabled = !(hasContest && hasImage);
+            checkBtnText.textContent = "Conferir";
         }
 
         function showLoading(buttonType, isLoading) {
@@ -334,7 +278,6 @@
         function showSuccess(contest, officialNumbers, userNumbers, matches) {
             clearMessages();
             const lotteryName = currentLotteryType === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena';
-            
             successTitle.textContent = `Resultado: ${matches.length} Acerto(s)!`;
             successOfficialLabel.textContent = `Números Sorteados (${lotteryName} ${contest}):`;
             successOfficialNumbers.textContent = officialNumbers.join(' - ');
@@ -346,42 +289,6 @@
         }
         
         // --- Funções de API ---
-
-        /**
-         * PASSO 1 e 2: Busca a API Key do seu servidor no carregamento.
-         */
-        async function fetchApiKey() {
-            try {
-                // Faz a requisição GET para o seu servidor
-                const response = await fetch(apiKeyServerUrl, { method: 'GET' });
-                
-                if (!response.ok) {
-                    // Isso é o erro de CORS que você viu
-                    throw new Error(`Servidor de API Key falhou: ${response.statusText} (Verifique o CORS no seu servidor)`);
-                }
-                
-                const key = await response.text();
-                
-                if (!key || !(key.includes('AIza') || key.length > 30)) { // Verifica se parece uma chave
-                     throw new Error('Servidor não retornou uma API Key válida.');
-                }
-                
-                // PASSO 3: Guarda a chave na variável
-                geminiApiKey = key.trim();
-                console.log('Chave da API carregada com sucesso.');
-                
-                // Re-valida o formulário agora que a chave existe
-                validateForm(); 
-                
-            } catch (error) {
-                console.error("Erro CRÍTICO ao buscar API Key:", error);
-                showError(`Erro ao carregar API: ${error.message}. Recarregue a página.`);
-                // Desabilita tudo se a chave falhar
-                checkResultsBtn.disabled = true;
-                fetchLatestBtn.disabled = true;
-                checkBtnText.textContent = "FALHA NA API";
-            }
-        }
 
         /**
          * Converte um arquivo para base64
@@ -408,51 +315,34 @@
         }
 
         /**
-         * PASSO 4: Chama a API do Google DIRETAMENTE usando a chave
+         * ATUALIZADO: Chama o NOSSO servidor proxy
          */
         async function callGeminiApi(payload, retries = 3, delay = 1000) {
-            // Garante que a chave da API já foi buscada
-            if (!geminiApiKey) {
-                await apiKeyPromise; // Espera a promessa da chave terminar
-            }
-            if (!geminiApiKey) {
-                // Se mesmo assim não tiver, lança o erro
-                throw new Error("Não foi possível buscar a Chave da API no servidor.");
-            }
-
-            // Constrói a URL final com a chave
-            const apiUrl = `${googleApiBaseUrl}?key=${geminiApiKey}`;
-
             for (let i = 0; i < retries; i++) {
                 try {
-                    // Faz o POST direto para o Google
-                    const response = await fetch(apiUrl, {
+                    // Faz o POST para o nosso backend no Render
+                    const response = await fetch(apiProxyUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
 
                     if (!response.ok) {
-                        let errorMsg = `Erro da API do Google: ${response.statusText}`;
+                        let errorMsg = `Erro do Servidor Proxy: ${response.statusText}`;
                         try {
                             const errorBody = await response.json();
-                            errorMsg = errorBody.error?.message || errorMsg;
+                            errorMsg = errorBody.error || errorMsg;
                         } catch(e) { /* O corpo do erro não era JSON */ }
                         
-                        if (response.status === 429) {
-                            throw new Error("Limite de requisições da API atingido (Quota).");
-                        }
-                        if (response.status === 400 && errorMsg.includes('API key not valid')) {
-                            throw new Error('A API Key informada pelo seu servidor é inválida.');
-                        }
                         throw new Error(errorMsg);
                     }
 
+                    // A resposta do nosso proxy É a resposta do Google
                     const result = await response.json();
                     const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
                     if (!text) {
-                        throw new Error("A API do Google não retornou uma resposta válida.");
+                        throw new Error("O servidor proxy não retornou uma resposta válida.");
                     }
                     
                     return text;
@@ -489,6 +379,9 @@
 
 
         // --- Handlers de Eventos ---
+        // (Handlers - handleLotteryToggleClick, handleImageUpload, 
+        // handleFetchLatestContest, handleCheckResults - permanecem idênticos,
+        // pois a lógica de chamada da API já foi abstraída em callGeminiApi)
 
         function handleLotteryToggleClick() {
             currentLotteryType = currentLotteryType === 'lotofacil' ? 'megasena' : 'lotofacil';
@@ -536,7 +429,7 @@
             };
 
             try {
-                // ATUALIZADO: Chama a API direta do Google
+                // Chama a API (agora o proxy)
                 const responseText = await callGeminiApi(payload);
                 const contestNum = responseText.match(/\d+/); 
                 if (contestNum) {
@@ -545,7 +438,8 @@
                 } else {
                     showError("Não consegui encontrar o número do último concurso.");
                 }
-            } catch (error) {
+            } catch (error)
+{
                 console.error(error);
                 showError(error.message || "Erro ao buscar último concurso. Tente novamente.");
             } finally {
@@ -591,7 +485,7 @@
 
                 let userNumbersText;
                 try {
-                    // ATUALIZADO: Chama a API direta do Google
+                    // Chama a API (agora o proxy)
                     userNumbersText = await callGeminiApi(imagePayload);
                     userNumbers = extractJsonArray(userNumbersText);
                     if (userNumbers.length === 0) throw new Error("Nenhum número lido.");
@@ -611,7 +505,7 @@
                 
                 let officialNumbersText;
                 try {
-                    // ATUALIZADO: Chama a API direta do Google
+                    // Chama a API (agora o proxy)
                     officialNumbersText = await callGeminiApi(resultsPayload);
                     officialNumbers = extractJsonArray(officialNumbersText);
                     if (officialNumbers.length === 0) throw new Error("Nenhum número encontrado.");
@@ -641,9 +535,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateUIForLotteryType();
             
-            // ATUALIZADO: Busca a API Key assim que a página carrega
-            apiKeyPromise = fetchApiKey();
-
             // Listeners
             lotteryToggle.addEventListener('click', handleLotteryToggleClick);
             fetchLatestBtn.addEventListener('click', handleFetchLatestContest);
@@ -657,4 +548,3 @@
     </script>
 </body>
 </html>
-
