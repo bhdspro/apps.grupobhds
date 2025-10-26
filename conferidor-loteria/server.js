@@ -24,8 +24,11 @@ app.post('/api/generateContent', async (req, res) => {
         return res.status(500).json({ error: 'Chave da API (GEMINI_API_KEY) não configurada no servidor.' });
     }
 
-    // O modelo é pego do payload, pois usamos o mesmo para imagem e texto
-    const model = "gemini-2.5-flash-preview-09-2025";
+    // ATUALIZADO: Usando o 'gemini-1.5-pro-latest'.
+    // Este é o modelo público mais robusto que aceita tanto 'tools' (para a busca)
+    // quanto 'inlineData' (para a imagem), sendo o equivalente mais próximo
+    // do modelo do sandbox.
+    const model = "gemini-1.5-pro";
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
     try {
@@ -42,7 +45,16 @@ app.post('/api/generateContent', async (req, res) => {
         if (!googleResponse.ok) {
             const errorBody = await googleResponse.text();
             console.error('Erro da API do Google:', googleResponse.status, errorBody);
-            throw new Error(`Erro da API do Google: ${googleResponse.statusText}`);
+            // Tenta extrair a mensagem de erro específica do Google
+            try {
+                const errorJson = JSON.parse(errorBody);
+                if (errorJson.error && errorJson.error.message) {
+                    throw new Error(errorJson.error.message);
+                }
+            } catch (e) {
+                // Se não for JSON, lança o erro de status
+            }
+            throw new Error(`Erro da API do Google: ${googleResponse.status} ${googleResponse.statusText}`);
         }
 
         const data = await googleResponse.json();
