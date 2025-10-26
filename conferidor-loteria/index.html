@@ -185,10 +185,17 @@
         // --- API e Estado ---
         
         // =================================================================
-        // ATUALIZAÇÃO: Apontando para o seu servidor proxy no Render.
-        // A função callApi usará POST (e não GET) para este endpoint,
-        // pois precisa enviar o corpo da requisição (payload).
-        const apiProxyUrl = 'https://ia-proxy.onrender.com/gemini';
+        // ATUALIZAÇÃO: Implementando o fluxo de "GET" para chave, "POST" para Google
+        
+        // PASSO 1: URL para FAZER O GET da sua chave de API
+        const apiKeyServerUrl = 'https://ia-proxy.onrender.com/gemini';
+        
+        // URL da API do Google que usaremos no PASSO 4
+        const googleApiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
+        
+        // PASSO 3: Variável para guardar a chave
+        let geminiApiKey = null;
+        let apiKeyPromise = null; // Promessa para garantir que a chave foi buscada
         // =================================================================
 
         let currentLotteryType = 'lotofacil'; // 'lotofacil' ou 'megasena'
@@ -230,7 +237,6 @@
             clearMessages();
             const isLotofacil = currentLotteryType === 'lotofacil';
 
-            // Remove classes de cor antigas e adiciona as novas ao container principal
             appContainer.classList.remove(
                 'color-lotofacil-base', 'color-lotofacil-hover', 'color-lotofacil-ring', 'color-lotofacil-lighter-bg', 'color-lotofacil-darker-text',
                 'color-megasena-base', 'color-megasena-hover', 'color-megasena-ring', 'color-megasena-lighter-bg', 'color-megasena-darker-text'
@@ -243,12 +249,10 @@
                 isLotofacil ? 'color-lotofacil-darker-text' : 'color-megasena-darker-text'
             );
 
-            // Atualiza o slider
             lotteryToggleSlider.style.backgroundColor = `var(--primary-color-base)`;
             lotteryToggleSlider.classList.toggle('translate-x-0', isLotofacil);
             lotteryToggleSlider.classList.toggle('translate-x-full', !isLotofacil);
 
-            // Labels do Toggle
             labelLotofacil.classList.toggle('font-bold', isLotofacil);
             labelLotofacil.classList.toggle('text-white', isLotofacil);
             labelLotofacil.classList.toggle('font-medium', !isLotofacil);
@@ -259,31 +263,45 @@
             labelMegasena.classList.toggle('font-medium', isLotofacil);
             labelMegasena.classList.toggle('text-gray-600', isLotofacil);
 
-            // Atualiza estilos inline para os botões e input (para pegar as variáveis CSS)
-            contestNumberInput.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`); // Tailwind ring color
+            contestNumberInput.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`);
             fetchLatestBtn.style.backgroundColor = `var(--primary-color-base)`;
-            fetchLatestBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`); // Custom property for hover
+            fetchLatestBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`);
             checkResultsBtn.style.backgroundColor = `var(--primary-color-base)`;
-            checkResultsBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`); // Custom property for hover
-            checkResultsBtn.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`); // Tailwind ring color
+            checkResultsBtn.style.setProperty('hover-background-color', `var(--primary-color-hover)`);
+            checkResultsBtn.style.setProperty('--tw-ring-color', `var(--primary-color-ring)`);
 
-            // Atualiza cores das mensagens de erro/sucesso
             errorMessage.style.backgroundColor = `var(--lighter-bg-color)`;
             errorMessage.style.color = `var(--darker-text-color)`;
             successMessage.style.backgroundColor = `var(--lighter-bg-color)`;
             successMessage.style.color = `var(--darker-text-color)`;
 
-            // Resetar formulário
             imageUpload.value = '';
             uploadedImageFile = null;
             imagePreview.classList.add('hidden');
-            checkResultsBtn.disabled = true;
+            
+            // Re-valida o formulário. O botão "Conferir" será desabilitado
+            // se a chave da API ainda não tiver sido carregada.
+            validateForm();
         }
 
         function validateForm() {
             const hasContest = contestNumberInput.value.trim() !== '';
             const hasImage = uploadedImageFile !== null;
-            checkResultsBtn.disabled = !(hasContest && hasImage);
+            const hasApiKey = geminiApiKey !== null; // Verifica se a chave já foi carregada
+
+            checkResultsBtn.disabled = !(hasContest && hasImage && hasApiKey);
+            
+            // Atualiza o texto do botão se a API estiver carregando
+            if (!hasApiKey && !errorMessage.classList.contains('hidden')) {
+                // Se deu erro ao carregar a chave, mantém o erro
+                checkBtnText.textContent = "FALHA NA API";
+                checkResultsBtn.disabled = true;
+            } else if (!hasApiKey) {
+                checkBtnText.textContent = "Carregando API...";
+                checkResultsBtn.disabled = true;
+            } else {
+                 checkBtnText.textContent = "Conferir";
+            }
         }
 
         function showLoading(buttonType, isLoading) {
@@ -295,7 +313,6 @@
                 checkSpinner.classList.toggle('hidden', !isLoading);
                 checkBtnText.classList.toggle('hidden', isLoading);
                 checkResultsBtn.disabled = isLoading;
-                // Desabilitar outros campos
                 fetchLatestBtn.disabled = isLoading;
                 contestNumberInput.disabled = isLoading;
                 imageUpload.disabled = isLoading;
@@ -319,34 +336,63 @@
             const lotteryName = currentLotteryType === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena';
             
             successTitle.textContent = `Resultado: ${matches.length} Acerto(s)!`;
-            
             successOfficialLabel.textContent = `Números Sorteados (${lotteryName} ${contest}):`;
             successOfficialNumbers.textContent = officialNumbers.join(' - ');
-            
             successUserLabel.textContent = "Sua Aposta:";
             successUserNumbers.textContent = userNumbers.join(' - ');
-            
             successMatchesLabel.textContent = "Números Acertados:";
             successMatchesNumbers.textContent = matches.length > 0 ? matches.join(' - ') : "Nenhum";
-            
             successMessage.classList.remove('hidden');
         }
         
         // --- Funções de API ---
 
         /**
+         * PASSO 1 e 2: Busca a API Key do seu servidor no carregamento.
+         */
+        async function fetchApiKey() {
+            try {
+                // Faz a requisição GET para o seu servidor
+                const response = await fetch(apiKeyServerUrl, { method: 'GET' });
+                
+                if (!response.ok) {
+                    // Isso é o erro de CORS que você viu
+                    throw new Error(`Servidor de API Key falhou: ${response.statusText} (Verifique o CORS no seu servidor)`);
+                }
+                
+                const key = await response.text();
+                
+                if (!key || !(key.includes('AIza') || key.length > 30)) { // Verifica se parece uma chave
+                     throw new Error('Servidor não retornou uma API Key válida.');
+                }
+                
+                // PASSO 3: Guarda a chave na variável
+                geminiApiKey = key.trim();
+                console.log('Chave da API carregada com sucesso.');
+                
+                // Re-valida o formulário agora que a chave existe
+                validateForm(); 
+                
+            } catch (error) {
+                console.error("Erro CRÍTICO ao buscar API Key:", error);
+                showError(`Erro ao carregar API: ${error.message}. Recarregue a página.`);
+                // Desabilita tudo se a chave falhar
+                checkResultsBtn.disabled = true;
+                fetchLatestBtn.disabled = true;
+                checkBtnText.textContent = "FALHA NA API";
+            }
+        }
+
+        /**
          * Converte um arquivo para base64
          */
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
-                // Validação extra
                 if (!file.type.startsWith('image/')) {
                     return reject(new Error('Tipo de arquivo inválido. Por favor, envie uma imagem.'));
                 }
-                
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                
                 reader.onload = () => {
                     if (reader.result) {
                         resolve(reader.result.split(',')[1]);
@@ -354,7 +400,6 @@
                         reject(new Error('Não foi possível ler o arquivo. Resultado vazio.'));
                     }
                 };
-                
                 reader.onerror = () => {
                     console.error("FileReader error:", reader.error);
                     reject(new Error('Não foi possível ler o arquivo. Verifique as permissões ou se o arquivo está em uso.'));
@@ -363,24 +408,42 @@
         }
 
         /**
-         * Chama a API (via seu proxy) com retentativa exponencial
+         * PASSO 4: Chama a API do Google DIRETAMENTE usando a chave
          */
-        async function callApiProxy(payload, retries = 3, delay = 1000) {
+        async function callGeminiApi(payload, retries = 3, delay = 1000) {
+            // Garante que a chave da API já foi buscada
+            if (!geminiApiKey) {
+                await apiKeyPromise; // Espera a promessa da chave terminar
+            }
+            if (!geminiApiKey) {
+                // Se mesmo assim não tiver, lança o erro
+                throw new Error("Não foi possível buscar a Chave da API no servidor.");
+            }
+
+            // Constrói a URL final com a chave
+            const apiUrl = `${googleApiBaseUrl}?key=${geminiApiKey}`;
+
             for (let i = 0; i < retries; i++) {
                 try {
-                    const response = await fetch(apiProxyUrl, {
-                        method: 'POST', // Sempre POST
+                    // Faz o POST direto para o Google
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
 
                     if (!response.ok) {
-                        let errorMsg = `Erro no servidor proxy: ${response.statusText}`;
+                        let errorMsg = `Erro da API do Google: ${response.statusText}`;
                         try {
                             const errorBody = await response.json();
-                            errorMsg = errorBody.error || errorMsg;
-                        } catch(e) {
-                            // O corpo do erro não era JSON, usa o statusText
+                            errorMsg = errorBody.error?.message || errorMsg;
+                        } catch(e) { /* O corpo do erro não era JSON */ }
+                        
+                        if (response.status === 429) {
+                            throw new Error("Limite de requisições da API atingido (Quota).");
+                        }
+                        if (response.status === 400 && errorMsg.includes('API key not valid')) {
+                            throw new Error('A API Key informada pelo seu servidor é inválida.');
                         }
                         throw new Error(errorMsg);
                     }
@@ -389,7 +452,7 @@
                     const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
                     if (!text) {
-                        throw new Error("O servidor proxy não retornou uma resposta válida.");
+                        throw new Error("A API do Google não retornou uma resposta válida.");
                     }
                     
                     return text;
@@ -406,7 +469,6 @@
          * Tenta extrair um array JSON de uma string de texto.
          */
         function extractJsonArray(text) {
-            // Tenta encontrar um bloco JSON na resposta
             const jsonMatch = text.match(/\[(.*?)\]/s);
             if (jsonMatch) {
                 try {
@@ -414,12 +476,9 @@
                     if (Array.isArray(parsed)) {
                         return parsed.map(n => Number(n)).filter(n => !isNaN(n) && n > 0);
                     }
-                } catch (e) {
-                    // Se falhar, tenta interpretar números separados por vírgula
-                }
+                } catch (e) { /* falha silenciosa, tenta o próximo método */ }
             }
             
-            // Fallback: tenta extrair números da string
             const numbers = text.match(/\d+/g);
             if (numbers) {
                 return numbers.map(n => Number(n)).filter(n => n > 0);
@@ -446,17 +505,14 @@
                 validateForm();
                 return;
             }
-
-            // Validação de tipo de arquivo
             if (!file.type.startsWith('image/')) {
                 showError('Tipo de arquivo inválido. Por favor, envie uma imagem (JPEG, PNG, WEBP).');
-                imageUpload.value = ''; // Limpa o seletor
+                imageUpload.value = '';
                 uploadedImageFile = null;
                 imagePreview.classList.add('hidden');
                 validateForm();
                 return;
             }
-
             uploadedImageFile = file;
             imagePreview.src = URL.createObjectURL(file);
             imagePreview.classList.remove('hidden');
@@ -480,8 +536,9 @@
             };
 
             try {
-                const responseText = await callApiProxy(payload);
-                const contestNum = responseText.match(/\d+/); // Pega o primeiro número na resposta
+                // ATUALIZADO: Chama a API direta do Google
+                const responseText = await callGeminiApi(payload);
+                const contestNum = responseText.match(/\d+/); 
                 if (contestNum) {
                     contestNumberInput.value = contestNum[0];
                     validateForm();
@@ -534,7 +591,8 @@
 
                 let userNumbersText;
                 try {
-                    userNumbersText = await callApiProxy(imagePayload);
+                    // ATUALIZADO: Chama a API direta do Google
+                    userNumbersText = await callGeminiApi(imagePayload);
                     userNumbers = extractJsonArray(userNumbersText);
                     if (userNumbers.length === 0) throw new Error("Nenhum número lido.");
                 } catch (imgError) {
@@ -553,7 +611,8 @@
                 
                 let officialNumbersText;
                 try {
-                    officialNumbersText = await callApiProxy(resultsPayload);
+                    // ATUALIZADO: Chama a API direta do Google
+                    officialNumbersText = await callGeminiApi(resultsPayload);
                     officialNumbers = extractJsonArray(officialNumbersText);
                     if (officialNumbers.length === 0) throw new Error("Nenhum número encontrado.");
                 } catch (searchError) {
@@ -581,6 +640,9 @@
         // --- Inicialização ---
         document.addEventListener('DOMContentLoaded', () => {
             updateUIForLotteryType();
+            
+            // ATUALIZADO: Busca a API Key assim que a página carrega
+            apiKeyPromise = fetchApiKey();
 
             // Listeners
             lotteryToggle.addEventListener('click', handleLotteryToggleClick);
