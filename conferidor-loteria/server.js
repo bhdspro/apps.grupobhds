@@ -28,7 +28,7 @@ app.post('/api/generateContent', async (req, res) => {
     // Este é o modelo público mais robusto que aceita tanto 'tools' (para a busca)
     // quanto 'inlineData' (para a imagem), sendo o equivalente mais próximo
     // do modelo do sandbox.
-    const model = "gemini-1.5-pro";
+    const model = "gemini-2.0-flash";
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
     try {
