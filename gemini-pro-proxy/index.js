@@ -95,4 +95,4 @@ app.post('/api/generate', authenticateKey, async (req, res) => {
 // --- Iniciar Servidor ---
 app.listen(PORT, () => {
   console.log(`Servidor proxy rodando na porta ${PORT}`);
-});s
+});
