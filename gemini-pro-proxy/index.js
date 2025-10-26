@@ -26,10 +26,21 @@ app.use(express.json());
 // o backend irá REJEITÁ-LA.
 
 const allowedOrigins = [
+  // --- ADICIONE SEUS DOMÍNIOS PERSONALIZADOS AQUI ---
+  
+  // Você só precisa adicionar a ORIGEM (o subdomínio), não o caminho.
+  // Esta linha ÚNICA irá autorizar todos os seus projetos:
+  // - apps.grupobhds.com/projeto-x
+  // - apps.grupobhds.com/projeto-b
+  // - apps.grupobhds.com/projeto-s
   'https://apps.grupobhds.com',
+  
+  // --- DOMÍNIO DO GITHUB PAGES (se você ainda usar) ---
   'https://bhdspro.github.io', 
-  'http://localhost:3000',
-  'http://127.0.0.1:5500'
+  
+  // --- PARA TESTES NO SEU COMPUTADOR (OPCIONAL) ---
+  'http://localhost:3000', // Para React/Vue/etc.
+  'http://127.0.0.1:5500' // Para "Live Server" do VS Code
 ];
 
 // 3. CORS (Cross-Origin Resource Sharing)
@@ -58,7 +69,9 @@ app.use(cors({
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 2. Define o modelo a ser usado (gemini-pro, como solicitado)
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+//    ATUALIZAÇÃO: O erro 404 sugere que "gemini-pro" não foi encontrado.
+//    "gemini-1.0-pro" é uma versão estável e recomendada para corrigir isso.
+const model = genAI.getGenerativeModel({ model: 'gemini-1.0-pro' });
 
 // --- Rotas da API do seu Backend ---
 
