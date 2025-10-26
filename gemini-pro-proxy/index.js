@@ -69,9 +69,9 @@ app.use(cors({
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 2. Define o modelo a ser usado (gemini-pro, como solicitado)
-//    ATUALIZAÇÃO: O erro 404 sugere que "gemini-pro" não foi encontrado.
-//    "gemini-1.0-pro" é uma versão estável e recomendada para corrigir isso.
-const model = genAI.getGenerativeModel({ model: 'gemini-1.0-pro' });
+//    ATUALIZAÇÃO 2: Vamos tentar o modelo "Pro" mais recente e estável.
+//    Isso deve resolver o erro 404 Not Found.
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro-latest' });
 
 // --- Rotas da API do seu Backend ---
 
