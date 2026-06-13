@@ -6,6 +6,8 @@
     <title>Contrato Inteligente</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Mammoth.js para ler arquivos DOCX no navegador -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <!-- Material Symbols -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
@@ -220,32 +222,25 @@
     </div>
 
     <script>
-        // ========================================================
-        // CONFIGURAÇÃO DO BACKEND - COLOQUE AQUI A SUA URL DA CLOUDFLARE
-        // ========================================================
-        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // MANTENHA AS ASPAS E SEM BARRA NO FINAL
+        // CONFIGURAÇÃO DO BACKEND
+        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // Substitua pela URL real do Cloudflare
         
         // ESTADO GLOBAL
         let formData = { telefones: [''], emails: [''], enderecos: [''] };
         let arquivoBase = null;
-        let arquivoProcessado = null; // Guarda o texto final gerado pelo Gemini
-
-        // Função utilitária para converter arquivo em Base64
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = error => reject(error);
-        });
+        let contratoTextoFinal = null; // Agora guardamos o texto reescrito pela IA
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
+            // Verificar rota (hash)
             const hash = window.location.hash.replace('#', '');
             if(hash === 'buscar-pedido') switchTab('buscar-pedido');
             
+            // Carregar dados salvos e Senha
             const savedSenha = localStorage.getItem('senha_sistema');
             if (savedSenha) document.getElementById('senha_sistema').value = savedSenha;
             
+            // Salva senha ao digitar
             document.getElementById('senha_sistema').addEventListener('input', (e) => {
                 localStorage.setItem('senha_sistema', e.target.value);
             });
@@ -279,13 +274,16 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             
+            // Controle visual das abas
             document.getElementById('tab-novo').className = tabId === 'novo-pedido' ? 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium bg-white text-blue-700 shadow-sm transition-all whitespace-nowrap' : 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 transition-all whitespace-nowrap';
             document.getElementById('tab-buscar').className = tabId === 'buscar-pedido' ? 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium bg-white text-blue-700 shadow-sm transition-all whitespace-nowrap' : 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 transition-all whitespace-nowrap';
             
+            // Oculta action bar na aba de busca
             document.getElementById('action-bar').style.display = tabId === 'novo-pedido' ? 'block' : 'none';
             window.location.hash = tabId;
         }
 
+        // FUNÇÕES DO FORMULÁRIO (NOVO PEDIDO)
         function setTipoObjeto(tipo) {
             document.getElementById('np_tipo_objeto').value = tipo;
             formData.tipo = tipo;
@@ -346,13 +344,14 @@
 
         function handleFileSelect(event) {
             arquivoBase = event.target.files[0];
-            arquivoProcessado = null; 
+            contratoTextoFinal = null; // Reseta se anexar novo
             if (arquivoBase) {
                 document.getElementById('file-name').innerText = arquivoBase.name;
                 document.getElementById('file-name').classList.add('text-blue-700');
             }
         }
 
+        // LIMPEZA DE DADOS
         function confirmarLimpeza() { document.getElementById('modal-limpeza').classList.remove('hidden'); document.getElementById('modal-limpeza').classList.add('flex'); }
         function fecharModal() { document.getElementById('modal-limpeza').classList.add('hidden'); document.getElementById('modal-limpeza').classList.remove('flex'); }
         
@@ -360,7 +359,7 @@
             formData = { telefones: [''], emails: [''], enderecos: [''] };
             document.querySelectorAll('input[type="text"], input[type="date"]').forEach(el => el.value = '');
             arquivoBase = null;
-            arquivoProcessado = null;
+            contratoTextoFinal = null;
             document.getElementById('file-name').innerText = "Clique para anexar o contrato modelo";
             document.getElementById('file-name').classList.remove('text-blue-700');
             localStorage.removeItem('novoPedidoData');
@@ -369,10 +368,7 @@
             showToast('Formulário limpo.');
         }
 
-        // ========================================================
-        // AÇÕES PRINCIPAIS (CONEXÃO COM A API DE VERDADE)
-        // ========================================================
-        
+        // AÇÕES PRINCIPAIS E COMUNICAÇÃO (APIs)
         async function atualizarContrato() {
             const senha = document.getElementById('senha_sistema').value;
             if (!senha) return showToast('Introduza a senha do sistema no topo.', 'error');
@@ -385,12 +381,14 @@
             icon.classList.add('animate-spin');
 
             try {
-                showToast('A enviar para a Inteligência Artificial...', 'success');
+                showToast('A extrair o texto do contrato e enviar para a IA...', 'success');
                 
-                // Converte o Word para texto base64
-                const base64 = await toBase64(arquivoBase);
+                // Extrai o texto limpo do .docx usando Mammoth.js
+                const arrayBuffer = await arquivoBase.arrayBuffer();
+                const extractResult = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+                const textoDoContratoBase = extractResult.value;
                 
-                // Dispara o pedido real para a sua Cloudflare API
+                // Dispara o pedido real para a sua Cloudflare API (agora enviando texto puro)
                 const response = await fetch(`${WORKER_URL}/api/generate-contract`, {
                     method: 'POST',
                     headers: { 
@@ -399,24 +397,24 @@
                     },
                     body: JSON.stringify({
                         dadosCliente: formData,
-                        contratoBase64: base64
+                        contratoTextoBase: textoDoContratoBase
                     })
                 });
 
                 const data = await response.json();
                 
-                // Se o servidor retornar erro (ex: senha incorreta ou erro no Gemini)
-                if (!response.ok) throw new Error(data.error || 'Erro na comunicação com a API');
+                if (!response.ok) {
+                    throw new Error(data.error || 'Falha na comunicação com o backend.');
+                }
 
-                // Salva o texto do contrato reescrito pela IA na memória
-                arquivoProcessado = data.contratoAtualizado; 
+                // Guarda o texto do contrato atualizado retornado pelo Gemini
+                contratoTextoFinal = data.contratoAtualizado; 
                 
-                showToast('Sucesso! Contrato preenchido. Clique em Visualizar.', 'success');
+                showToast('Contrato preenchido com sucesso! Clique em Visualizar.', 'success');
 
             } catch (error) {
-                showToast('Falha: ' + error.message, 'error');
+                showToast('Erro: ' + error.message, 'error');
             } finally {
-                // Restaura o botão
                 btn.classList.remove('opacity-70', 'pointer-events-none');
                 icon.classList.remove('animate-spin');
                 icon.innerText = 'auto_fix_high';
@@ -424,37 +422,53 @@
         }
 
         function visualizarContrato() {
-            if (!arquivoProcessado) {
+            if (!contratoTextoFinal) {
                 return showToast('Precisa de "Atualizar (IA)" o contrato primeiro.', 'error');
             }
             
-            // Cria uma página em branco e injeta o texto gerado pela IA nela
-            const novaAba = window.open('', '_blank');
+            // Abre uma nova aba e exibe o texto puro do contrato formatado
+            const novaAba = window.open();
             novaAba.document.write(`
                 <html>
                 <head>
-                    <title>Contrato Pré-visualização</title>
-                    <meta charset="UTF-8">
+                    <title>Contrato Preenchido - ${formData.nome || 'Cliente'}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: auto; line-height: 1.6; }
+                        pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; }
+                    </style>
                 </head>
-                <body style="font-family: sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; white-space: pre-wrap; color: #333;">${arquivoProcessado}</body>
+                <body>
+                    <h2>Revisão do Contrato</h2>
+                    <hr/>
+                    <pre>${contratoTextoFinal}</pre>
+                </body>
                 </html>
             `);
             novaAba.document.close();
-            showToast('Contrato aberto em uma nova aba!', 'success');
+            showToast('Visualização aberta em nova aba!', 'success');
         }
 
         async function enviarTudo() {
             const senha = document.getElementById('senha_sistema').value;
             if (!senha) return showToast('Introduza a senha do sistema.', 'error');
-            if (!arquivoProcessado) return showToast('Por favor, atualize o contrato com a IA primeiro.', 'error');
+            if (!contratoTextoFinal) return showToast('Por favor, atualize o contrato com a IA primeiro.', 'error');
 
             const btn = document.getElementById('btn_enviar');
             btn.classList.add('opacity-70', 'pointer-events-none');
             document.getElementById('icon_enviar').innerText = 'hourglass_empty';
 
+            if (WORKER_URL === "https://SEU_WORKER_AQUI.workers.dev") {
+                setTimeout(() => {
+                    btn.classList.remove('opacity-70', 'pointer-events-none');
+                    document.getElementById('icon_enviar').innerText = 'send';
+                    showToast('[SIMULAÇÃO] Pedido enviado para Asaas e Assinafy com sucesso!', 'success');
+                }, 2000);
+                return;
+            }
+
+            // Fetch Real para Asaas/Assinafy
             try {
-                showToast('A enviar dados para Asaas, Assinafy e Planilha...', 'success');
-                
+                showToast('Enviando dados para processamento...', 'success');
                 const response = await fetch(`${WORKER_URL}/api/process-order`, {
                     method: 'POST',
                     headers: { 
@@ -463,25 +477,29 @@
                     },
                     body: JSON.stringify({
                         dadosCliente: formData,
-                        contratoTexto: arquivoProcessado // Envia o texto que a IA gerou
+                        contratoTexto: contratoTextoFinal // Envia o texto que a IA já gerou
                     })
                 });
 
                 const data = await response.json();
                 
-                if (!response.ok) throw new Error(data.error || 'Erro na comunicação com a API');
-
-                showToast('Sucesso! Tudo processado e salvo na planilha.', 'success');
+                if (!response.ok) {
+                    throw new Error(data.error || 'Falha ao processar pedido.');
+                }
+                
+                showToast('Sucesso! Cliente cadastrado e links gerados.', 'success');
+                // Aqui você pode adicionar lógica para mostrar os links na tela
+                console.log("Links gerados:", data);
 
             } catch (error) {
-                showToast('Falha: ' + error.message, 'error');
+                showToast('Erro: ' + error.message, 'error');
             } finally {
                 btn.classList.remove('opacity-70', 'pointer-events-none');
                 document.getElementById('icon_enviar').innerText = 'send';
             }
         }
 
-        // BUSCAR PEDIDO LÓGICA (SIMULADA POR ENQUANTO)
+        // BUSCAR PEDIDO LÓGICA
         function buscarPedido() {
             const btn = document.getElementById('btn_buscar');
             btn.innerHTML = '<span class="material-symbols-outlined animate-spin">hourglass_empty</span>';
@@ -497,6 +515,7 @@
         function uploadProva(tipo, inputElement) {
             if(inputElement.files.length > 0) {
                 showToast(`Arquivo selecionado! Envio automático iniciado.`, 'success');
+                // A lógica de envio para o Google Drive ficaria aqui
             }
         }
     </script>
