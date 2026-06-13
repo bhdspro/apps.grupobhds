@@ -1,500 +1,504 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Contrato Inteligente</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      font-size: 20px;
-    }
-    body { -webkit-tap-highlight-color: transparent; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Contrato Inteligente</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Oculta scrollbar mas permite scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-gray-50 md:bg-gray-100 font-sans selection:bg-blue-200">
-  
-  <div id="root"></div>
+<body class="bg-gray-100 min-h-screen pb-32">
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
-
-    // --- CONFIGURAÇÃO DO BACKEND ---
-    const BACKEND_URL = 'https://contrato-inteligente.grupo-bhds.workers.dev'; 
-
-    // --- COMPONENTES DE UI ---
-    const Icon = ({ name, className = '' }) => (
-      <span className={`material-symbols-outlined ${className}`}>{name}</span>
-    );
-
-    const Card = ({ children, className = '' }) => (
-      <div className={`bg-white rounded-[24px] md:rounded-[28px] shadow-sm border border-gray-100 p-4 md:p-6 ${className}`}>
-        {children}
-      </div>
-    );
-
-    const Button = ({ children, onClick, variant = 'primary', iconName, loading = false, className = '' }) => {
-      const baseStyle = "flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 rounded-full text-sm md:text-base font-medium transition-all duration-200 active:scale-[0.98]";
-      const variants = {
-        primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg",
-        secondary: "bg-blue-50 text-blue-700 hover:bg-blue-100",
-        tonal: "bg-gray-100 text-gray-800 hover:bg-gray-200",
-        danger: "bg-red-50 text-red-600 hover:bg-red-100",
-        success: "bg-green-600 text-white hover:bg-green-700 shadow-md"
-      };
-
-      return (
-        <button onClick={onClick} disabled={loading} className={`${baseStyle} ${variants[variant]} ${loading ? 'opacity-70 cursor-not-allowed' : ''} ${className}`}>
-          {loading ? <Icon name="sync" className="animate-spin" /> : iconName && <Icon name={iconName} />}
-          {children}
-        </button>
-      );
-    };
-
-    const Input = ({ label, value, onChange, placeholder, type = "text", iconName }) => (
-      <div className="flex flex-col gap-1 w-full">
-        <label className="text-xs md:text-sm font-medium text-gray-700 ml-1">{label}</label>
-        <div className="relative">
-          {iconName && <Icon name={iconName} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />}
-          <input
-            type={type}
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            className={`w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm md:text-base rounded-xl md:rounded-2xl px-3 py-2.5 md:px-4 md:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors ${iconName ? 'pl-10 md:pl-11' : ''}`}
-          />
+    <!-- BARRA DE SENHA DO SISTEMA (Segurança) -->
+    <div class="bg-slate-900 text-white px-4 py-2 flex items-center justify-between text-sm z-50 relative">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm text-yellow-400">lock</span>
+            <span class="font-medium hidden sm:inline">Segurança do Sistema</span>
         </div>
-      </div>
-    );
-
-    // --- PÁGINA: NOVO PEDIDO ---
-    const NovoPedido = ({ appPassword }) => {
-      const defaultState = {
-        nome: '', cpf: '', tipoObjeto: 'produto', objeto: '',
-        valor: '', vencimento: '', emails: [''], telefones: [''], enderecos: ['']
-      };
-
-      const [formData, setFormData] = useState(defaultState);
-      const [contractFileBase64, setContractFileBase64] = useState(null);
-      const [contractFileName, setContractFileName] = useState('');
-      
-      const [loadingAction, setLoadingAction] = useState(null);
-      const [showClearModal, setShowClearModal] = useState(false);
-      const [systemMessage, setSystemMessage] = useState(null);
-      
-      const [generatedContract, setGeneratedContract] = useState(null);
-      const [paymentLink, setPaymentLink] = useState(null);
-      const [signatureLink, setSignatureLink] = useState(null);
-
-      useEffect(() => {
-        const saved = localStorage.getItem('novoPedidoData');
-        if (saved) { try { setFormData(JSON.parse(saved)); } catch (e) { console.error(e); } }
-      }, []);
-
-      useEffect(() => {
-        localStorage.setItem('novoPedidoData', JSON.stringify(formData));
-      }, [formData]);
-
-      const handleDynamicChange = (field, index, value) => {
-        const newData = { ...formData };
-        newData[field][index] = value;
-        setFormData(newData);
-      };
-
-      const addField = (field) => setFormData({ ...formData, [field]: [...formData[field], ''] });
-      
-      const removeField = (field, index) => {
-        if (formData[field].length > 1) {
-          const newData = { ...formData };
-          newData[field].splice(index, 1);
-          setFormData(newData);
-        }
-      };
-
-      const handleFileUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          setContractFileName(file.name);
-          const reader = new FileReader();
-          reader.onloadend = () => setContractFileBase64(reader.result.replace('data:', '').replace(/^.+,/, ''));
-          reader.readAsDataURL(file);
-        }
-      };
-
-      const handleLimpar = () => {
-        setFormData(defaultState);
-        setContractFileBase64(null); setContractFileName('');
-        setGeneratedContract(null); setPaymentLink(null); setSignatureLink(null);
-        localStorage.removeItem('novoPedidoData');
-        setShowClearModal(false);
-        setSystemMessage({ type: 'success', text: 'Formulário limpo com sucesso.' });
-        setTimeout(() => setSystemMessage(null), 3000);
-      };
-
-      const handleAtualizar = async () => {
-        if (!appPassword) return alert("Por favor, digite a Senha do Sistema no topo da tela.");
-        if (!contractFileBase64) return alert("Por favor, anexe o contrato base (.docx) primeiro.");
-        
-        setLoadingAction('atualizar'); setSystemMessage(null);
-        
-        try {
-          const response = await fetch(`${BACKEND_URL}/api/generate-contract`, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'X-App-Password': appPassword // Senha enviada no cabeçalho
-            },
-            body: JSON.stringify({
-              dadosCliente: formData,
-              contratoBase64: contractFileBase64
-            })
-          });
-
-          const data = await response.json();
-          if (response.status === 401) throw new Error("Acesso Negado: Senha Incorreta.");
-          if (!response.ok) throw new Error(data.error || 'Erro ao gerar contrato');
-
-          setGeneratedContract(data.contratoAtualizado);
-          setSystemMessage({ type: 'success', text: 'Contrato atualizado com sucesso pela IA! Pronto para visualizar/enviar.' });
-        } catch (error) {
-          setSystemMessage({ type: 'error', text: `Falha: ${error.message}` });
-        } finally {
-          setLoadingAction(null);
-          setTimeout(() => setSystemMessage(null), 5000);
-        }
-      };
-
-      const handleVisualizar = () => {
-        if (!generatedContract) return alert("Você precisa 'Atualizar (Gemini)' o contrato primeiro.");
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(`<pre style="font-family: sans-serif; padding: 20px; white-space: pre-wrap;">${generatedContract}</pre>`);
-        newWindow.document.close();
-      };
-
-      const handleEnviar = async () => {
-        if (!appPassword) return alert("Por favor, digite a Senha do Sistema no topo da tela.");
-        if (!generatedContract) return alert("Gere o contrato com o Gemini primeiro clicando em 'Atualizar'.");
-        
-        setLoadingAction('enviar'); setSystemMessage(null);
-        
-        try {
-          const response = await fetch(`${BACKEND_URL}/api/process-order`, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'X-App-Password': appPassword // Senha enviada no cabeçalho
-            },
-            body: JSON.stringify({
-              dadosCliente: formData,
-              contratoTexto: generatedContract
-            })
-          });
-
-          const data = await response.json();
-          if (response.status === 401) throw new Error("Acesso Negado: Senha Incorreta.");
-          if (!response.ok) throw new Error(data.error || 'Erro ao processar pedido');
-
-          setPaymentLink(data.asaas?.paymentLink || "Link simulado de pagamento");
-          setSignatureLink(data.assinafy?.signatureLink || "Link simulado de assinatura");
-          
-          setSystemMessage({ type: 'success', text: 'Sucesso! Cliente cadastrado e contrato enviado para assinatura.' });
-        } catch (error) {
-          setSystemMessage({ type: 'error', text: `Falha: ${error.message}` });
-        } finally {
-          setLoadingAction(null);
-        }
-      };
-
-      return (
-        <div className="max-w-4xl mx-auto pb-32">
-          {systemMessage && (
-            <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 ${systemMessage.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-              <Icon name={systemMessage.type === 'success' ? 'check_circle' : 'error'} className="text-2xl" />
-              <span className="font-medium text-sm md:text-base">{systemMessage.text}</span>
-            </div>
-          )}
-
-          {(paymentLink || signatureLink) && (
-            <Card className="mb-6 border-green-200 bg-green-50/30">
-               <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><Icon name="check_circle" className="text-green-600"/> Links Gerados</h2>
-               <div className="flex flex-col gap-3">
-                 {paymentLink && (
-                   <div className="bg-white p-3 rounded-xl border border-gray-200 flex justify-between items-center">
-                     <span className="font-medium text-gray-700 text-sm">Pagamento (Asaas)</span>
-                     <a href={paymentLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-sm font-bold">Abrir</a>
-                   </div>
-                 )}
-                 {signatureLink && (
-                   <div className="bg-white p-3 rounded-xl border border-gray-200 flex justify-between items-center">
-                     <span className="font-medium text-gray-700 text-sm">Assinatura (Assinafy)</span>
-                     <a href={signatureLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-sm font-bold">Abrir</a>
-                   </div>
-                 )}
-               </div>
-            </Card>
-          )}
-
-          <Card className="mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">Dados Principais</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <Input label="Nome Completo" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} placeholder="João da Silva" />
-              <Input label="CPF" value={formData.cpf} onChange={(e) => setFormData({...formData, cpf: e.target.value})} placeholder="000.000.000-00" />
-              
-              <div className="flex flex-col gap-1 w-full">
-                <label className="text-xs md:text-sm font-medium text-gray-700 ml-1">Tipo do Contrato</label>
-                <div className="flex bg-gray-100 p-1 rounded-xl md:rounded-2xl w-full h-11 md:h-12">
-                  <button type="button" className={`flex-1 py-1 text-sm font-medium rounded-xl transition-all ${formData.tipoObjeto === 'produto' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`} onClick={() => setFormData({...formData, tipoObjeto: 'produto'})}>Produto Físico</button>
-                  <button type="button" className={`flex-1 py-1 text-sm font-medium rounded-xl transition-all ${formData.tipoObjeto === 'servico' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`} onClick={() => setFormData({...formData, tipoObjeto: 'servico'})}>Prestação de Serviço</button>
-                </div>
-              </div>
-
-              <Input label={formData.tipoObjeto === 'produto' ? "Descrição do Produto" : "Descrição do Serviço"} value={formData.objeto} onChange={(e) => setFormData({...formData, objeto: e.target.value})} placeholder={formData.tipoObjeto === 'produto' ? "Ex: 01 Perfume Boticário Malbec 100ml" : "Ex: Formatação de Notebook Dell com Backup"} />
-
-              <div className="grid grid-cols-2 gap-3 md:gap-4">
-                <Input label="Valor Total (R$)" value={formData.valor} onChange={(e) => setFormData({...formData, valor: e.target.value})} placeholder="150,00" />
-                <Input label="Vencimento" type="date" value={formData.vencimento} onChange={(e) => setFormData({...formData, vencimento: e.target.value})} />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">Contatos e Endereço</h2>
-            
-            <div className="mb-6">
-              <label className="text-sm font-medium text-gray-700 ml-1 mb-2 block">Telefone / WhatsApp</label>
-              {formData.telefones.map((tel, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <Input iconName="phone" value={tel} onChange={(e) => handleDynamicChange('telefones', index, e.target.value)} placeholder="(00) 00000-0000" />
-                  {index > 0 && <Button variant="danger" iconName="delete" onClick={() => removeField('telefones', index)} className="px-3 md:px-4" />}
-                </div>
-              ))}
-              <button onClick={() => addField('telefones')} className="text-blue-600 text-sm font-medium flex items-center gap-1 mt-1 hover:underline"><Icon name="add" className="!text-[18px]"/> Adicionar outro número</button>
-            </div>
-
-            <div className="mb-6">
-              <label className="text-sm font-medium text-gray-700 ml-1 mb-2 block">E-mails</label>
-              {formData.emails.map((email, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <Input iconName="mail" value={email} onChange={(e) => handleDynamicChange('emails', index, e.target.value)} placeholder="cliente@email.com" />
-                  {index > 0 && <Button variant="danger" iconName="delete" onClick={() => removeField('emails', index)} className="px-3 md:px-4" />}
-                </div>
-              ))}
-              <button onClick={() => addField('emails')} className="text-blue-600 text-sm font-medium flex items-center gap-1 mt-1 hover:underline"><Icon name="add" className="!text-[18px]"/> Adicionar outro e-mail</button>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 ml-1 mb-2 block">Endereços Físicos (Para Citação JEC)</label>
-              {formData.enderecos.map((end, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <Input iconName="location_on" value={end} onChange={(e) => handleDynamicChange('enderecos', index, e.target.value)} placeholder="Rua, Número, Bairro, CEP, Cidade" />
-                  {index > 0 && <Button variant="danger" iconName="delete" onClick={() => removeField('enderecos', index)} className="px-3 md:px-4" />}
-                </div>
-              ))}
-              <button onClick={() => addField('enderecos')} className="text-blue-600 text-sm font-medium flex items-center gap-1 mt-1 hover:underline"><Icon name="add" className="!text-[18px]"/> Adicionar outro endereço</button>
-            </div>
-          </Card>
-
-          <Card className="mb-8">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Contrato Base (.docx)</h2>
-            <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
-              <input type="file" accept=".docx" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-              {contractFileBase64 ? <Icon name="history_edu" className="!text-[48px] text-green-500 mb-3" /> : <Icon name="cloud_upload" className="!text-[48px] text-blue-500 mb-3" />}
-              <span className="font-medium text-gray-700">{contractFileBase64 ? contractFileName : "Clique ou arraste o contrato base aqui"}</span>
-              <span className="text-sm text-gray-500 mt-1">Apenas arquivos .docx</span>
-            </div>
-          </Card>
-
-          <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 md:p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40">
-            <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-2 md:gap-3 justify-between items-center">
-              <div className="flex w-full md:w-auto gap-2 md:gap-3">
-                <Button variant="danger" iconName="ink_eraser" onClick={() => setShowClearModal(true)} className="flex-1 md:flex-none text-xs md:text-base">Limpar</Button>
-                <Button variant="tonal" iconName="visibility" onClick={handleVisualizar} className="flex-1 md:flex-none text-xs md:text-base">Visualizar</Button>
-              </div>
-              <div className="flex w-full md:w-auto gap-2 md:gap-3">
-                <Button variant="secondary" iconName="sync" loading={loadingAction === 'atualizar'} onClick={handleAtualizar} className="flex-1 md:flex-none text-xs md:text-base">
-                  <span className="hidden sm:inline">Atualizar (Gemini)</span><span className="sm:hidden">Atualizar</span>
-                </Button>
-                <Button variant={generatedContract ? "success" : "primary"} iconName="send" loading={loadingAction === 'enviar'} onClick={handleEnviar} className="flex-1 md:flex-none text-xs md:text-base">
-                  <span className="hidden sm:inline">Enviar (Asaas)</span><span className="sm:hidden">Enviar</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {showClearModal && (
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-[28px] p-6 md:p-8 max-w-sm w-full shadow-2xl">
-                <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4"><Icon name="error" /></div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Limpar tudo?</h3>
-                <p className="text-gray-600 text-sm md:text-base mb-6">Isso apagará todos os dados preenchidos. Essa ação não pode ser desfeita.</p>
-                <div className="flex gap-3 justify-end">
-                  <Button variant="tonal" onClick={() => setShowClearModal(false)}>Cancelar</Button>
-                  <Button variant="danger" onClick={handleLimpar}>Sim, limpar</Button>
-                </div>
-              </div>
-            </div>
-          )}
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <input type="password" id="senha_sistema" placeholder="Senha do App" class="bg-slate-800 border border-slate-700 text-white px-3 py-1 rounded-full outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48 text-sm placeholder-slate-400 transition-all">
         </div>
-      );
-    };
+    </div>
 
-    // --- PÁGINA: BUSCAR PEDIDO ---
-    const BuscarPedido = ({ appPassword }) => {
-      const [searchQuery, setSearchQuery] = useState('');
-      const [loading, setLoading] = useState(false);
-      const [result, setResult] = useState(null);
-
-      const handleSearch = async () => {
-        if(!searchQuery) return;
-        if(!appPassword) return alert("Por favor, digite a Senha do Sistema no topo da tela.");
-        
-        setLoading(true);
-        try {
-          const response = await fetch(`${BACKEND_URL}/api/search?q=${searchQuery}`, {
-            headers: { 'X-App-Password': appPassword }
-          });
-          
-          const data = await response.json();
-          if (response.status === 401) throw new Error("Acesso Negado: Senha Incorreta.");
-          if (!response.ok) throw new Error(data.error || "Erro na busca");
-          
-          setResult(data);
-        } catch(e) {
-          alert(e.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      const handleFileUpload = (type, file) => {
-        if(!file) return;
-        alert(`Arquivo selecionado para ${type}: ${file.name}. \n\nAqui o backend enviaria para o Google Drive.`);
-      };
-
-      return (
-        <div className="max-w-4xl mx-auto pb-24">
-          <Card className="mb-6 bg-blue-600 text-white border-none">
-            <h2 className="text-xl md:text-2xl font-bold mb-4">Buscar Cliente / Pedido</h2>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Icon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-300" />
-                <input
-                  type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Nome, CPF ou ID..."
-                  className="w-full bg-blue-700/50 border border-blue-500 text-white placeholder-blue-300 rounded-xl md:rounded-full px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-white transition-colors"
-                />
-              </div>
-              <Button variant="tonal" className="!bg-white !text-blue-600" loading={loading} onClick={handleSearch}>Buscar</Button>
-            </div>
-          </Card>
-
-          {result && (
-            <Card className="animate-in slide-in-from-bottom-4 duration-300">
-              <div className="flex flex-col md:flex-row justify-between items-start mb-6 border-b border-gray-100 pb-4 gap-4">
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold text-gray-800">{result.nome}</h3>
-                  <p className="text-gray-500 text-sm md:text-base">CPF: {result.cpf}</p>
+    <!-- CABEÇALHO E ABAS -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">description</span>
                 </div>
-                <div className="text-left md:text-right">
-                  <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs md:text-sm font-medium mb-1">Contrato {result.statusContrato}</span>
-                  <p className="text-xs md:text-sm font-medium text-amber-600">Pagamento: {result.statusPagamento}</p>
-                </div>
-              </div>
-              
-              <div className="mb-8">
-                <p className="font-medium text-gray-700 mb-1 text-sm md:text-base">Objeto do Contrato:</p>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-xl text-sm md:text-base">{result.objeto}</p>
-              </div>
-
-              <h4 className="font-bold text-gray-800 mb-4 text-base md:text-lg">Provas para o JEC (Google Drive)</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="border border-gray-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors">
-                  <Icon name="description" className="!text-[40px] text-gray-400 mb-3" />
-                  <p className="font-medium text-gray-800 mb-2 text-sm md:text-base">Comprovante Assinado</p>
-                  <div className="relative w-full max-w-[200px]">
-                    <Button variant="secondary" iconName="cloud_upload" className="w-full text-xs md:text-sm px-4 py-2">Escolher Arquivo</Button>
-                    <input type="file" accept="image/*,application/pdf" onChange={(e) => handleFileUpload('comprovante', e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                  </div>
-                </div>
-
-                <div className="border border-gray-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors">
-                  <Icon name="photo_camera" className="!text-[40px] text-gray-400 mb-3" />
-                  <p className="font-medium text-gray-800 mb-2 text-sm md:text-base">Foto da Entrega</p>
-                  <div className="relative w-full max-w-[200px]">
-                    <Button variant="primary" iconName="photo_camera" className="w-full text-xs md:text-sm px-4 py-2">Tirar Foto Agora</Button>
-                    <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileUpload('foto_cliente', e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                  </div>
-                </div>
-              </div>
-            </Card>
-          )}
-        </div>
-      );
-    };
-
-    // --- ROTEADOR PRINCIPAL ---
-    const App = () => {
-      const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#novo-pedido');
-      // Estado para a Senha do Sistema (Salva localmente)
-      const [appPassword, setAppPassword] = useState(localStorage.getItem('appPassword') || '');
-
-      useEffect(() => {
-        const handleHashChange = () => setCurrentRoute(window.location.hash || '#novo-pedido');
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-      }, []);
-
-      useEffect(() => {
-        localStorage.setItem('appPassword', appPassword);
-      }, [appPassword]);
-
-      const navigateTo = (hash) => window.location.hash = hash;
-
-      return (
-        <div className="min-h-screen bg-gray-50 md:bg-gray-100 flex flex-col">
-          
-          {/* Barra de Senha Global (Segurança) */}
-          <div className="bg-slate-900 text-white px-4 py-2.5 flex items-center justify-center gap-2 md:gap-3 z-50 shadow-md">
-            <Icon name="lock" className="!text-[18px] text-amber-400" />
-            <span className="text-xs md:text-sm font-medium">Senha do Sistema:</span>
-            <input
-              type="password"
-              value={appPassword}
-              onChange={(e) => setAppPassword(e.target.value)}
-              placeholder="••••••••"
-              className="bg-slate-800 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 w-32 md:w-48 transition-all"
-            />
-          </div>
-
-          <header className="bg-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row items-center justify-between sticky top-0 z-30 shadow-sm gap-3 md:gap-0">
-            <h1 className="text-lg md:text-xl font-bold text-gray-800 tracking-tight flex items-center gap-2">
-              <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-600 rounded-lg md:rounded-xl flex items-center justify-center text-white">
-                <Icon name="description" className="!text-[18px] md:!text-[20px]" />
-              </div>
-              Contrato Inteligente
+                Contrato Inteligente
             </h1>
-            <div className="flex gap-1 md:gap-2 bg-gray-100 p-1 rounded-full w-full md:w-auto justify-center">
-              <button onClick={() => navigateTo('#novo-pedido')} className={`flex-1 md:flex-none px-4 py-2 md:px-5 rounded-full text-xs md:text-sm font-medium transition-colors ${currentRoute === '#novo-pedido' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>Novo Pedido</button>
-              <button onClick={() => navigateTo('#buscar-pedido')} className={`flex-1 md:flex-none px-4 py-2 md:px-5 rounded-full text-xs md:text-sm font-medium transition-colors ${currentRoute === '#buscar-pedido' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>Buscar Pedido</button>
+            <div class="flex gap-1 bg-gray-100 p-1 rounded-full w-full sm:w-auto overflow-x-auto no-scrollbar">
+                <button onclick="switchTab('novo-pedido')" id="tab-novo" class="flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium bg-white text-blue-700 shadow-sm transition-all whitespace-nowrap">Novo Pedido</button>
+                <button onclick="switchTab('buscar-pedido')" id="tab-buscar" class="flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 transition-all whitespace-nowrap">Buscar Pedido</button>
             </div>
-          </header>
-          <main className="p-3 md:p-6 flex-1">
-            {/* Passando a senha para os componentes filhos */}
-            {currentRoute === '#novo-pedido' ? <NovoPedido appPassword={appPassword} /> : <BuscarPedido appPassword={appPassword} />}
-          </main>
         </div>
-      );
-    }
+    </header>
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+    <!-- CONTAINER DE AVISOS (Toasts) -->
+    <div id="toast-container" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none"></div>
+
+    <main class="max-w-4xl mx-auto p-4">
+        <!-- ========================================== -->
+        <!-- ABA: NOVO PEDIDO                           -->
+        <!-- ========================================== -->
+        <div id="novo-pedido" class="tab-content active">
+            
+            <!-- Card Principal -->
+            <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5">Dados Principais</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 ml-1">Nome Completo</label>
+                        <input type="text" id="np_nome" placeholder="João da Silva" class="mt-1 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" onchange="saveData()">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 ml-1">CPF</label>
+                        <input type="text" id="np_cpf" placeholder="000.000.000-00" class="mt-1 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" onchange="saveData()">
+                    </div>
+                    
+                    <!-- Toggle Produto/Serviço -->
+                    <div class="sm:col-span-2">
+                        <label class="text-sm font-medium text-gray-700 ml-1">Tipo de Negociação</label>
+                        <div class="flex gap-2 mt-1 bg-gray-50 p-1 rounded-2xl border border-gray-200 w-full sm:w-fit">
+                            <button id="btn_tipo_produto" onclick="setTipoObjeto('produto')" class="flex-1 sm:flex-none px-6 py-2 rounded-xl text-sm font-medium bg-white text-blue-700 shadow-sm transition-all">Produto Físico</button>
+                            <button id="btn_tipo_servico" onclick="setTipoObjeto('servico')" class="flex-1 sm:flex-none px-6 py-2 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-700 transition-all">Serviço Prestado</button>
+                        </div>
+                        <input type="hidden" id="np_tipo_objeto" value="produto">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label id="lbl_objeto" class="text-sm font-medium text-gray-700 ml-1">Descrição do Produto</label>
+                        <input type="text" id="np_objeto" placeholder="Ex: 01 Perfume Boticário Malbec 100ml" class="mt-1 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" onchange="saveData()">
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 ml-1">Valor Total (R$)</label>
+                        <input type="text" id="np_valor" placeholder="150,00" class="mt-1 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" onchange="saveData()">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 ml-1">Data de Vencimento</label>
+                        <input type="date" id="np_vencimento" class="mt-1 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" onchange="saveData()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Contatos -->
+            <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5">Contatos e Endereço</h2>
+                
+                <div class="mb-5">
+                    <label class="text-sm font-medium text-gray-700 ml-1">Telefone / WhatsApp</label>
+                    <div id="container_telefones" class="flex flex-col gap-2 mt-1"></div>
+                    <button onclick="addField('telefones')" class="text-blue-600 text-sm font-medium flex items-center gap-1 mt-2 hover:underline p-1"><span class="material-symbols-outlined text-[18px]">add</span> Adicionar outro número</button>
+                </div>
+
+                <div class="mb-5">
+                    <label class="text-sm font-medium text-gray-700 ml-1">E-mails</label>
+                    <div id="container_emails" class="flex flex-col gap-2 mt-1"></div>
+                    <button onclick="addField('emails')" class="text-blue-600 text-sm font-medium flex items-center gap-1 mt-2 hover:underline p-1"><span class="material-symbols-outlined text-[18px]">add</span> Adicionar outro e-mail</button>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-700 ml-1">Endereços Físicos (Para Citação JEC)</label>
+                    <div id="container_enderecos" class="flex flex-col gap-2 mt-1"></div>
+                    <button onclick="addField('enderecos')" class="text-blue-600 text-sm font-medium flex items-center gap-1 mt-2 hover:underline p-1"><span class="material-symbols-outlined text-[18px]">add</span> Adicionar outro endereço</button>
+                </div>
+            </div>
+
+            <!-- Card Contrato Base -->
+            <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-3">Contrato Base (.docx)</h2>
+                <label for="file-upload" class="border-2 border-dashed border-gray-300 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative w-full">
+                    <span class="material-symbols-outlined text-blue-500 text-[40px] mb-2">cloud_upload</span>
+                    <span id="file-name" class="font-medium text-gray-700 text-sm sm:text-base px-2">Clique para anexar o contrato modelo</span>
+                    <span class="text-xs text-gray-500 mt-1">Apenas arquivos .docx</span>
+                    <input type="file" id="file-upload" accept=".docx" class="hidden" onchange="handleFileSelect(event)">
+                </label>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- ABA: BUSCAR PEDIDO                         -->
+        <!-- ========================================== -->
+        <div id="buscar-pedido" class="tab-content">
+            <div class="bg-blue-600 text-white rounded-[24px] shadow-md p-5 sm:p-6 mb-4">
+                <h2 class="text-xl font-bold mb-4">Buscar Cliente / Pedido</h2>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-blue-300">search</span>
+                        <input type="text" id="busca_query" placeholder="Digite o Nome ou CPF..." class="w-full bg-blue-700/50 border border-blue-500 text-white placeholder-blue-300 rounded-2xl px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-white transition-colors">
+                    </div>
+                    <button onclick="buscarPedido()" id="btn_buscar" class="bg-white text-blue-600 px-8 py-3 rounded-2xl font-bold hover:bg-blue-50 transition-colors flex justify-center items-center gap-2">
+                        Buscar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container de Resultado da Busca -->
+            <div id="resultado_busca" class="hidden">
+                <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6 border-b border-gray-100 pb-4">
+                        <div>
+                            <h3 id="res_nome" class="text-xl font-bold text-gray-800">Nome do Cliente</h3>
+                            <p id="res_cpf" class="text-gray-500 text-sm">CPF: 000</p>
+                        </div>
+                        <div class="text-left sm:text-right w-full sm:w-auto">
+                            <span id="res_status_contrato" class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mb-1 uppercase tracking-wide">Contrato Assinado</span>
+                            <p id="res_status_pagamento" class="text-sm font-medium text-amber-600">Pagamento: Aguardando</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm sm:text-base">Provas para o JEC (Envio Drive)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Comprovante -->
+                        <label class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition-colors relative">
+                            <span class="material-symbols-outlined text-gray-400 text-[32px] mb-2">receipt_long</span>
+                            <p class="font-medium text-gray-800 text-sm mb-2">Comprovante Assinado</p>
+                            <span class="bg-gray-100 text-gray-700 text-xs px-4 py-1.5 rounded-full font-medium">Anexar Arquivo</span>
+                            <input type="file" accept="image/*,application/pdf" class="hidden" onchange="uploadProva('comprovante', this)">
+                        </label>
+                        <!-- Foto (Câmera Direta) -->
+                        <label class="border border-blue-100 bg-blue-50/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:bg-blue-50 cursor-pointer transition-colors relative">
+                            <span class="material-symbols-outlined text-blue-500 text-[32px] mb-2">photo_camera</span>
+                            <p class="font-medium text-blue-900 text-sm mb-2">Foto da Entrega</p>
+                            <span class="bg-blue-600 text-white text-xs px-4 py-1.5 rounded-full font-medium">Tirar Foto Agora</span>
+                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadProva('foto_cliente', this)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- BARRA DE AÇÕES FIXA (Mobile First) -->
+    <div id="action-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 sm:p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-40 transition-transform duration-300 pb-safe">
+        <div class="max-w-4xl mx-auto grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:justify-between items-center">
+            <!-- Botões Secundários -->
+            <button onclick="confirmarLimpeza()" class="col-span-1 sm:col-span-auto flex items-center justify-center gap-1 sm:gap-2 px-3 py-3 sm:px-6 rounded-2xl font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-sm sm:text-base">
+                <span class="material-symbols-outlined text-[20px]">delete</span> <span class="hidden sm:inline">Limpar</span>
+            </button>
+            <button onclick="visualizarContrato()" class="col-span-1 sm:col-span-auto flex items-center justify-center gap-1 sm:gap-2 px-3 py-3 sm:px-6 rounded-2xl font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors text-sm sm:text-base">
+                <span class="material-symbols-outlined text-[20px]">visibility</span> Visualizar
+            </button>
+            <!-- Botões Principais -->
+            <button onclick="atualizarContrato()" id="btn_atualizar" class="col-span-1 sm:col-span-auto flex items-center justify-center gap-1 sm:gap-2 px-3 py-3 sm:px-6 rounded-2xl font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm sm:text-base">
+                <span class="material-symbols-outlined text-[20px]" id="icon_atualizar">auto_fix_high</span> <span class="truncate">Atualizar (IA)</span>
+            </button>
+            <button onclick="enviarTudo()" id="btn_enviar" class="col-span-1 sm:col-span-auto flex items-center justify-center gap-1 sm:gap-2 px-3 py-3 sm:px-6 rounded-2xl font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-md transition-colors text-sm sm:text-base">
+                <span class="material-symbols-outlined text-[20px]" id="icon_enviar">send</span> <span class="truncate">Enviar Pedido</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE LIMPEZA -->
+    <div id="modal-limpeza" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-[28px] p-6 sm:p-8 max-w-sm w-full shadow-2xl">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined">warning</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Limpar tudo?</h3>
+            <p class="text-gray-600 text-sm mb-6">Isso apagará todos os dados preenchidos e removerá as informações guardadas no telemóvel. Não pode ser desfeito.</p>
+            <div class="flex gap-3 justify-end">
+                <button onclick="fecharModal()" class="px-5 py-2 rounded-full font-medium bg-gray-100 text-gray-800">Cancelar</button>
+                <button onclick="limparTudo()" class="px-5 py-2 rounded-full font-medium bg-red-600 text-white">Sim, limpar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================================
+        // CONFIGURAÇÃO DO BACKEND - COLOQUE AQUI A SUA URL DA CLOUDFLARE
+        // ========================================================
+        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // MANTENHA AS ASPAS E SEM BARRA NO FINAL
+        
+        // ESTADO GLOBAL
+        let formData = { telefones: [''], emails: [''], enderecos: [''] };
+        let arquivoBase = null;
+        let arquivoProcessado = null; // Guarda o texto final gerado pelo Gemini
+
+        // Função utilitária para converter arquivo em Base64
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '');
+            if(hash === 'buscar-pedido') switchTab('buscar-pedido');
+            
+            const savedSenha = localStorage.getItem('senha_sistema');
+            if (savedSenha) document.getElementById('senha_sistema').value = savedSenha;
+            
+            document.getElementById('senha_sistema').addEventListener('input', (e) => {
+                localStorage.setItem('senha_sistema', e.target.value);
+            });
+
+            const saved = localStorage.getItem('novoPedidoData');
+            if (saved) {
+                try {
+                    formData = JSON.parse(saved);
+                    document.getElementById('np_nome').value = formData.nome || '';
+                    document.getElementById('np_cpf').value = formData.cpf || '';
+                    document.getElementById('np_objeto').value = formData.objeto || '';
+                    document.getElementById('np_valor').value = formData.valor || '';
+                    document.getElementById('np_vencimento').value = formData.vencimento || '';
+                    if(formData.tipo) setTipoObjeto(formData.tipo);
+                } catch(e) {}
+            }
+            renderDynamicFields();
+        });
+
+        // UTILITÁRIOS DE INTERFACE
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const isSuccess = type === 'success';
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg transform transition-all duration-300 translate-y-0 opacity-100 ${isSuccess ? 'bg-gray-900 text-white' : 'bg-red-600 text-white'}`;
+            toast.innerHTML = `<span class="material-symbols-outlined text-[20px]">${isSuccess ? 'check_circle' : 'error'}</span><span class="text-sm font-medium">${message}</span>`;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-4'); setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.getElementById('tab-novo').className = tabId === 'novo-pedido' ? 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium bg-white text-blue-700 shadow-sm transition-all whitespace-nowrap' : 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 transition-all whitespace-nowrap';
+            document.getElementById('tab-buscar').className = tabId === 'buscar-pedido' ? 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium bg-white text-blue-700 shadow-sm transition-all whitespace-nowrap' : 'flex-1 sm:flex-none px-6 py-2.5 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 transition-all whitespace-nowrap';
+            
+            document.getElementById('action-bar').style.display = tabId === 'novo-pedido' ? 'block' : 'none';
+            window.location.hash = tabId;
+        }
+
+        function setTipoObjeto(tipo) {
+            document.getElementById('np_tipo_objeto').value = tipo;
+            formData.tipo = tipo;
+            const btnProd = document.getElementById('btn_tipo_produto');
+            const btnServ = document.getElementById('btn_tipo_servico');
+            const lblObjeto = document.getElementById('lbl_objeto');
+            const inputObjeto = document.getElementById('np_objeto');
+
+            if (tipo === 'produto') {
+                btnProd.className = "flex-1 sm:flex-none px-6 py-2 rounded-xl text-sm font-medium bg-white text-blue-700 shadow-sm transition-all";
+                btnServ.className = "flex-1 sm:flex-none px-6 py-2 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-700 transition-all";
+                lblObjeto.innerText = "Descrição do Produto";
+                inputObjeto.placeholder = "Ex: 01 Perfume Boticário Malbec 100ml";
+            } else {
+                btnServ.className = "flex-1 sm:flex-none px-6 py-2 rounded-xl text-sm font-medium bg-white text-blue-700 shadow-sm transition-all";
+                btnProd.className = "flex-1 sm:flex-none px-6 py-2 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-700 transition-all";
+                lblObjeto.innerText = "Descrição do Serviço";
+                inputObjeto.placeholder = "Ex: Formatação de Notebook c/ Backup";
+            }
+            saveData();
+        }
+
+        function renderDynamicFields() {
+            const types = [
+                { id: 'telefones', icon: 'call', placeholder: '(00) 00000-0000' },
+                { id: 'emails', icon: 'mail', placeholder: 'cliente@email.com' },
+                { id: 'enderecos', icon: 'location_on', placeholder: 'Rua, Número, Bairro, Cidade - UF' }
+            ];
+
+            types.forEach(type => {
+                const container = document.getElementById(`container_${type.id}`);
+                container.innerHTML = '';
+                formData[type.id].forEach((val, index) => {
+                    const div = document.createElement('div');
+                    div.className = "flex gap-2 relative";
+                    div.innerHTML = `
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">${type.icon}</span>
+                        <input type="text" value="${val}" onchange="updateDynamicField('${type.id}', ${index}, this.value)" placeholder="${type.placeholder}" class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 pl-11 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        ${index > 0 ? `<button onclick="removeField('${type.id}', ${index})" class="bg-red-50 text-red-600 px-4 rounded-2xl hover:bg-red-100 flex items-center"><span class="material-symbols-outlined">delete</span></button>` : ''}
+                    `;
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        function addField(type) { formData[type].push(''); renderDynamicFields(); saveData(); }
+        function removeField(type, index) { formData[type].splice(index, 1); renderDynamicFields(); saveData(); }
+        function updateDynamicField(type, index, value) { formData[type][index] = value; saveData(); }
+
+        function saveData() {
+            formData.nome = document.getElementById('np_nome').value;
+            formData.cpf = document.getElementById('np_cpf').value;
+            formData.objeto = document.getElementById('np_objeto').value;
+            formData.valor = document.getElementById('np_valor').value;
+            formData.vencimento = document.getElementById('np_vencimento').value;
+            localStorage.setItem('novoPedidoData', JSON.stringify(formData));
+        }
+
+        function handleFileSelect(event) {
+            arquivoBase = event.target.files[0];
+            arquivoProcessado = null; 
+            if (arquivoBase) {
+                document.getElementById('file-name').innerText = arquivoBase.name;
+                document.getElementById('file-name').classList.add('text-blue-700');
+            }
+        }
+
+        function confirmarLimpeza() { document.getElementById('modal-limpeza').classList.remove('hidden'); document.getElementById('modal-limpeza').classList.add('flex'); }
+        function fecharModal() { document.getElementById('modal-limpeza').classList.add('hidden'); document.getElementById('modal-limpeza').classList.remove('flex'); }
+        
+        function limparTudo() {
+            formData = { telefones: [''], emails: [''], enderecos: [''] };
+            document.querySelectorAll('input[type="text"], input[type="date"]').forEach(el => el.value = '');
+            arquivoBase = null;
+            arquivoProcessado = null;
+            document.getElementById('file-name').innerText = "Clique para anexar o contrato modelo";
+            document.getElementById('file-name').classList.remove('text-blue-700');
+            localStorage.removeItem('novoPedidoData');
+            renderDynamicFields();
+            fecharModal();
+            showToast('Formulário limpo.');
+        }
+
+        // ========================================================
+        // AÇÕES PRINCIPAIS (CONEXÃO COM A API DE VERDADE)
+        // ========================================================
+        
+        async function atualizarContrato() {
+            const senha = document.getElementById('senha_sistema').value;
+            if (!senha) return showToast('Introduza a senha do sistema no topo.', 'error');
+            if (!arquivoBase) return showToast('Anexe o ficheiro .docx base primeiro.', 'error');
+            
+            const btn = document.getElementById('btn_atualizar');
+            const icon = document.getElementById('icon_atualizar');
+            btn.classList.add('opacity-70', 'pointer-events-none');
+            icon.innerText = 'hourglass_empty';
+            icon.classList.add('animate-spin');
+
+            try {
+                showToast('A enviar para a Inteligência Artificial...', 'success');
+                
+                // Converte o Word para texto base64
+                const base64 = await toBase64(arquivoBase);
+                
+                // Dispara o pedido real para a sua Cloudflare API
+                const response = await fetch(`${WORKER_URL}/api/generate-contract`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-App-Password': senha // Envia a senha para validar
+                    },
+                    body: JSON.stringify({
+                        dadosCliente: formData,
+                        contratoBase64: base64
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Se o servidor retornar erro (ex: senha incorreta ou erro no Gemini)
+                if (!response.ok) throw new Error(data.error || 'Erro na comunicação com a API');
+
+                // Salva o texto do contrato reescrito pela IA na memória
+                arquivoProcessado = data.contratoAtualizado; 
+                
+                showToast('Sucesso! Contrato preenchido. Clique em Visualizar.', 'success');
+
+            } catch (error) {
+                showToast('Falha: ' + error.message, 'error');
+            } finally {
+                // Restaura o botão
+                btn.classList.remove('opacity-70', 'pointer-events-none');
+                icon.classList.remove('animate-spin');
+                icon.innerText = 'auto_fix_high';
+            }
+        }
+
+        function visualizarContrato() {
+            if (!arquivoProcessado) {
+                return showToast('Precisa de "Atualizar (IA)" o contrato primeiro.', 'error');
+            }
+            
+            // Cria uma página em branco e injeta o texto gerado pela IA nela
+            const novaAba = window.open('', '_blank');
+            novaAba.document.write(`
+                <html>
+                <head>
+                    <title>Contrato Pré-visualização</title>
+                    <meta charset="UTF-8">
+                </head>
+                <body style="font-family: sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; white-space: pre-wrap; color: #333;">${arquivoProcessado}</body>
+                </html>
+            `);
+            novaAba.document.close();
+            showToast('Contrato aberto em uma nova aba!', 'success');
+        }
+
+        async function enviarTudo() {
+            const senha = document.getElementById('senha_sistema').value;
+            if (!senha) return showToast('Introduza a senha do sistema.', 'error');
+            if (!arquivoProcessado) return showToast('Por favor, atualize o contrato com a IA primeiro.', 'error');
+
+            const btn = document.getElementById('btn_enviar');
+            btn.classList.add('opacity-70', 'pointer-events-none');
+            document.getElementById('icon_enviar').innerText = 'hourglass_empty';
+
+            try {
+                showToast('A enviar dados para Asaas, Assinafy e Planilha...', 'success');
+                
+                const response = await fetch(`${WORKER_URL}/api/process-order`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-App-Password': senha
+                    },
+                    body: JSON.stringify({
+                        dadosCliente: formData,
+                        contratoTexto: arquivoProcessado // Envia o texto que a IA gerou
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) throw new Error(data.error || 'Erro na comunicação com a API');
+
+                showToast('Sucesso! Tudo processado e salvo na planilha.', 'success');
+
+            } catch (error) {
+                showToast('Falha: ' + error.message, 'error');
+            } finally {
+                btn.classList.remove('opacity-70', 'pointer-events-none');
+                document.getElementById('icon_enviar').innerText = 'send';
+            }
+        }
+
+        // BUSCAR PEDIDO LÓGICA (SIMULADA POR ENQUANTO)
+        function buscarPedido() {
+            const btn = document.getElementById('btn_buscar');
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">hourglass_empty</span>';
+            
+            setTimeout(() => {
+                document.getElementById('resultado_busca').classList.remove('hidden');
+                document.getElementById('res_nome').innerText = "Maria das Graças (Simulação)";
+                document.getElementById('res_cpf').innerText = "CPF: 123.456.789-00";
+                btn.innerHTML = 'Buscar';
+            }, 1000);
+        }
+
+        function uploadProva(tipo, inputElement) {
+            if(inputElement.files.length > 0) {
+                showToast(`Arquivo selecionado! Envio automático iniciado.`, 'success');
+            }
+        }
+    </script>
 </body>
 </html>
