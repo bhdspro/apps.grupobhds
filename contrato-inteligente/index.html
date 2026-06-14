@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Contrato Inteligente</title>
+    <!-- Favicon Oficial Documento -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
@@ -27,6 +28,7 @@
             <span class="font-medium hidden sm:inline">Segurança</span>
         </div>
         <div>
+            <!-- A senha não é mais salva no LocalStorage -->
             <input type="password" id="senha_sistema" placeholder="Senha da API" class="bg-slate-800 border border-slate-700 text-white px-3 py-1 rounded-full outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48 text-sm transition-all">
         </div>
     </div>
@@ -49,6 +51,7 @@
 
     <div id="toast-container" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none"></div>
 
+    <!-- MODAL DE ERROS DAS APIS -->
     <div id="modal-erros-api" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-[28px] p-6 max-w-md w-full shadow-2xl">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4"><span class="material-symbols-outlined">api</span></div>
@@ -137,7 +140,7 @@
                 </div>
             </div>
 
-            <!-- CONTATOS DO CLIENTE (Corrigido o Javascript) -->
+            <!-- CONTATOS DO CLIENTE -->
             <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
                 <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
                     <span class="material-symbols-outlined text-green-500">contacts</span> Contatos do Cliente
@@ -219,6 +222,7 @@
                 </div>
             </div>
 
+            <!-- Container Resultado Busca -->
             <div id="resultado_busca" class="hidden">
                 <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-gray-100 pb-4 mb-4">
@@ -238,19 +242,19 @@
                         <a id="res_link_pgto" href="#" target="_blank" class="text-blue-600 text-sm font-medium flex items-center gap-1 hover:underline"><span class="material-symbols-outlined text-[18px]">open_in_new</span> Abrir Link de Pagamento</a>
                     </div>
                     
-                    <h4 class="font-bold text-gray-800 mb-3 text-sm sm:text-base">Provas para o JEC</h4>
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm sm:text-base">Provas para o JEC (Salva no Google Drive)</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <label class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer">
                             <span class="material-symbols-outlined text-gray-400 text-[32px] mb-2">receipt_long</span>
                             <p class="font-medium text-gray-800 text-sm mb-2">Comprovante</p>
                             <span class="bg-gray-100 px-4 py-1.5 rounded-full text-xs font-medium text-gray-700">Anexar Arquivo</span>
-                            <input type="file" accept="image/*,application/pdf" class="hidden">
+                            <input type="file" accept="image/*,application/pdf" class="hidden" onchange="uploadProva('Comprovante', this)">
                         </label>
                         <label class="border border-blue-100 bg-blue-50/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:bg-blue-50 cursor-pointer">
                             <span class="material-symbols-outlined text-blue-500 text-[32px] mb-2">photo_camera</span>
                             <p class="font-medium text-blue-900 text-sm mb-2">Foto da Entrega</p>
                             <span class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-medium">Tirar Foto Agora</span>
-                            <input type="file" accept="image/*" capture="environment" class="hidden">
+                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadProva('Foto_Entrega', this)">
                         </label>
                     </div>
                 </div>
@@ -425,7 +429,6 @@
             saveData();
         }
 
-        // CORREÇÃO DO BUG (A variável index não quebra mais a função)
         function renderDynamicFields() {
             ['telefones', 'emails'].forEach(type => {
                 const container = document.getElementById(`container_${type}`);
@@ -495,7 +498,7 @@
 
         async function atualizarContrato() {
             const senha = document.getElementById('senha_sistema').value;
-            if (!senha) return showToast('Introduza a Senha de Segurança.', 'error');
+            if (!senha) return showToast('Introduza a Senha de Segurança no topo.', 'error');
             if (!validarFormulario()) return;
             if (!textoExtraidoWord) return showToast('Anexe o contrato base (.docx).', 'error');
             
@@ -600,6 +603,45 @@
                 
             } catch (err) { showToast(err.message, 'error'); } 
             finally { btn.innerHTML = 'Buscar'; }
+        }
+
+        // ====== UPLOAD DE FOTOS PARA O GOOGLE DRIVE ======
+        async function uploadProva(tipo, inputElement) {
+            if(inputElement.files.length > 0) {
+                const file = inputElement.files[0];
+                const senha = document.getElementById('senha_sistema').value;
+                const nomeClienteBusca = document.getElementById('res_nome').innerText;
+
+                if (!senha) return showToast('Digite a Senha de Segurança primeiro.', 'error');
+                
+                showToast(`Fazendo upload da ${tipo} para o Google Drive...`, 'success');
+
+                const reader = new FileReader();
+                reader.onload = async function() {
+                    const base64String = reader.result.split(',')[1];
+                    try {
+                        const res = await fetch(`${WORKER_URL}/api/upload-drive`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-App-Password': senha },
+                            body: JSON.stringify({
+                                nome_cliente: nomeClienteBusca,
+                                fileName: `${tipo}_${file.name}`,
+                                mimeType: file.type,
+                                base64: base64String
+                            })
+                        });
+                        const data = await res.json();
+                        if(res.ok && data.sucesso) {
+                            showToast(`Upload concluído! Salvo na pasta do cliente.`, 'success');
+                        } else {
+                            throw new Error(data.erro || "Falha desconhecida");
+                        }
+                    } catch(e) {
+                        showToast(`Erro ao enviar: ${e.message}`, 'error');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
         }
     </script>
 </body>
