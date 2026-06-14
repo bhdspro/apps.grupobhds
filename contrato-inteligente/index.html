@@ -28,6 +28,7 @@
             <span class="font-medium hidden sm:inline">Segurança</span>
         </div>
         <div>
+            <!-- A senha não é mais salva no LocalStorage -->
             <input type="password" id="senha_sistema" placeholder="Senha da API" class="bg-slate-800 border border-slate-700 text-white px-3 py-1 rounded-full outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48 text-sm transition-all">
         </div>
     </div>
@@ -72,17 +73,17 @@
                 </h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-medium text-gray-700 ml-1">Seu Nome / Razão Social</label>
-                        <input type="text" id="cr_nome" class="mt-1 w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
+                        <label class="text-sm font-medium text-gray-700 ml-1">Seu Nome / Razão Social *</label>
+                        <input type="text" id="cr_nome" class="mt-1 w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()" required>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-gray-700 ml-1">Seu CPF / CNPJ</label>
-                        <input type="text" id="cr_cpf" class="mt-1 w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
+                        <label class="text-sm font-medium text-gray-700 ml-1">Seu CPF / CNPJ *</label>
+                        <input type="text" id="cr_cpf" class="mt-1 w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" oninput="applyMask(this, 'cpf')" onchange="saveData()" required>
                     </div>
                     <div class="sm:col-span-2">
                         <label class="text-sm font-medium text-gray-700 ml-1">Seu Endereço Completo</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="text" id="cr_cep" placeholder="CEP" class="w-1/3 bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="cr_cep" placeholder="CEP" class="w-1/3 bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" oninput="applyMask(this, 'cep')">
                             <button onclick="buscarCEP('cr_cep', 'cr_endereco')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-2xl px-4 flex items-center justify-center transition-colors"><span class="material-symbols-outlined">search</span></button>
                             <button onclick="buscarLocalizacaoGPS('cr_endereco')" class="bg-green-100 hover:bg-green-200 text-green-700 rounded-2xl px-4 flex items-center justify-center transition-colors" title="Usar localização GPS"><span class="material-symbols-outlined">my_location</span></button>
                         </div>
@@ -97,12 +98,12 @@
                 </h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-medium text-gray-700 ml-1">Nome Completo</label>
-                        <input type="text" id="np_nome" placeholder="Maria da Silva" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
+                        <label class="text-sm font-medium text-gray-700 ml-1">Nome Completo *</label>
+                        <input type="text" id="np_nome" placeholder="Maria da Silva" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()" required>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-gray-700 ml-1">CPF</label>
-                        <input type="text" id="np_cpf" placeholder="000.000.000-00" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
+                        <label class="text-sm font-medium text-gray-700 ml-1">CPF *</label>
+                        <input type="text" id="np_cpf" placeholder="000.000.000-00" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" oninput="applyMask(this, 'cpf')" onchange="saveData()" required>
                     </div>
                     
                     <div class="sm:col-span-2">
@@ -124,17 +125,17 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label id="lbl_objeto" class="text-sm font-medium text-gray-700 ml-1">Descrição do Produto</label>
-                        <input type="text" id="np_objeto" placeholder="Ex: 01 Perfume Boticário Malbec 100ml" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
+                        <label id="lbl_objeto" class="text-sm font-medium text-gray-700 ml-1">Descrição do Produto *</label>
+                        <input type="text" id="np_objeto" placeholder="Ex: 01 Perfume Boticário Malbec 100ml" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()" required>
                     </div>
                     
                     <div>
-                        <label class="text-sm font-medium text-gray-700 ml-1">Valor Total (R$)</label>
-                        <input type="text" id="np_valor" placeholder="150,00" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
+                        <label class="text-sm font-medium text-gray-700 ml-1">Valor Total (R$) *</label>
+                        <input type="text" id="np_valor" placeholder="150,00" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" oninput="applyMask(this, 'money')" onchange="saveData()" required>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-gray-700 ml-1">Data de Vencimento</label>
-                        <input type="date" id="np_vencimento" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
+                        <label class="text-sm font-medium text-gray-700 ml-1">Data de Vencimento *</label>
+                        <input type="date" id="np_vencimento" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()" required>
                     </div>
                 </div>
             </div>
@@ -145,7 +146,7 @@
                     <span class="material-symbols-outlined text-green-500">contacts</span> Contatos do Cliente
                 </h2>
                 <div class="mb-5">
-                    <label class="text-sm font-medium text-gray-700 ml-1">WhatsApp do Cliente</label>
+                    <label class="text-sm font-medium text-gray-700 ml-1">WhatsApp do Cliente *</label>
                     <div id="container_telefones" class="flex flex-col gap-2 mt-1"></div>
                     <button onclick="addField('telefones')" class="text-blue-600 text-sm font-medium flex items-center gap-1 mt-2 p-1 hover:underline"><span class="material-symbols-outlined text-[18px]">add</span> Adicionar outro</button>
                 </div>
@@ -163,7 +164,7 @@
 
             <!-- CONTRATO BASE -->
             <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
-                <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-3">Contrato Base (.docx)</h2>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-3">Contrato Base (.docx) *</h2>
                 <label for="file-upload" class="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center text-center bg-gray-50 hover:bg-gray-100 cursor-pointer">
                     <span class="material-symbols-outlined text-blue-500 text-[40px] mb-2">cloud_upload</span>
                     <span id="file-name" class="font-medium text-gray-700 px-2">Clique para anexar o modelo</span>
@@ -213,7 +214,7 @@
                 <div class="flex flex-col sm:flex-row gap-3">
                     <div class="relative flex-1">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-blue-300">search</span>
-                        <input type="text" id="busca_query" placeholder="Digite o CPF (Apenas números)..." class="w-full bg-blue-700/50 border border-blue-500 text-white placeholder-blue-300 rounded-2xl px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-white">
+                        <input type="text" id="busca_query" placeholder="Digite o CPF..." class="w-full bg-blue-700/50 border border-blue-500 text-white placeholder-blue-300 rounded-2xl px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-white" oninput="applyMask(this, 'cpf')">
                     </div>
                     <button onclick="buscarPedidoBackend()" id="btn_buscar" class="bg-white text-blue-600 px-8 py-3 rounded-2xl font-bold hover:bg-blue-50 transition-colors flex justify-center items-center gap-2">
                         Buscar
@@ -232,7 +233,7 @@
                         </div>
                         <div class="text-left sm:text-right">
                             <span id="res_status_contrato" class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-1 uppercase tracking-wide">Pendente</span>
-                            <p id="res_status_pagamento" class="text-sm font-bold">Pagamento: ...</p>
+                            <p id="res_status_pagamento" class="text-sm font-bold mt-1">Pagamento: ...</p>
                         </div>
                     </div>
 
@@ -292,7 +293,7 @@
     </div>
 
     <script>
-        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // Cole aqui a URL exata do Cloudflare
+        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // Cole a URL oficial do Cloudflare aqui
         
         let formData = { credor: {}, cliente: {}, telefones: [''], emails: [''], enderecos: [''] };
         let textoExtraidoWord = ""; 
@@ -301,10 +302,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.replace('#', '');
             if(hash === 'buscar-pedido') switchTab('buscar-pedido');
-            
-            const savedSenha = localStorage.getItem('senha_sistema');
-            if (savedSenha) document.getElementById('senha_sistema').value = savedSenha;
-            document.getElementById('senha_sistema').addEventListener('input', (e) => localStorage.setItem('senha_sistema', e.target.value));
 
             const saved = localStorage.getItem('novoPedidoData');
             if (saved) {
@@ -324,6 +321,64 @@
             }
             renderDynamicFields();
         });
+
+        // ====== FUNÇÕES DE MÁSCARAS (Formatação Automática) ======
+        function applyMask(input, type) {
+            let v = input.value;
+            if (type === 'cpf') {
+                v = v.replace(/\D/g, "").slice(0, 14); // Permite até 14 números para aceitar CNPJ também
+                if(v.length <= 11) {
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                } else { // Máscara CNPJ
+                    v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+                    v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+                    v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+                    v = v.replace(/(\d{4})(\d)/, "$1-$2");
+                }
+            } else if (type === 'cep') {
+                v = v.replace(/\D/g, "").slice(0, 8);
+                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+            } else if (type === 'phone') {
+                v = v.replace(/\D/g, "").slice(0, 11);
+                v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+                v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+            } else if (type === 'money') {
+                v = v.replace(/\D/g, "");
+                if(v) {
+                    v = (parseInt(v) / 100).toFixed(2).replace('.', ',');
+                    v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+                }
+            }
+            input.value = v;
+        }
+
+        // ====== VALIDADOR DE CAMPOS OBRIGATÓRIOS ======
+        function validarFormulario() {
+            const obrigatorios = [
+                {id: 'cr_nome', nome: 'Seu Nome (Credor)'},
+                {id: 'cr_cpf', nome: 'Seu CPF (Credor)'},
+                {id: 'np_nome', nome: 'Nome do Cliente'},
+                {id: 'np_cpf', nome: 'CPF do Cliente'},
+                {id: 'np_objeto', nome: 'Descrição do Produto'},
+                {id: 'np_valor', nome: 'Valor Total'},
+                {id: 'np_vencimento', nome: 'Data de Vencimento'}
+            ];
+            
+            for (let campo of obrigatorios) {
+                if (!document.getElementById(campo.id).value.trim()) {
+                    showToast(`Preencha o campo obrigatório: ${campo.nome}`, 'error');
+                    document.getElementById(campo.id).focus();
+                    return false;
+                }
+            }
+            if(!formData.telefones[0].trim()) {
+                showToast(`Preencha o WhatsApp do Cliente`, 'error');
+                return false;
+            }
+            return true;
+        }
 
         function showToast(msg, type='success') {
             const t = document.createElement('div');
@@ -391,11 +446,11 @@
             if (tipo === 'produto') {
                 document.getElementById('btn_tipo_produto').className = "flex-1 px-6 py-2 rounded-xl text-sm font-medium bg-white text-blue-700 shadow-sm";
                 document.getElementById('btn_tipo_servico').className = "flex-1 px-6 py-2 rounded-xl text-sm font-medium text-gray-500";
-                document.getElementById('lbl_objeto').innerText = "Descrição do Produto";
+                document.getElementById('lbl_objeto').innerText = "Descrição do Produto *";
             } else {
                 document.getElementById('btn_tipo_servico').className = "flex-1 px-6 py-2 rounded-xl text-sm font-medium bg-white text-blue-700 shadow-sm";
                 document.getElementById('btn_tipo_produto').className = "flex-1 px-6 py-2 rounded-xl text-sm font-medium text-gray-500";
-                document.getElementById('lbl_objeto').innerText = "Descrição do Serviço";
+                document.getElementById('lbl_objeto').innerText = "Descrição do Serviço *";
             }
             saveData();
         }
@@ -404,12 +459,13 @@
             ['telefones', 'emails'].forEach(type => {
                 const container = document.getElementById(`container_${type}`);
                 const icon = type === 'telefones' ? 'call' : 'mail';
+                const maskAttr = type === 'telefones' ? `oninput="applyMask(this, 'phone'); formData['${type}'][${index}]=this.value; saveData()"` : `onchange="formData['${type}'][${index}]=this.value; saveData()"`;
                 container.innerHTML = '';
                 formData[type].forEach((val, index) => {
                     const div = document.createElement('div');
                     div.className = "flex gap-2 relative";
                     div.innerHTML = `<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">${icon}</span>
-                        <input type="text" value="${val}" onchange="formData['${type}'][${index}]=this.value; saveData()" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500">
+                        <input type="text" value="${val}" ${type === 'telefones' ? `oninput="applyMask(this, 'phone'); formData['${type}'][${index}]=this.value; saveData()"` : `onchange="formData['${type}'][${index}]=this.value; saveData()"`} class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500">
                         ${index > 0 ? `<button onclick="formData['${type}'].splice(${index},1); renderDynamicFields(); saveData()" class="bg-red-50 text-red-600 px-4 rounded-2xl hover:bg-red-100 flex"><span class="material-symbols-outlined">delete</span></button>` : ''}`;
                     container.appendChild(div);
                 });
@@ -424,7 +480,7 @@
                 div.className = "flex flex-col gap-2 bg-gray-50 p-3 rounded-2xl border border-gray-200";
                 div.innerHTML = `
                     <div class="flex gap-2 w-full">
-                        <input type="text" id="${dynCepId}" placeholder="CEP" class="w-1/3 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="${dynCepId}" placeholder="CEP" class="w-1/3 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" oninput="applyMask(this, 'cep')">
                         <button onclick="buscarCEP('${dynCepId}', '${dynId}')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl px-3 flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[20px]">search</span></button>
                         <button onclick="buscarLocalizacaoGPS('${dynId}')" class="bg-green-100 hover:bg-green-200 text-green-700 rounded-xl px-3 flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[20px]">my_location</span></button>
                         ${index > 0 ? `<button onclick="formData.enderecos.splice(${index},1); renderDynamicFields(); saveData()" class="bg-red-100 text-red-600 px-3 rounded-xl hover:bg-red-200 flex ml-auto"><span class="material-symbols-outlined text-[20px]">delete</span></button>` : ''}
@@ -465,7 +521,8 @@
         async function atualizarContrato() {
             const senha = document.getElementById('senha_sistema').value;
             if (!senha) return showToast('Introduza a Senha de Segurança.', 'error');
-            if (!textoExtraidoWord) return showToast('Anexe e aguarde a leitura do contrato .docx.', 'error');
+            if (!validarFormulario()) return;
+            if (!textoExtraidoWord) return showToast('Anexe o contrato base (.docx).', 'error');
             
             const btn = document.getElementById('btn_atualizar'); const icon = document.getElementById('icon_atualizar');
             btn.classList.add('opacity-70', 'pointer-events-none'); icon.innerText = 'hourglass_empty'; icon.classList.add('animate-spin');
@@ -495,6 +552,7 @@
         async function enviarTudoBackend() {
             const senha = document.getElementById('senha_sistema').value;
             if (!senha) return showToast('Senha obrigatória.', 'error');
+            if (!validarFormulario()) return;
             if (!textoContratoPronto) return showToast('Atualize o contrato com a IA primeiro!', 'error');
 
             const btn = document.getElementById('btn_enviar'); const icon = document.getElementById('icon_enviar');
@@ -517,7 +575,6 @@
                 document.getElementById('link_asaas_out').value = data.linkAsaas;
                 document.getElementById('links-gerados').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                // Alerta de Erros Específicos das Financeiras
                 if(data.errosDaAPI && (data.errosDaAPI.asaas || data.errosDaAPI.assinafy)) {
                     document.getElementById('modal-erros-api').classList.remove('hidden');
                     document.getElementById('modal-erros-api').classList.add('flex');
@@ -526,7 +583,6 @@
                         <b>Erro Assinafy:</b> ${data.errosDaAPI.assinafy || 'OK'}
                     `;
                 }
-
             } catch (err) { showToast('Falha no Envio: ' + err.message, 'error'); } 
             finally { btn.classList.remove('opacity-70', 'pointer-events-none'); icon.classList.remove('animate-spin'); icon.innerText = 'send'; }
         }
