@@ -498,7 +498,7 @@
 
         async function atualizarContrato() {
             const senha = document.getElementById('senha_sistema').value;
-            if (!senha) return showToast('Introduza a Senha de Segurança no topo.', 'error');
+            if (!senha) return showToast('Introduza a Senha de Segurança.', 'error');
             if (!validarFormulario()) return;
             if (!textoExtraidoWord) return showToast('Anexe o contrato base (.docx).', 'error');
             
