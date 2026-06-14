@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Contrato Inteligente</title>
-    <!-- Favicon SVG Otimizado -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563EB'><path d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/></svg>">
-    <!-- Tailwind CSS -->
+    <!-- Favicon Oficial Documento -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -51,12 +50,22 @@
 
     <div id="toast-container" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none"></div>
 
+    <!-- MODAL DE ERROS DAS APIS -->
+    <div id="modal-erros-api" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
+        <div class="bg-white rounded-[28px] p-6 max-w-md w-full shadow-2xl">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4"><span class="material-symbols-outlined">api</span></div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Atenção! Dados Salvos com Falhas</h3>
+            <p class="text-sm text-gray-600 mb-4">O pedido foi salvo na sua Planilha, mas as integrações financeiras recusaram a criação dos links:</p>
+            <div class="bg-red-50 border border-red-100 rounded-xl p-3 mb-4 text-sm font-mono text-red-800 overflow-x-auto" id="txt_erros_api"></div>
+            <button onclick="fecharModalErros()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-medium">Entendido</button>
+        </div>
+    </div>
+
     <main class="max-w-4xl mx-auto p-4">
         
         <!-- ================= ABA: NOVO PEDIDO ================= -->
         <div id="novo-pedido" class="tab-content active">
             
-            <!-- DADOS DO CREDOR -->
             <div class="bg-slate-50 rounded-[24px] shadow-sm border border-slate-200 p-5 sm:p-6 mb-4">
                 <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <span class="material-symbols-outlined text-slate-500">storefront</span> Seus Dados (Credor)
@@ -75,14 +84,13 @@
                         <div class="flex gap-2 mt-1">
                             <input type="text" id="cr_cep" placeholder="CEP" class="w-1/3 bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500">
                             <button onclick="buscarCEP('cr_cep', 'cr_endereco')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-2xl px-4 flex items-center justify-center transition-colors"><span class="material-symbols-outlined">search</span></button>
-                            <button onclick="buscarLocalizacaoGPS('cr_endereco')" class="bg-green-100 hover:bg-green-200 text-green-700 rounded-2xl px-4 flex items-center justify-center transition-colors" title="Usar minha localização atual"><span class="material-symbols-outlined">my_location</span></button>
+                            <button onclick="buscarLocalizacaoGPS('cr_endereco')" class="bg-green-100 hover:bg-green-200 text-green-700 rounded-2xl px-4 flex items-center justify-center transition-colors" title="Usar localização GPS"><span class="material-symbols-outlined">my_location</span></button>
                         </div>
                         <input type="text" id="cr_endereco" placeholder="Rua, Número, Bairro, Cidade" class="mt-2 w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500" onchange="saveData()">
                     </div>
                 </div>
             </div>
 
-            <!-- DADOS DO CLIENTE -->
             <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
                 <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
                     <span class="material-symbols-outlined text-blue-500">person</span> Dados do Cliente
@@ -131,10 +139,10 @@
                 </div>
             </div>
 
-            <!-- CONTATOS E ENDEREÇOS (COM VIA CEP E GPS) -->
+            <!-- CONTATOS DO CLIENTE -->
             <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
                 <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-green-500">contacts</span> Contatos e Endereço do Cliente
+                    <span class="material-symbols-outlined text-green-500">contacts</span> Contatos do Cliente
                 </h2>
                 <div class="mb-5">
                     <label class="text-sm font-medium text-gray-700 ml-1">WhatsApp do Cliente</label>
@@ -147,7 +155,7 @@
                     <button onclick="addField('emails')" class="text-blue-600 text-sm font-medium flex items-center gap-1 mt-2 p-1 hover:underline"><span class="material-symbols-outlined text-[18px]">add</span> Adicionar outro</button>
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 ml-1">Endereço(s) Físico(s) do Cliente</label>
+                    <label class="text-sm font-medium text-gray-700 ml-1">Endereços Físicos do Cliente</label>
                     <div id="container_enderecos" class="flex flex-col gap-4 mt-1"></div>
                     <button onclick="addField('enderecos')" class="text-blue-600 text-sm font-medium flex items-center gap-1 mt-2 p-1 hover:underline"><span class="material-symbols-outlined text-[18px]">add</span> Adicionar outro endereço</button>
                 </div>
@@ -271,8 +279,7 @@
         </div>
     </div>
 
-    <!-- MODAL LIMPEZA -->
-    <div id="modal-limpeza" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div id="modal-limpeza" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-[28px] p-6 sm:p-8 max-w-sm w-full">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4"><span class="material-symbols-outlined">warning</span></div>
             <h3 class="text-xl font-bold mb-2">Limpar tudo?</h3>
@@ -285,8 +292,7 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO SEU BACKEND CLOUDFLARE
-        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev";
+        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // Cole aqui a URL exata do Cloudflare
         
         let formData = { credor: {}, cliente: {}, telefones: [''], emails: [''], enderecos: [''] };
         let textoExtraidoWord = ""; 
@@ -327,11 +333,9 @@
             setTimeout(() => { t.classList.add('opacity-0', '-translate-y-4'); setTimeout(() => t.remove(), 300); }, 4000);
         }
 
-        // ====== INTEGRAÇÃO DE CEP E GPS ======
         async function buscarCEP(inputIdCep, inputIdDestino) {
             const cepRaw = document.getElementById(inputIdCep).value.replace(/\D/g, '');
             if(cepRaw.length !== 8) return showToast("Digite um CEP válido com 8 números.", "error");
-            
             showToast("Buscando CEP...", "success");
             try {
                 const res = await fetch(`https://viacep.com.br/ws/${cepRaw}/json/`);
@@ -342,24 +346,18 @@
                 document.getElementById(inputIdDestino).value = enderecoFormatado;
                 saveData();
                 showToast("Endereço preenchido!", "success");
-                // Foca no input para o usuário digitar o número
                 document.getElementById(inputIdDestino).focus(); 
-            } catch(e) {
-                showToast("Falha ao buscar CEP.", "error");
-            }
+            } catch(e) { showToast("Falha ao buscar CEP.", "error"); }
         }
 
         function buscarLocalizacaoGPS(inputIdDestino) {
             if (!navigator.geolocation) return showToast("GPS não suportado no seu navegador.", "error");
-            
             showToast("Buscando sua localização...", "success");
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 try {
-                    // Usando API gratuita do OpenStreetMap para Converter Coordenadas em Endereço Real
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&zoom=18&addressdetails=1`);
                     const data = await res.json();
                     const addr = data.address;
-                    
                     const rua = addr.road || addr.pedestrian || addr.suburb || "Rua Desconhecida";
                     const bairro = addr.suburb || addr.neighbourhood || "";
                     const cidade = addr.city || addr.town || addr.village || "";
@@ -369,22 +367,14 @@
                     const enderecoFormatado = `${rua}, Número, Bairro ${bairro}, ${cidade} - ${estado}, CEP: ${cep}`;
                     document.getElementById(inputIdDestino).value = enderecoFormatado;
                     
-                    // Se o campo for de um array dinâmico, atualiza no array
                     if(inputIdDestino.startsWith("dyn_end_")) {
                         const index = inputIdDestino.split("_")[2];
                         formData.enderecos[index] = enderecoFormatado;
                     }
-                    saveData();
-                    showToast("Endereço capturado via GPS!", "success");
-
-                } catch(e) {
-                    showToast("Erro ao converter coordenadas.", "error");
-                }
-            }, (err) => {
-                showToast("Permissão de Localização negada.", "error");
-            }, { enableHighAccuracy: true, timeout: 10000 });
+                    saveData(); showToast("Endereço capturado via GPS!", "success");
+                } catch(e) { showToast("Erro ao converter coordenadas.", "error"); }
+            }, (err) => { showToast("Permissão de Localização negada.", "error"); }, { enableHighAccuracy: true, timeout: 10000 });
         }
-        // =====================================
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -397,8 +387,7 @@
 
         function setTipoObjeto(tipo) {
             document.getElementById('np_tipo_objeto').value = tipo;
-            formData.cliente = formData.cliente || {};
-            formData.cliente.tipo = tipo;
+            formData.cliente = formData.cliente || {}; formData.cliente.tipo = tipo;
             if (tipo === 'produto') {
                 document.getElementById('btn_tipo_produto').className = "flex-1 px-6 py-2 rounded-xl text-sm font-medium bg-white text-blue-700 shadow-sm";
                 document.getElementById('btn_tipo_servico').className = "flex-1 px-6 py-2 rounded-xl text-sm font-medium text-gray-500";
@@ -412,7 +401,6 @@
         }
 
         function renderDynamicFields() {
-            // Render Telefones e Emails
             ['telefones', 'emails'].forEach(type => {
                 const container = document.getElementById(`container_${type}`);
                 const icon = type === 'telefones' ? 'call' : 'mail';
@@ -427,7 +415,6 @@
                 });
             });
 
-            // Render Endereços com GPS e CEP Integrados
             const containerEnd = document.getElementById('container_enderecos');
             containerEnd.innerHTML = '';
             formData.enderecos.forEach((val, index) => {
@@ -453,79 +440,50 @@
         function addField(type) { formData[type].push(''); renderDynamicFields(); saveData(); }
 
         function saveData() {
-            formData.credor = {
-                nome: document.getElementById('cr_nome').value,
-                cpf: document.getElementById('cr_cpf').value,
-                endereco: document.getElementById('cr_endereco').value
-            };
-            formData.cliente = {
-                nome: document.getElementById('np_nome').value,
-                cpf: document.getElementById('np_cpf').value,
-                genero: document.getElementById('np_genero').value,
-                tipo: document.getElementById('np_tipo_objeto').value,
-                objeto: document.getElementById('np_objeto').value,
-                valor: document.getElementById('np_valor').value,
-                vencimento: document.getElementById('np_vencimento').value
-            };
+            formData.credor = { nome: document.getElementById('cr_nome').value, cpf: document.getElementById('cr_cpf').value, endereco: document.getElementById('cr_endereco').value };
+            formData.cliente = { nome: document.getElementById('np_nome').value, cpf: document.getElementById('np_cpf').value, genero: document.getElementById('np_genero').value, tipo: document.getElementById('np_tipo_objeto').value, objeto: document.getElementById('np_objeto').value, valor: document.getElementById('np_valor').value, vencimento: document.getElementById('np_vencimento').value };
             localStorage.setItem('novoPedidoData', JSON.stringify(formData));
         }
 
         function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            document.getElementById('file-name').innerText = file.name;
-            document.getElementById('file-name').classList.add('text-blue-700');
-            
+            const file = event.target.files[0]; if (!file) return;
+            document.getElementById('file-name').innerText = file.name; document.getElementById('file-name').classList.add('text-blue-700');
             const reader = new FileReader();
             reader.onload = function(e) {
                 mammoth.extractRawText({arrayBuffer: e.target.result}).then(function(result){
-                    textoExtraidoWord = result.value;
-                    showToast('Texto do Word extraído com sucesso!', 'success');
-                }).catch(function(err){
-                    showToast('Erro ao ler o documento Word.', 'error');
-                });
+                    textoExtraidoWord = result.value; showToast('Texto extraído!', 'success');
+                }).catch(function(err){ showToast('Erro ao ler Word.', 'error'); });
             };
             reader.readAsArrayBuffer(file);
         }
 
         function confirmarLimpeza() { document.getElementById('modal-limpeza').classList.remove('hidden'); document.getElementById('modal-limpeza').classList.add('flex'); }
         function fecharModal() { document.getElementById('modal-limpeza').classList.add('hidden'); document.getElementById('modal-limpeza').classList.remove('flex'); }
-        function limparTudo() {
-            localStorage.removeItem('novoPedidoData');
-            location.reload();
-        }
+        function fecharModalErros() { document.getElementById('modal-erros-api').classList.add('hidden'); document.getElementById('modal-erros-api').classList.remove('flex'); }
+        function limparTudo() { localStorage.removeItem('novoPedidoData'); location.reload(); }
 
         async function atualizarContrato() {
             const senha = document.getElementById('senha_sistema').value;
             if (!senha) return showToast('Introduza a Senha de Segurança.', 'error');
             if (!textoExtraidoWord) return showToast('Anexe e aguarde a leitura do contrato .docx.', 'error');
             
-            const btn = document.getElementById('btn_atualizar');
-            const icon = document.getElementById('icon_atualizar');
-            btn.classList.add('opacity-70', 'pointer-events-none');
-            icon.innerText = 'hourglass_empty'; icon.classList.add('animate-spin');
+            const btn = document.getElementById('btn_atualizar'); const icon = document.getElementById('icon_atualizar');
+            btn.classList.add('opacity-70', 'pointer-events-none'); icon.innerText = 'hourglass_empty'; icon.classList.add('animate-spin');
 
             try {
-                showToast('A IA está lendo e reescrevendo com concordância de gênero...', 'success');
+                showToast('A IA está lendo e reescrevendo...', 'success');
                 const res = await fetch(`${WORKER_URL}/api/gemini`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-App-Password': senha },
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'X-App-Password': senha },
                     body: JSON.stringify({ dados: formData, textoBase: textoExtraidoWord })
                 });
                 
-                if (!res.ok) throw new Error('Falha na resposta do Servidor.');
                 const data = await res.json();
-                
-                if(data.erro) throw new Error(data.erro);
+                if (!res.ok || data.erro) throw new Error(data.erro || 'Falha na IA.');
 
                 textoContratoPronto = data.contratoFormatado;
-                showToast('Contrato formatado com sucesso! Clique em Ver (IA).', 'success');
-            } catch (err) {
-                showToast('Erro: ' + err.message, 'error');
-            } finally {
-                btn.classList.remove('opacity-70', 'pointer-events-none');
-                icon.classList.remove('animate-spin'); icon.innerText = 'auto_fix_high';
-            }
+                showToast('Contrato formatado! Clique em Ver (IA).', 'success');
+            } catch (err) { showToast('Erro: ' + err.message, 'error'); } 
+            finally { btn.classList.remove('opacity-70', 'pointer-events-none'); icon.classList.remove('animate-spin'); icon.innerText = 'auto_fix_high'; }
         }
 
         function visualizarContrato() {
@@ -537,54 +495,48 @@
         async function enviarTudoBackend() {
             const senha = document.getElementById('senha_sistema').value;
             if (!senha) return showToast('Senha obrigatória.', 'error');
-            if (!textoContratoPronto) return showToast('Você precisa atualizar e gerar o contrato com a IA primeiro!', 'error');
+            if (!textoContratoPronto) return showToast('Atualize o contrato com a IA primeiro!', 'error');
 
-            const btn = document.getElementById('btn_enviar');
-            const icon = document.getElementById('icon_enviar');
-            btn.classList.add('opacity-70', 'pointer-events-none');
-            icon.innerText = 'hourglass_empty'; icon.classList.add('animate-spin');
+            const btn = document.getElementById('btn_enviar'); const icon = document.getElementById('icon_enviar');
+            btn.classList.add('opacity-70', 'pointer-events-none'); icon.innerText = 'hourglass_empty'; icon.classList.add('animate-spin');
 
             try {
                 showToast('Enviando para Asaas, Assinafy e Planilha...', 'success');
-                
-                const payload = {
-                    dados: formData,
-                    contratoFinalizado: textoContratoPronto
-                };
-
                 const res = await fetch(`${WORKER_URL}/api/enviar-pedido`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-App-Password': senha },
-                    body: JSON.stringify(payload)
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'X-App-Password': senha },
+                    body: JSON.stringify({ dados: formData, contratoFinalizado: textoContratoPronto })
                 });
                 
                 const data = await res.json();
                 if(!res.ok || data.erro) throw new Error(data.erro || 'Erro desconhecido');
 
-                showToast('Operação Realizada com Sucesso!', 'success');
+                showToast('Operação Finalizada!', 'success');
                 
                 document.getElementById('links-gerados').classList.remove('hidden');
-                document.getElementById('link_assinafy_out').value = data.linkAssinafy || 'Erro ao gerar link de assinatura';
-                document.getElementById('link_asaas_out').value = data.linkAsaas || 'Erro ao gerar link de cobrança';
+                document.getElementById('link_assinafy_out').value = data.linkAssinafy;
+                document.getElementById('link_asaas_out').value = data.linkAsaas;
                 document.getElementById('links-gerados').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            } catch (err) {
-                showToast('Falha no Envio: ' + err.message, 'error');
-            } finally {
-                btn.classList.remove('opacity-70', 'pointer-events-none');
-                icon.classList.remove('animate-spin'); icon.innerText = 'send';
-            }
+                // Alerta de Erros Específicos das Financeiras
+                if(data.errosDaAPI && (data.errosDaAPI.asaas || data.errosDaAPI.assinafy)) {
+                    document.getElementById('modal-erros-api').classList.remove('hidden');
+                    document.getElementById('modal-erros-api').classList.add('flex');
+                    document.getElementById('txt_erros_api').innerHTML = `
+                        <b>Erro Asaas:</b> ${data.errosDaAPI.asaas || 'OK'}<br><br>
+                        <b>Erro Assinafy:</b> ${data.errosDaAPI.assinafy || 'OK'}
+                    `;
+                }
+
+            } catch (err) { showToast('Falha no Envio: ' + err.message, 'error'); } 
+            finally { btn.classList.remove('opacity-70', 'pointer-events-none'); icon.classList.remove('animate-spin'); icon.innerText = 'send'; }
         }
 
         function copiarLink(elementId) {
-            const input = document.getElementById(elementId);
-            input.select(); document.execCommand('copy');
-            showToast('Link copiado!', 'success');
+            const input = document.getElementById(elementId); input.select(); document.execCommand('copy'); showToast('Link copiado!', 'success');
         }
         function compartilharWhatsApp(elementId, textoPre) {
             const link = document.getElementById(elementId).value;
-            const text = encodeURIComponent(textoPre + link);
-            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textoPre + link)}`, '_blank');
         }
 
         async function buscarPedidoBackend() {
@@ -592,45 +544,31 @@
             const senha = document.getElementById('senha_sistema').value;
             if(!query) return showToast('Digite o CPF.', 'error');
             
-            const btn = document.getElementById('btn_buscar');
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">hourglass_empty</span>';
+            const btn = document.getElementById('btn_buscar'); btn.innerHTML = '<span class="material-symbols-outlined animate-spin">hourglass_empty</span>';
 
             try {
                 const res = await fetch(`${WORKER_URL}/api/buscar?cpf=${query}`, { headers: { 'X-App-Password': senha } });
                 const data = await res.json();
-                
                 if(!res.ok || data.erro) throw new Error(data.erro || 'Não encontrado.');
 
                 document.getElementById('resultado_busca').classList.remove('hidden');
                 document.getElementById('res_nome').innerText = data.nome;
                 document.getElementById('res_cpf').innerText = `CPF: ${data.cpf}`;
-                document.getElementById('res_objeto').innerText = data.objeto;
+                document.getElementById('res_objeto').innerText = `${data.tipo} - ${data.objeto} (R$ ${data.valor})`;
                 
-                // Formatação Dinâmica dos Status
                 const statusContratoBadge = document.getElementById('res_status_contrato');
                 statusContratoBadge.innerText = data.statusContrato;
-                if(data.statusContrato.toLowerCase().includes("assinado")) {
-                    statusContratoBadge.className = "inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mb-1 uppercase tracking-wide";
-                } else {
-                    statusContratoBadge.className = "inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold mb-1 uppercase tracking-wide";
-                }
+                statusContratoBadge.className = data.statusContrato.toLowerCase().includes("assinado") ? "inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mb-1 uppercase tracking-wide" : "inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold mb-1 uppercase tracking-wide";
 
                 const statusPagamentoBadge = document.getElementById('res_status_pagamento');
                 statusPagamentoBadge.innerText = `Pagamento: ${data.statusPagamento}`;
-                if(data.statusPagamento.toLowerCase().includes("pago") || data.statusPagamento.toLowerCase().includes("received")) {
-                    statusPagamentoBadge.className = "text-sm font-bold text-green-600";
-                } else {
-                    statusPagamentoBadge.className = "text-sm font-bold text-amber-600";
-                }
+                statusPagamentoBadge.className = data.statusPagamento.toLowerCase().includes("pago") || data.statusPagamento.toLowerCase().includes("received") ? "text-sm font-bold text-green-600" : "text-sm font-bold text-amber-600";
                 
                 document.getElementById('res_link_contrato').href = data.linkContrato;
                 document.getElementById('res_link_pgto').href = data.linkPagamento;
                 
-            } catch (err) {
-                showToast(err.message, 'error');
-            } finally {
-                btn.innerHTML = 'Buscar';
-            }
+            } catch (err) { showToast(err.message, 'error'); } 
+            finally { btn.innerHTML = 'Buscar'; }
         }
     </script>
 </body>
