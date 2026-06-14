@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Contrato Inteligente</title>
-    <!-- Favicon Oficial Documento -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
@@ -28,7 +27,6 @@
             <span class="font-medium hidden sm:inline">Segurança</span>
         </div>
         <div>
-            <!-- A senha não é mais salva no LocalStorage -->
             <input type="password" id="senha_sistema" placeholder="Senha da API" class="bg-slate-800 border border-slate-700 text-white px-3 py-1 rounded-full outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48 text-sm transition-all">
         </div>
     </div>
@@ -51,7 +49,6 @@
 
     <div id="toast-container" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none"></div>
 
-    <!-- MODAL DE ERROS DAS APIS -->
     <div id="modal-erros-api" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-[28px] p-6 max-w-md w-full shadow-2xl">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4"><span class="material-symbols-outlined">api</span></div>
@@ -140,7 +137,7 @@
                 </div>
             </div>
 
-            <!-- CONTATOS DO CLIENTE -->
+            <!-- CONTATOS DO CLIENTE (Corrigido o Javascript) -->
             <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
                 <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
                     <span class="material-symbols-outlined text-green-500">contacts</span> Contatos do Cliente
@@ -222,7 +219,6 @@
                 </div>
             </div>
 
-            <!-- Container Resultado Busca -->
             <div id="resultado_busca" class="hidden">
                 <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 p-5 sm:p-6 mb-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-gray-100 pb-4 mb-4">
@@ -293,7 +289,7 @@
     </div>
 
     <script>
-        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // Cole a URL oficial do Cloudflare aqui
+        const WORKER_URL = "https://contrato-inteligente.grupo-bhds.workers.dev"; // Cole aqui a URL exata do Cloudflare
         
         let formData = { credor: {}, cliente: {}, telefones: [''], emails: [''], enderecos: [''] };
         let textoExtraidoWord = ""; 
@@ -322,28 +318,20 @@
             renderDynamicFields();
         });
 
-        // ====== FUNÇÕES DE MÁSCARAS (Formatação Automática) ======
+        // ====== FUNÇÕES DE MÁSCARAS ======
         function applyMask(input, type) {
             let v = input.value;
             if (type === 'cpf') {
-                v = v.replace(/\D/g, "").slice(0, 14); // Permite até 14 números para aceitar CNPJ também
+                v = v.replace(/\D/g, "").slice(0, 14);
                 if(v.length <= 11) {
-                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-                } else { // Máscara CNPJ
-                    v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-                    v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-                    v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
-                    v = v.replace(/(\d{4})(\d)/, "$1-$2");
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                } else { 
+                    v = v.replace(/^(\d{2})(\d)/, "$1.$2"); v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3"); v = v.replace(/\.(\d{3})(\d)/, ".$1/$2"); v = v.replace(/(\d{4})(\d)/, "$1-$2");
                 }
             } else if (type === 'cep') {
-                v = v.replace(/\D/g, "").slice(0, 8);
-                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+                v = v.replace(/\D/g, "").slice(0, 8); v = v.replace(/^(\d{5})(\d)/, "$1-$2");
             } else if (type === 'phone') {
-                v = v.replace(/\D/g, "").slice(0, 11);
-                v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-                v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+                v = v.replace(/\D/g, "").slice(0, 11); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); v = v.replace(/(\d)(\d{4})$/, "$1-$2");
             } else if (type === 'money') {
                 v = v.replace(/\D/g, "");
                 if(v) {
@@ -354,29 +342,20 @@
             input.value = v;
         }
 
-        // ====== VALIDADOR DE CAMPOS OBRIGATÓRIOS ======
+        // ====== VALIDADOR DE CAMPOS ======
         function validarFormulario() {
             const obrigatorios = [
-                {id: 'cr_nome', nome: 'Seu Nome (Credor)'},
-                {id: 'cr_cpf', nome: 'Seu CPF (Credor)'},
-                {id: 'np_nome', nome: 'Nome do Cliente'},
-                {id: 'np_cpf', nome: 'CPF do Cliente'},
-                {id: 'np_objeto', nome: 'Descrição do Produto'},
-                {id: 'np_valor', nome: 'Valor Total'},
-                {id: 'np_vencimento', nome: 'Data de Vencimento'}
+                {id: 'cr_nome', nome: 'Seu Nome (Credor)'}, {id: 'cr_cpf', nome: 'Seu CPF'},
+                {id: 'np_nome', nome: 'Nome do Cliente'}, {id: 'np_cpf', nome: 'CPF do Cliente'},
+                {id: 'np_objeto', nome: 'Descrição'}, {id: 'np_valor', nome: 'Valor Total'}, {id: 'np_vencimento', nome: 'Data de Vencimento'}
             ];
-            
             for (let campo of obrigatorios) {
                 if (!document.getElementById(campo.id).value.trim()) {
-                    showToast(`Preencha o campo obrigatório: ${campo.nome}`, 'error');
-                    document.getElementById(campo.id).focus();
-                    return false;
+                    showToast(`Preencha o campo: ${campo.nome}`, 'error');
+                    document.getElementById(campo.id).focus(); return false;
                 }
             }
-            if(!formData.telefones[0].trim()) {
-                showToast(`Preencha o WhatsApp do Cliente`, 'error');
-                return false;
-            }
+            if(!formData.telefones[0].trim()) { showToast(`Preencha o WhatsApp do Cliente`, 'error'); return false; }
             return true;
         }
 
@@ -396,39 +375,30 @@
                 const res = await fetch(`https://viacep.com.br/ws/${cepRaw}/json/`);
                 const data = await res.json();
                 if(data.erro) throw new Error("CEP não encontrado");
-                
-                const enderecoFormatado = `${data.logradouro}, Número, Bairro ${data.bairro}, ${data.localidade} - ${data.uf}`;
-                document.getElementById(inputIdDestino).value = enderecoFormatado;
-                saveData();
-                showToast("Endereço preenchido!", "success");
-                document.getElementById(inputIdDestino).focus(); 
+                document.getElementById(inputIdDestino).value = `${data.logradouro}, Número, Bairro ${data.bairro}, ${data.localidade} - ${data.uf}`;
+                saveData(); showToast("Endereço preenchido!", "success"); document.getElementById(inputIdDestino).focus(); 
             } catch(e) { showToast("Falha ao buscar CEP.", "error"); }
         }
 
         function buscarLocalizacaoGPS(inputIdDestino) {
-            if (!navigator.geolocation) return showToast("GPS não suportado no seu navegador.", "error");
+            if (!navigator.geolocation) return showToast("GPS não suportado.", "error");
             showToast("Buscando sua localização...", "success");
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&zoom=18&addressdetails=1`);
-                    const data = await res.json();
-                    const addr = data.address;
+                    const data = await res.json(); const addr = data.address;
                     const rua = addr.road || addr.pedestrian || addr.suburb || "Rua Desconhecida";
                     const bairro = addr.suburb || addr.neighbourhood || "";
                     const cidade = addr.city || addr.town || addr.village || "";
-                    const estado = addr.state || "";
-                    const cep = addr.postcode || "";
-
-                    const enderecoFormatado = `${rua}, Número, Bairro ${bairro}, ${cidade} - ${estado}, CEP: ${cep}`;
-                    document.getElementById(inputIdDestino).value = enderecoFormatado;
                     
+                    const enderecoFormatado = `${rua}, Número, Bairro ${bairro}, ${cidade} - ${addr.state || ""}, CEP: ${addr.postcode || ""}`;
+                    document.getElementById(inputIdDestino).value = enderecoFormatado;
                     if(inputIdDestino.startsWith("dyn_end_")) {
-                        const index = inputIdDestino.split("_")[2];
-                        formData.enderecos[index] = enderecoFormatado;
+                        const index = inputIdDestino.split("_")[2]; formData.enderecos[index] = enderecoFormatado;
                     }
-                    saveData(); showToast("Endereço capturado via GPS!", "success");
+                    saveData(); showToast("Endereço capturado!", "success");
                 } catch(e) { showToast("Erro ao converter coordenadas.", "error"); }
-            }, (err) => { showToast("Permissão de Localização negada.", "error"); }, { enableHighAccuracy: true, timeout: 10000 });
+            }, (err) => { showToast("Permissão negada.", "error"); }, { enableHighAccuracy: true, timeout: 10000 });
         }
 
         function switchTab(tabId) {
@@ -455,17 +425,23 @@
             saveData();
         }
 
+        // CORREÇÃO DO BUG (A variável index não quebra mais a função)
         function renderDynamicFields() {
             ['telefones', 'emails'].forEach(type => {
                 const container = document.getElementById(`container_${type}`);
                 const icon = type === 'telefones' ? 'call' : 'mail';
-                const maskAttr = type === 'telefones' ? `oninput="applyMask(this, 'phone'); formData['${type}'][${index}]=this.value; saveData()"` : `onchange="formData['${type}'][${index}]=this.value; saveData()"`;
                 container.innerHTML = '';
                 formData[type].forEach((val, index) => {
                     const div = document.createElement('div');
                     div.className = "flex gap-2 relative";
+                    let inputHtml = '';
+                    if(type === 'telefones') {
+                        inputHtml = `<input type="text" value="${val}" oninput="applyMask(this, 'phone'); formData['${type}'][${index}]=this.value; saveData()" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500">`;
+                    } else {
+                        inputHtml = `<input type="text" value="${val}" onchange="formData['${type}'][${index}]=this.value; saveData()" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500">`;
+                    }
                     div.innerHTML = `<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">${icon}</span>
-                        <input type="text" value="${val}" ${type === 'telefones' ? `oninput="applyMask(this, 'phone'); formData['${type}'][${index}]=this.value; saveData()"` : `onchange="formData['${type}'][${index}]=this.value; saveData()"`} class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500">
+                        ${inputHtml}
                         ${index > 0 ? `<button onclick="formData['${type}'].splice(${index},1); renderDynamicFields(); saveData()" class="bg-red-50 text-red-600 px-4 rounded-2xl hover:bg-red-100 flex"><span class="material-symbols-outlined">delete</span></button>` : ''}`;
                     container.appendChild(div);
                 });
@@ -475,8 +451,7 @@
             containerEnd.innerHTML = '';
             formData.enderecos.forEach((val, index) => {
                 const div = document.createElement('div');
-                const dynId = `dyn_end_${index}`;
-                const dynCepId = `dyn_cep_${index}`;
+                const dynId = `dyn_end_${index}`; const dynCepId = `dyn_cep_${index}`;
                 div.className = "flex flex-col gap-2 bg-gray-50 p-3 rounded-2xl border border-gray-200";
                 div.innerHTML = `
                     <div class="flex gap-2 w-full">
