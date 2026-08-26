@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J&T Express - Hub de Bipagem</title>
+<style>
+  :root {
+    --primary: #e60012;
+    --bg: #f4f4f9;
+    --surface: #ffffff;
+    --text: #333333;
+    --border: #dddddd;
+    --success: #28a745;
+    --warning: #ffc107;
+    --radius: 8px;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background-color: var(--primary);
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .nav-btn {
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 16px;
+  }
+  
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  
+  .hidden {
+    display: none !important;
+  }
+  
+  input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+  
+  .btn-primary {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .grupo-container {
+    margin-bottom: 30px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  
+  .grupo-header {
+    background: #e9ecef;
+    padding: 12px 16px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .num-secao {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .num-title {
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+  
+  .lote-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+  }
+  
+  .lote-linha:last-child {
+    border-bottom: none;
+  }
+  
+  .lote-codigo {
+    font-family: monospace;
+    font-size: 16px;
+    cursor: pointer;
+    flex-grow: 1;
+  }
+  
+  .btn-status {
+    width: auto;
+    margin: 0;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .status-novo {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .status-usado {
+    background-color: var(--success);
+    color: white;
+  }
+  
+  .status-incompleto {
+    background-color: var(--warning);
+    color: #333;
+  }
+
+  #modal-pin, #modal-novo-num {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 400px;
+  }
+
+  .radio-group {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .radio-group input {
+    width: auto;
+    margin: 0;
+  }
+
+  #lista-bipagem {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fafafa;
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: var(--radius);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>J&T Express Lotes</div>
+  <div>
+    <button class="nav-btn" id="btn-nav-lotes">Lote de Bipagem</button>
+    <button class="nav-btn" id="btn-nav-admin">Adicionar Lote</button>
+  </div>
+</header>
+
+<div id="view-lotes" class="container">
+  <h2>Lotes Disponíveis</h2>
+  <div id="lotes-container"></div>
+</div>
+
+<div id="view-admin" class="container hidden">
+  <h2>Adicionar Novo Lote</h2>
+  <div class="card">
+    <div class="radio-group">
+      <label><input type="radio" name="tipo-grupo" value="novo" checked> Novo Grupo</label>
+      <label><input type="radio" name="tipo-grupo" value="existente"> Usar Existente</label>
+    </div>
+
+    <div id="div-nome-grupo">
+      <label>Nome do Grupo (Ex: SJS, Lote 26/08)</label>
+      <input type="text" id="input-nome-grupo" placeholder="Digite o nome do grupo">
+    </div>
+
+    <div id="div-select-grupo" class="hidden">
+      <label>Selecione o Grupo</label>
+      <select id="select-grupo"></select>
+    </div>
+
+    <label>Numeração</label>
+    <select id="select-numeracao">
+      <option value="410">410</option>
+      <option value="304-03">304-03</option>
+      <option value="286">286</option>
+      <option value="287">287</option>
+      <option value="311">311</option>
+      <option value="307">307</option>
+      <option value="304">304</option>
+      <option value="365">365</option>
+      <option value="318">318</option>
+      <option value="340">340</option>
+      <option value="336">336</option>
+      <option value="304 (Apucarana)">304 (Apucarana)</option>
+      <option value="NOVO">Adicionar Novo...</option>
+    </select>
+
+    <label>Bipar Código de Barras</label>
+    <input type="text" id="input-bipagem" placeholder="Posicione o cursor aqui e bipe" autocomplete="off">
+
+    <div id="lista-bipagem"></div>
+
+    <button class="btn-primary" id="btn-guardar-grupo">Guardar Grupo de Lote</button>
+  </div>
+</div>
+
+<div id="modal-pin" class="hidden">
+  <div class="modal-content">
+    <h3>Acesso Administrativo</h3>
+    <input type="password" id="input-pin" placeholder="Digite o PIN">
+    <button class="btn-primary" id="btn-confirmar-pin">Confirmar</button>
+    <button id="btn-cancelar-pin">Cancelar</button>
+  </div>
+</div>
+
+<div id="modal-novo-num" class="hidden">
+  <div class="modal-content">
+    <h3>Nova Numeração</h3>
+    <input type="text" id="input-novo-num" placeholder="Digite a numeração">
+    <button class="btn-primary" id="btn-salvar-num">Adicionar</button>
+    <button id="btn-cancelar-num">Cancelar</button>
+  </div>
+</div>
+
+<script>
+  const WORKER_URL = "https://api.jtexpress.grupobhds.com";
+  let adminPinValido = "";
+  let lotesSessao = [];
+  let gruposExistentes = [];
+
+  const viewLotes = document.getElementById("view-lotes");
+  const viewAdmin = document.getElementById("view-admin");
+  const modalPin = document.getElementById("modal-pin");
+  const lotesContainer = document.getElementById("lotes-container");
+  
+  document.getElementById("btn-nav-lotes").addEventListener("click", () => {
+    viewLotes.classList.remove("hidden");
+    viewAdmin.classList.add("hidden");
+    carregarDados();
+  });
+
+  document.getElementById("btn-nav-admin").addEventListener("click", () => {
+    if (!adminPinValido) {
+      modalPin.classList.remove("hidden");
+      document.getElementById("input-pin").focus();
+    } else {
+      abrirAdmin();
+    }
+  });
+
+  document.getElementById("btn-cancelar-pin").addEventListener("click", () => {
+    modalPin.classList.add("hidden");
+    document.getElementById("input-pin").value = "";
+  });
+
+  document.getElementById("btn-confirmar-pin").addEventListener("click", () => {
+    adminPinValido = document.getElementById("input-pin").value;
+    modalPin.classList.add("hidden");
+    document.getElementById("input-pin").value = "";
+    abrirAdmin();
+  });
+
+  document.querySelectorAll('input[name="tipo-grupo"]').forEach(radio => {
+    radio.addEventListener("change", (e) => {
+      if (e.target.value === "novo") {
+        document.getElementById("div-nome-grupo").classList.remove("hidden");
+        document.getElementById("div-select-grupo").classList.add("hidden");
+      } else {
+        document.getElementById("div-nome-grupo").classList.add("hidden");
+        document.getElementById("div-select-grupo").classList.remove("hidden");
+        atualizarDropdownGrupos();
+      }
+    });
+  });
+
+  document.getElementById("select-numeracao").addEventListener("change", (e) => {
+    if (e.target.value === "NOVO") {
+      document.getElementById("modal-novo-num").classList.remove("hidden");
+      document.getElementById("input-novo-num").focus();
+    }
+    document.getElementById("input-bipagem").focus();
+  });
+
+  document.getElementById("btn-salvar-num").addEventListener("click", () => {
+    const num = document.getElementById("input-novo-num").value.trim();
+    if (num) {
+      const select = document.getElementById("select-numeracao");
+      const option = document.createElement("option");
+      option.value = num;
+      option.text = num;
+      select.insertBefore(option, select.lastElementChild);
+      select.value = num;
+    }
+    document.getElementById("modal-novo-num").classList.add("hidden");
+    document.getElementById("input-novo-num").value = "";
+    document.getElementById("input-bipagem").focus();
+  });
+
+  document.getElementById("btn-cancelar-num").addEventListener("click", () => {
+    document.getElementById("modal-novo-num").classList.add("hidden");
+    document.getElementById("select-numeracao").selectedIndex = 0;
+  });
+
+  document.getElementById("input-bipagem").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const barcode = e.target.value.trim();
+      const numeracao = document.getElementById("select-numeracao").value;
+      const ehNovoGrupo = document.querySelector('input[name="tipo-grupo"]:checked').value === "novo";
+      const grupo = ehNovoGrupo ? document.getElementById("input-nome-grupo").value.trim() : document.getElementById("select-grupo").value;
+      
+      if (!barcode || !grupo || numeracao === "NOVO") return;
+      
+      const duplicado = lotesSessao.some(l => l.barcode === barcode);
+      if (!duplicado) {
+        lotesSessao.push({ grupo, numeracao, barcode });
+        atualizarListaBipagem();
+      }
+      e.target.value = "";
+    }
+  });
+
+  function atualizarListaBipagem() {
+    const div = document.getElementById("lista-bipagem");
+    div.innerHTML = "";
+    lotesSessao.slice().reverse().forEach(l => {
+      const p = document.createElement("p");
+      p.innerText = `${l.numeracao} - ${l.barcode}`;
+      p.style.margin = "4px 0";
+      div.appendChild(p);
+    });
+  }
+
+  document.getElementById("btn-guardar-grupo").addEventListener("click", async () => {
+    if (lotesSessao.length === 0) return;
+    document.getElementById("btn-guardar-grupo").disabled = true;
+    
+    try {
+      const resp = await fetch(WORKER_URL + "/api/salvar", {
+        method: "POST",
+        headers: { "x-admin-pin": adminPinValido },
+        body: JSON.stringify({ acao: "salvar", lotes: lotesSessao })
+      });
+      
+      if (resp.ok) {
+        lotesSessao = [];
+        atualizarListaBipagem();
+        document.getElementById("input-nome-grupo").value = "";
+        document.getElementById("btn-nav-lotes").click();
+      } else {
+        alert("Erro de autenticação ou falha no servidor.");
+        adminPinValido = "";
+      }
+    } catch (e) {
+      alert("Erro na conexão.");
+    }
+    document.getElementById("btn-guardar-grupo").disabled = false;
+  });
+
+  function abrirAdmin() {
+    viewLotes.classList.add("hidden");
+    viewAdmin.classList.remove("hidden");
+    atualizarDropdownGrupos();
+    document.getElementById("input-bipagem").focus();
+  }
+
+  function atualizarDropdownGrupos() {
+    const select = document.getElementById("select-grupo");
+    select.innerHTML = "";
+    gruposExistentes.forEach(g => {
+      const option = document.createElement("option");
+      option.value = g;
+      option.text = g;
+      select.appendChild(option);
+    });
+  }
+
+  async function carregarDados() {
+    if (viewLotes.classList.contains("hidden")) return;
+    try {
+      const resp = await fetch(WORKER_URL + "/api/lotes");
+      const dados = await resp.json();
+      renderizarLotes(dados);
+    } catch (e) {}
+  }
+
+  function renderizarLotes(dados) {
+    const agrupado = {};
+    const gruposSet = new Set();
+    
+    dados.forEach(d => {
+      gruposSet.add(d.grupo);
+      if (!agrupado[d.grupo]) agrupado[d.grupo] = {};
+      if (!agrupado[d.grupo][d.numeracao]) agrupado[d.grupo][d.numeracao] = [];
+      agrupado[d.grupo][d.numeracao].push(d);
+    });
+    
+    gruposExistentes = Array.from(gruposSet);
+    lotesContainer.innerHTML = "";
+    
+    for (const [grupo, numObj] of Object.entries(agrupado)) {
+      const grupoDiv = document.createElement("div");
+      grupoDiv.className = "grupo-container";
+      
+      const grupoHeader = document.createElement("div");
+      grupoHeader.className = "grupo-header";
+      grupoHeader.innerText = grupo;
+      grupoDiv.appendChild(grupoHeader);
+      
+      for (const [numeracao, lotesArr] of Object.entries(numObj)) {
+        const numSecao = document.createElement("div");
+        numSecao.className = "num-secao";
+        
+        const numTitle = document.createElement("div");
+        numTitle.className = "num-title";
+        numTitle.innerText = `Numeração: ${numeracao} (${lotesArr.length} lotes)`;
+        numSecao.appendChild(numTitle);
+        
+        lotesArr.forEach(lote => {
+          const linha = document.createElement("div");
+          linha.className = "lote-linha";
+          
+          const codigo = document.createElement("span");
+          codigo.className = "lote-codigo";
+          codigo.innerText = lote.barcode;
+          codigo.onclick = () => copiarBarcode(lote.barcode, lote.grupo, codigo.nextElementSibling);
+          
+          const btnStatus = document.createElement("button");
+          btnStatus.className = `btn-status status-${lote.status.toLowerCase()}`;
+          btnStatus.innerText = lote.status;
+          btnStatus.onclick = () => alterarStatusBotao(lote.barcode, lote.grupo, btnStatus);
+          
+          linha.appendChild(codigo);
+          linha.appendChild(btnStatus);
+          numSecao.appendChild(linha);
+        });
+        
+        grupoDiv.appendChild(numSecao);
+      }
+      lotesContainer.appendChild(grupoDiv);
+    }
+  }
+
+  function copiarBarcode(barcode, grupo, btnStatusElement) {
+    navigator.clipboard.writeText(barcode);
+    if (btnStatusElement.innerText === "Novo") {
+      btnStatusElement.innerText = "Usado";
+      btnStatusElement.className = "btn-status status-usado";
+      atualizarStatusBackend(barcode, grupo, "Usado");
+    }
+  }
+
+  function alterarStatusBotao(barcode, grupo, btnStatusElement) {
+    if (btnStatusElement.innerText === "Usado") {
+      btnStatusElement.innerText = "Incompleto";
+      btnStatusElement.className = "btn-status status-incompleto";
+      atualizarStatusBackend(barcode, grupo, "Incompleto");
+    }
+  }
+
+  async function atualizarStatusBackend(barcode, grupo, novoStatus) {
+    try {
+      await fetch(WORKER_URL + "/api/status", {
+        method: "POST",
+        body: JSON.stringify({ acao: "atualizarStatus", barcode: barcode, grupo: grupo, status: novoStatus })
+      });
+    } catch (e) {}
+  }
+
+  setInterval(carregarDados, 3000);
+  carregarDados();
+</script>
+
+</body>
+</html>
