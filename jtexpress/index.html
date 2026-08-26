@@ -3,206 +3,438 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>J&T Express - Hub de Bipagem</title>
+<title>Bipador Inteligente</title>
+<link rel="icon" href="https://apps.grupobhds.com/jtexpress/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode"></script>
 <style>
   :root {
-    --primary: #e60012;
-    --bg: #f4f4f9;
-    --surface: #ffffff;
-    --text: #333333;
-    --border: #dddddd;
-    --success: #28a745;
-    --warning: #ffc107;
-    --radius: 8px;
+    --md-sys-color-primary: #B3261E;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #F9DEDC;
+    --md-sys-color-on-primary-container: #410E0B;
+    --md-sys-color-background: #FFFBFE;
+    --md-sys-color-on-background: #1C1B1F;
+    --md-sys-color-surface: #FFFBFE;
+    --md-sys-color-on-surface: #1C1B1F;
+    --md-sys-color-surface-variant: #E7E0EC;
+    --md-sys-color-on-surface-variant: #49454F;
+    --md-sys-color-outline: #79747E;
+    --md-sys-color-success: #146C2E;
+    --md-sys-color-success-container: #A7F0B7;
+    --md-sys-color-on-success-container: #00210A;
+    --md-sys-color-warning: #7D5260;
+    --md-sys-color-warning-container: #FFD8E4;
+    --md-sys-color-on-warning-container: #31111D;
+    
+    --md-sys-shape-corner-extra-large: 28px;
+    --md-sys-shape-corner-large: 16px;
+    --md-sys-shape-corner-medium: 12px;
+    --md-sys-shape-corner-full: 100px;
+    
+    --md-elevation-1: 0px 1px 3px 1px rgba(0,0,0,0.15), 0px 1px 2px 0px rgba(0,0,0,0.30);
+    --md-elevation-2: 0px 2px 6px 2px rgba(0,0,0,0.15), 0px 1px 2px 0px rgba(0,0,0,0.30);
   }
   
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg);
-    color: var(--text);
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
   
   header {
-    background-color: var(--primary);
-    color: white;
-    padding: 16px;
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    padding: 16px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: var(--md-elevation-1);
+    flex-wrap: wrap;
+    gap: 16px;
+    z-index: 10;
   }
   
+  .logo-container {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-container img {
+    height: 36px;
+    margin-right: 12px;
+    border-radius: 4px;
+  }
+
+  .nav-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
   .nav-btn {
-    background-color: rgba(255,255,255,0.2);
-    color: white;
+    background-color: transparent;
+    color: var(--md-sys-color-on-primary-container);
     border: none;
-    padding: 8px 16px;
-    border-radius: var(--radius);
+    padding: 10px 24px;
+    border-radius: var(--md-sys-shape-corner-full);
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
   }
   
+  .nav-btn:hover {
+    background-color: rgba(65, 14, 11, 0.08);
+  }
+  
+  .nav-btn.active {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+  }
+
   .container {
-    max-width: 800px;
-    margin: 20px auto;
+    max-width: 1200px;
+    margin: 32px auto;
     padding: 0 16px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-grow: 1;
+  }
+
+  h2 {
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 24px;
+    color: var(--md-sys-color-on-background);
   }
   
   .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+    background: var(--md-sys-color-surface);
+    border-radius: var(--md-sys-shape-corner-extra-large);
+    padding: 32px;
+    box-shadow: var(--md-elevation-2);
+    margin-bottom: 24px;
   }
   
   .hidden {
     display: none !important;
   }
   
-  input, select, button {
+  .input-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+  }
+
+  .input-field label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
+  }
+
+  input[type="text"], input[type="password"], select {
     width: 100%;
-    padding: 12px;
-    margin-top: 8px;
-    margin-bottom: 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: var(--md-sys-shape-corner-medium);
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
     box-sizing: border-box;
     font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 0 0 1px var(--md-sys-color-primary);
   }
   
   .btn-primary {
-    background-color: var(--primary);
-    color: white;
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
     border: none;
-    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: var(--md-sys-shape-corner-full);
+    font-weight: 500;
+    font-size: 14px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    box-shadow: var(--md-elevation-1);
+  }
+
+  .btn-primary:hover {
+    background-color: #9A1F18;
+    box-shadow: var(--md-elevation-2);
+  }
+
+  .btn-primary:disabled {
+    background-color: rgba(28, 27, 31, 0.12);
+    color: rgba(28, 27, 31, 0.38);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    color: var(--md-sys-color-primary);
+    border: 1px solid var(--md-sys-color-outline);
+    padding: 12px 24px;
+    border-radius: var(--md-sys-shape-corner-full);
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(179, 38, 30, 0.08);
   }
   
   .grupo-container {
-    margin-bottom: 30px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
+    margin-bottom: 32px;
+    border-radius: var(--md-sys-shape-corner-extra-large);
+    background: var(--md-sys-color-surface-variant);
     overflow: hidden;
   }
   
   .grupo-header {
-    background: #e9ecef;
-    padding: 12px 16px;
-    font-weight: bold;
-    font-size: 18px;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    padding: 20px 24px;
+    font-weight: 500;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   
   .num-secao {
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    background: var(--md-sys-color-surface);
+    margin: 8px;
+    border-radius: var(--md-sys-shape-corner-large);
   }
   
   .num-title {
-    font-weight: bold;
-    color: var(--primary);
-    margin-bottom: 10px;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--md-sys-color-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   
   .lote-linha {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px dashed #eee;
+    padding: 12px 16px;
+    background-color: var(--md-sys-color-background);
+    margin-bottom: 8px;
+    border-radius: var(--md-sys-shape-corner-medium);
+    border: 1px solid var(--md-sys-color-surface-variant);
+    transition: background-color 0.2s;
   }
   
-  .lote-linha:last-child {
-    border-bottom: none;
+  .lote-linha:hover {
+    background-color: var(--md-sys-color-surface-variant);
   }
   
   .lote-codigo {
-    font-family: monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 16px;
     cursor: pointer;
     flex-grow: 1;
+    color: var(--md-sys-color-on-surface);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .lote-codigo .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--md-sys-color-outline);
   }
   
   .btn-status {
     width: auto;
     margin: 0;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: bold;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--md-sys-shape-corner-full);
     cursor: pointer;
+    transition: all 0.2s;
   }
   
   .status-novo {
-    background-color: #007bff;
-    color: white;
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
   }
   
   .status-usado {
-    background-color: var(--success);
-    color: white;
+    background-color: var(--md-sys-color-success-container);
+    color: var(--md-sys-color-on-success-container);
   }
   
   .status-incompleto {
-    background-color: var(--warning);
-    color: #333;
+    background-color: var(--md-sys-color-warning-container);
+    color: var(--md-sys-color-on-warning-container);
   }
 
   #modal-pin, #modal-novo-num {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 999;
+    padding: 16px;
+    box-sizing: border-box;
   }
 
   .modal-content {
-    background: white;
-    padding: 24px;
-    border-radius: var(--radius);
-    width: 90%;
+    background: var(--md-sys-color-surface);
+    padding: 32px;
+    border-radius: var(--md-sys-shape-corner-extra-large);
+    width: 100%;
     max-width: 400px;
+    box-shadow: var(--md-elevation-2);
+  }
+
+  .modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 400;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 32px;
   }
 
   .radio-group {
     display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: 24px;
+    margin-bottom: 24px;
+    background: var(--md-sys-color-surface-variant);
+    padding: 16px;
+    border-radius: var(--md-sys-shape-corner-large);
   }
 
   .radio-group label {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-weight: 500;
+    cursor: pointer;
   }
   
-  .radio-group input {
-    width: auto;
+  .radio-group input[type="radio"] {
+    width: 20px;
+    height: 20px;
     margin: 0;
+    accent-color: var(--md-sys-color-primary);
   }
 
   #lista-bipagem {
-    max-height: 200px;
+    max-height: 240px;
     overflow-y: auto;
-    background: #fafafa;
-    border: 1px solid var(--border);
-    padding: 10px;
-    border-radius: var(--radius);
+    background: var(--md-sys-color-surface-variant);
+    border-radius: var(--md-sys-shape-corner-medium);
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  #lista-bipagem p {
+    margin: 8px 0;
+    padding: 12px;
+    background: var(--md-sys-color-surface);
+    border-radius: var(--md-sys-shape-corner-medium);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #camera-container {
+    margin-bottom: 24px;
+    border-radius: var(--md-sys-shape-corner-large);
+    overflow: hidden;
+    background: var(--md-sys-color-surface-variant);
+    padding: 16px;
+  }
+
+  .admin-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  @media (min-width: 600px) {
+    .admin-buttons {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    #btn-guardar-grupo {
+      grid-column: 1 / -1;
+    }
+  }
+
+  #btn-abrir-camera {
+    background-color: var(--md-sys-color-on-surface-variant);
+    color: var(--md-sys-color-surface);
+  }
+
+  #btn-abrir-camera:hover {
+    background-color: #302d36;
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div>J&T Express Lotes</div>
-  <div>
-    <button class="nav-btn" id="btn-nav-lotes">Lote de Bipagem</button>
-    <button class="nav-btn" id="btn-nav-admin">Adicionar Lote</button>
+  <div class="logo-container">
+    <img src="https://apps.grupobhds.com/jtexpress/logo.png" alt="Logo J&T Express">
+    <span>Bipador Inteligente</span>
+  </div>
+  <div class="nav-group">
+    <button class="nav-btn active" id="btn-nav-lotes">
+      <span class="material-symbols-outlined">list_alt</span>
+      Lote de Bipagem
+    </button>
+    <button class="nav-btn" id="btn-nav-admin">
+      <span class="material-symbols-outlined">add_circle</span>
+      Adicionar Lote
+    </button>
   </div>
 </header>
 
@@ -219,57 +451,88 @@
       <label><input type="radio" name="tipo-grupo" value="existente"> Usar Existente</label>
     </div>
 
-    <div id="div-nome-grupo">
+    <div class="input-field" id="div-nome-grupo">
       <label>Nome do Grupo (Ex: SJS, Lote 26/08)</label>
       <input type="text" id="input-nome-grupo" placeholder="Digite o nome do grupo">
     </div>
 
-    <div id="div-select-grupo" class="hidden">
+    <div class="input-field hidden" id="div-select-grupo">
       <label>Selecione o Grupo</label>
       <select id="select-grupo"></select>
     </div>
 
-    <label>Numeração</label>
-    <select id="select-numeracao">
-      <option value="410">410</option>
-      <option value="304-03">304-03</option>
-      <option value="286">286</option>
-      <option value="287">287</option>
-      <option value="311">311</option>
-      <option value="307">307</option>
-      <option value="304">304</option>
-      <option value="365">365</option>
-      <option value="318">318</option>
-      <option value="340">340</option>
-      <option value="336">336</option>
-      <option value="304 (Apucarana)">304 (Apucarana)</option>
-      <option value="NOVO">Adicionar Novo...</option>
-    </select>
+    <div class="input-field">
+      <label>Numeração</label>
+      <select id="select-numeracao">
+        <option value="410">410</option>
+        <option value="304-03">304-03</option>
+        <option value="286">286</option>
+        <option value="287">287</option>
+        <option value="311">311</option>
+        <option value="307">307</option>
+        <option value="304">304</option>
+        <option value="365">365</option>
+        <option value="318">318</option>
+        <option value="340">340</option>
+        <option value="336">336</option>
+        <option value="304 (Apucarana)">304 (Apucarana)</option>
+        <option value="NOVO">Adicionar Novo...</option>
+      </select>
+    </div>
 
-    <label>Bipar Código de Barras</label>
-    <input type="text" id="input-bipagem" placeholder="Posicione o cursor aqui e bipe" autocomplete="off">
+    <div class="input-field">
+      <label>Bipar Código de Barras</label>
+      <input type="text" id="input-bipagem" placeholder="Posicione o cursor aqui e bipe" autocomplete="off">
+    </div>
 
-    <div id="lista-bipagem"></div>
+    <div class="admin-buttons">
+      <button class="btn-primary" id="btn-abrir-camera">
+        <span class="material-symbols-outlined">qr_code_scanner</span>
+        Escanear com Câmera
+      </button>
+      <button class="btn-primary" id="btn-guardar-grupo">
+        <span class="material-symbols-outlined">save</span>
+        Guardar Grupo
+      </button>
+    </div>
 
-    <button class="btn-primary" id="btn-guardar-grupo">Guardar Grupo de Lote</button>
+    <div id="camera-container" class="hidden">
+      <div id="reader" style="width: 100%;"></div>
+      <button id="btn-fechar-camera" class="btn-secondary" style="width: 100%; margin-top: 16px;">
+        <span class="material-symbols-outlined">close</span>
+        Fechar Câmera
+      </button>
+    </div>
+
+    <div id="lista-bipagem" style="margin-top: 24px;"></div>
   </div>
 </div>
 
 <div id="modal-pin" class="hidden">
   <div class="modal-content">
     <h3>Acesso Administrativo</h3>
-    <input type="password" id="input-pin" placeholder="Digite o PIN">
-    <button class="btn-primary" id="btn-confirmar-pin">Confirmar</button>
-    <button id="btn-cancelar-pin">Cancelar</button>
+    <div class="input-field">
+      <label>PIN de Acesso</label>
+      <input type="password" id="input-pin" placeholder="Digite o PIN">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="btn-cancelar-pin">Cancelar</button>
+      <button class="btn-primary" id="btn-confirmar-pin">Confirmar</button>
+    </div>
   </div>
 </div>
 
 <div id="modal-novo-num" class="hidden">
   <div class="modal-content">
     <h3>Nova Numeração</h3>
-    <input type="text" id="input-novo-num" placeholder="Digite a numeração">
-    <button class="btn-primary" id="btn-salvar-num">Adicionar</button>
-    <button id="btn-cancelar-num">Cancelar</button>
+    <div class="input-field">
+      <label>Código da Numeração</label>
+      <input type="text" id="input-novo-num" placeholder="Digite a numeração">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="btn-cancelar-num">Cancelar</button>
+      <button class="btn-primary" id="btn-salvar-num">Adicionar</button>
+    </div>
   </div>
 </div>
 
@@ -278,19 +541,25 @@
   let adminPinValido = "";
   let lotesSessao = [];
   let gruposExistentes = [];
+  let html5QrcodeScanner = null;
 
   const viewLotes = document.getElementById("view-lotes");
   const viewAdmin = document.getElementById("view-admin");
   const modalPin = document.getElementById("modal-pin");
   const lotesContainer = document.getElementById("lotes-container");
+  const btnNavLotes = document.getElementById("btn-nav-lotes");
+  const btnNavAdmin = document.getElementById("btn-nav-admin");
   
-  document.getElementById("btn-nav-lotes").addEventListener("click", () => {
+  btnNavLotes.addEventListener("click", () => {
     viewLotes.classList.remove("hidden");
     viewAdmin.classList.add("hidden");
+    btnNavLotes.classList.add("active");
+    btnNavAdmin.classList.remove("active");
+    fecharCamera();
     carregarDados();
   });
 
-  document.getElementById("btn-nav-admin").addEventListener("click", () => {
+  btnNavAdmin.addEventListener("click", () => {
     if (!adminPinValido) {
       modalPin.classList.remove("hidden");
       document.getElementById("input-pin").focus();
@@ -371,13 +640,44 @@
     }
   });
 
+  document.getElementById("btn-abrir-camera").addEventListener("click", () => {
+    document.getElementById("camera-container").classList.remove("hidden");
+    if (!html5QrcodeScanner) {
+      html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader",
+        { fps: 10, qrbox: {width: 250, height: 150} },
+        false
+      );
+      html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    }
+  });
+
+  document.getElementById("btn-fechar-camera").addEventListener("click", fecharCamera);
+
+  function fecharCamera() {
+    document.getElementById("camera-container").classList.add("hidden");
+    if (html5QrcodeScanner) {
+      html5QrcodeScanner.clear();
+      html5QrcodeScanner = null;
+    }
+  }
+
+  function onScanSuccess(decodedText, decodedResult) {
+    const input = document.getElementById("input-bipagem");
+    input.value = decodedText;
+    const event = new KeyboardEvent("keypress", { key: "Enter" });
+    input.dispatchEvent(event);
+  }
+
+  function onScanFailure(error) {
+  }
+
   function atualizarListaBipagem() {
     const div = document.getElementById("lista-bipagem");
     div.innerHTML = "";
     lotesSessao.slice().reverse().forEach(l => {
       const p = document.createElement("p");
-      p.innerText = `${l.numeracao} - ${l.barcode}`;
-      p.style.margin = "4px 0";
+      p.innerHTML = `<span class="material-symbols-outlined">barcode</span> ${l.numeracao} - ${l.barcode}`;
       div.appendChild(p);
     });
   }
@@ -397,13 +697,14 @@
         lotesSessao = [];
         atualizarListaBipagem();
         document.getElementById("input-nome-grupo").value = "";
-        document.getElementById("btn-nav-lotes").click();
+        btnNavLotes.click();
       } else {
-        alert("Erro de autenticação ou falha no servidor.");
+        alert("Erro de autenticacao ou falha no servidor.");
         adminPinValido = "";
+        btnNavLotes.click();
       }
     } catch (e) {
-      alert("Erro na conexão.");
+      alert("Erro na conexao.");
     }
     document.getElementById("btn-guardar-grupo").disabled = false;
   });
@@ -411,6 +712,8 @@
   function abrirAdmin() {
     viewLotes.classList.add("hidden");
     viewAdmin.classList.remove("hidden");
+    btnNavAdmin.classList.add("active");
+    btnNavLotes.classList.remove("active");
     atualizarDropdownGrupos();
     document.getElementById("input-bipagem").focus();
   }
@@ -455,7 +758,7 @@
       
       const grupoHeader = document.createElement("div");
       grupoHeader.className = "grupo-header";
-      grupoHeader.innerText = grupo;
+      grupoHeader.innerHTML = `<span class="material-symbols-outlined">inventory_2</span> ${grupo}`;
       grupoDiv.appendChild(grupoHeader);
       
       for (const [numeracao, lotesArr] of Object.entries(numObj)) {
@@ -464,7 +767,7 @@
         
         const numTitle = document.createElement("div");
         numTitle.className = "num-title";
-        numTitle.innerText = `Numeração: ${numeracao} (${lotesArr.length} lotes)`;
+        numTitle.innerHTML = `<span class="material-symbols-outlined">tag</span> Numeração: ${numeracao} (${lotesArr.length} lotes)`;
         numSecao.appendChild(numTitle);
         
         lotesArr.forEach(lote => {
@@ -473,7 +776,7 @@
           
           const codigo = document.createElement("span");
           codigo.className = "lote-codigo";
-          codigo.innerText = lote.barcode;
+          codigo.innerHTML = `<span class="material-symbols-outlined">qr_code</span> ${lote.barcode}`;
           codigo.onclick = () => copiarBarcode(lote.barcode, lote.grupo, codigo.nextElementSibling);
           
           const btnStatus = document.createElement("button");
