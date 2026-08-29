@@ -65,14 +65,10 @@
   .logo-container {
     display: flex;
     align-items: center;
-    font-weight: 700;
-    font-size: 18px;
-    letter-spacing: -0.5px;
   }
 
   .logo-container img {
     height: 20px;
-    margin-right: 8px;
     border-radius: 2px;
   }
 
@@ -484,6 +480,18 @@
     z-index: 1000;
     transition: opacity 0.2s;
   }
+
+  footer {
+    text-align: center;
+    padding: 16px;
+    margin-top: auto;
+  }
+
+  footer a {
+    color: var(--md-sys-color-outline);
+    text-decoration: none;
+    font-size: 12px;
+  }
 </style>
 </head>
 <body>
@@ -491,7 +499,6 @@
 <header>
   <div class="logo-container">
     <img src="https://app.grupobhds.com/jtexpress/logo.png" alt="Logo J&T Express">
-    <span>Bipador Inteligente</span>
   </div>
   <div class="nav-group">
     <button class="nav-btn hidden" id="btn-instalar-app">
@@ -609,15 +616,20 @@
 
 <div id="toast-notification" class="hidden"></div>
 
+<footer>
+  <a href="https://grupobhds.com" target="_blank">Criado por GRUPO BHDS</a>
+</footer>
+
 <script>
   const WORKER_URL = "https://bipageminteligente.jtexpress.grupobhds.com";
   let adminPinValido = "";
   let lotesSessao = [];
   let gruposExistentes = [];
-  let html5QrcodeScanner = null;
+  let html5QrCode = null;
   let grupoExpandido = null;
   const statusOverrides = {};
   let deferredPrompt = null;
+  let itemParaExcluir = null;
 
   const viewLotes = document.getElementById("view-lotes");
   const viewAdmin = document.getElementById("view-admin");
@@ -689,13 +701,19 @@
   document.getElementById("btn-cancelar-pin").addEventListener("click", () => {
     modalPin.classList.add("hidden");
     document.getElementById("input-pin").value = "";
+    itemParaExcluir = null;
   });
 
   document.getElementById("btn-confirmar-pin").addEventListener("click", () => {
     adminPinValido = document.getElementById("input-pin").value;
     modalPin.classList.add("hidden");
     document.getElementById("input-pin").value = "";
-    abrirAdmin();
+    
+    if (itemParaExcluir) {
+      confirmarExclusaoLote();
+    } else {
+      abrirAdmin();
+    }
   });
 
   document.querySelectorAll('input[name="tipo-grupo"]').forEach(radio => {
@@ -761,15 +779,11 @@
       lotesSessao.push({ grupo, numeracao, barcode });
       atualizarListaBipagem();
       emitirBeep();
-      exhibirNotificacao(`Código ${barcode} adicionado!`);
+      exibirNotificacao(`Código adicionado!`);
     } else {
-      exhibirNotificacao(`Atenção: Código ${barcode} já foi bipado!`);
+      exibirNotificacao(`Atenção: Código já foi bipado!`);
     }
     inputBipagem.value = "";
-  }
-
-  function exhibirNotificacao(msg) {
-    exibirNotificacao(msg);
   }
 
   inputBipagem.addEventListener("input", processarEntradaBipagem);
@@ -783,13 +797,26 @@
 
   document.getElementById("btn-abrir-camera").addEventListener("click", () => {
     document.getElementById("camera-container").classList.remove("hidden");
-    if (!html5QrcodeScanner) {
-      html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader",
-        { fps: 10, qrbox: {width: 250, height: 150} },
-        false
-      );
-      html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode("reader");
+      const config = {
+        fps: 15,
+        qrbox: { width: 280, height: 160 },
+        aspectRatio: 1.0
+      };
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess,
+        onScanFailure
+      ).catch(() => {
+        Html5Qrcode.getCameras().then(cameras => {
+          if (cameras && cameras.length) {
+            const cameraId = cameras[cameras.length - 1].id;
+            html5QrCode.start(cameraId, config, onScanSuccess, onScanFailure);
+          }
+        });
+      });
     }
   });
 
@@ -797,9 +824,13 @@
 
   function fecharCamera() {
     document.getElementById("camera-container").classList.add("hidden");
-    if (html5QrcodeScanner) {
-      html5QrcodeScanner.clear();
-      html5QrcodeScanner = null;
+    if (html5QrCode) {
+      html5QrCode.stop().then(() => {
+        html5QrCode.clear();
+        html5QrCode = null;
+      }).catch(() => {
+        html5QrCode = null;
+      });
     }
   }
 
@@ -914,14 +945,19 @@
       const grupoHeader = document.createElement("div");
       grupoHeader.className = "grupo-header";
       grupoHeader.innerHTML = `<span class="material-symbols-outlined">inventory_2</span> ${grupo} <span class="material-symbols-outlined expand-icon">expand_more</span>`;
-      grupoHeader.onclick = () => {
-        if (grupoExpandido === grupo) {
-          grupoExpandido = null;
-        } else {
+      
+      grupoHeader.onclick = (e) => {
+        e.stopPropagation();
+        const estaExpandido = grupoDiv.classList.contains("expanded");
+        document.querySelectorAll(".grupo-container").forEach(el => el.classList.remove("expanded"));
+        if (!estaExpandido) {
+          grupoDiv.classList.add("expanded");
           grupoExpandido = grupo;
+        } else {
+          grupoExpandido = null;
         }
-        carregarDados();
       };
+      
       grupoDiv.appendChild(grupoHeader);
       
       const grupoBody = document.createElement("div");
@@ -967,7 +1003,7 @@
           const btnExcluir = document.createElement("button");
           btnExcluir.className = "btn-delete";
           btnExcluir.innerHTML = '<span class="material-symbols-outlined">close</span>';
-          btnExcluir.onclick = () => excluirLote(lote.barcode, lote.grupo);
+          btnExcluir.onclick = () => solicitarExclusaoLote(lote.barcode, lote.grupo);
 
           actionsDiv.appendChild(btnStatus);
           actionsDiv.appendChild(btnExcluir);
@@ -1042,8 +1078,22 @@
     } catch (e) {}
   }
 
-  async function excluirLote(barcode, grupo) {
-    if (!confirm(`Deseja excluir o código ${barcode}?`)) return;
+  function solicitarExclusaoLote(barcode, grupo) {
+    itemParaExcluir = { barcode, grupo };
+    if (!adminPinValido) {
+      modalPin.classList.remove("hidden");
+      document.getElementById("input-pin").focus();
+    } else {
+      confirmarExclusaoLote();
+    }
+  }
+
+  function confirmarExclusaoLote() {
+    if (!itemParaExcluir) return;
+    const { barcode, grupo } = itemParaExcluir;
+    itemParaExcluir = null;
+
+    if (!confirm(`Deseja excluir permanentemente o código ${barcode}?`)) return;
     
     statusOverrides[`${barcode}-${grupo}`] = {
       excluido: true,
@@ -1052,12 +1102,20 @@
     
     carregarDados();
     
-    try {
-      await fetch(WORKER_URL + "/api/excluir", {
-        method: "POST",
-        body: JSON.stringify({ acao: "excluir", barcode: barcode, grupo: grupo })
-      });
-    } catch (e) {}
+    fetch(WORKER_URL + "/api/excluir", {
+      method: "POST",
+      headers: { "x-admin-pin": adminPinValido },
+      body: JSON.stringify({ acao: "excluir", barcode: barcode, grupo: grupo })
+    }).then(resp => {
+      if (!resp.ok) {
+        adminPinValido = "";
+        alert("PIN incorreto ou erro ao excluir.");
+        delete statusOverrides[`${barcode}-${grupo}`];
+        carregarDados();
+      } else {
+        exibirNotificacao("Código excluído!");
+      }
+    }).catch(() => {});
   }
 
   setInterval(carregarDados, 3000);
