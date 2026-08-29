@@ -65,11 +65,13 @@
   .logo-container {
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   .logo-container img {
     height: 20px;
     border-radius: 2px;
+    display: block;
   }
 
   .nav-group {
@@ -88,10 +90,12 @@
     cursor: pointer;
     font-weight: 500;
     font-size: 13px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     transition: background-color 0.2s;
+    line-height: 1;
   }
   
   .nav-btn:hover {
@@ -117,6 +121,9 @@
     font-weight: 400;
     margin-bottom: 20px;
     color: var(--md-sys-color-on-background);
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   
   .card {
@@ -142,6 +149,9 @@
     margin-bottom: 8px;
     color: var(--md-sys-color-on-surface-variant);
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   input[type="text"], input[type="password"], select {
@@ -177,6 +187,7 @@
     gap: 8px;
     transition: background-color 0.2s, box-shadow 0.2s;
     box-shadow: var(--md-elevation-1);
+    line-height: 1;
   }
 
   .btn-primary:hover {
@@ -200,11 +211,37 @@
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     transition: background-color 0.2s;
+    line-height: 1;
   }
 
   .btn-secondary:hover {
     background-color: rgba(179, 38, 30, 0.08);
+  }
+
+  .btn-export {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--md-sys-shape-corner-full);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    transition: background-color 0.2s;
+    line-height: 1;
+  }
+
+  .btn-export:hover {
+    background-color: rgba(255, 255, 255, 0.35);
   }
   
   .grupo-container {
@@ -233,8 +270,11 @@
   }
 
   .expand-icon {
-    margin-left: auto;
+    margin-left: 8px;
     transition: transform 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .grupo-container.expanded .expand-icon {
@@ -265,6 +305,38 @@
     align-items: center;
     gap: 8px;
   }
+
+  .color-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 8px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+
+  .dot-branco {
+    background-color: #FFFFFF;
+    border: 1px solid #79747E;
+  }
+
+  .dot-verde {
+    background-color: #146C2E;
+    border: 1px solid #146C2E;
+  }
+
+  .dot-branco-cinza {
+    background: linear-gradient(90deg, #FFFFFF 50%, #79747E 50%);
+    border: 1px solid #79747E;
+  }
+
+  .dot-vermelho {
+    background-color: #B3261E;
+    border: 1px solid #B3261E;
+  }
   
   .lote-linha {
     display: flex;
@@ -293,9 +365,12 @@
     gap: 10px;
   }
 
-  .lote-codigo .material-symbols-outlined {
-    font-size: 18px;
-    color: var(--md-sys-color-outline);
+  .material-symbols-outlined {
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
   }
   
   .actions-container {
@@ -314,6 +389,10 @@
     border-radius: var(--md-sys-shape-corner-full);
     cursor: pointer;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
   }
   
   .status-novo {
@@ -336,7 +415,7 @@
     border: none;
     color: var(--md-sys-color-outline);
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 6px;
@@ -381,6 +460,7 @@
   .modal-actions {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 12px;
     margin-top: 24px;
   }
@@ -392,14 +472,16 @@
     background: var(--md-sys-color-surface-variant);
     padding: 14px;
     border-radius: var(--md-sys-shape-corner-large);
+    align-items: center;
   }
 
   .radio-group label {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     font-weight: 500;
     cursor: pointer;
+    line-height: 1;
   }
   
   .radio-group input[type="radio"] {
@@ -479,18 +561,27 @@
     box-shadow: var(--md-elevation-2);
     z-index: 1000;
     transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   footer {
     text-align: center;
     padding: 16px;
     margin-top: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   footer a {
     color: var(--md-sys-color-outline);
     text-decoration: none;
     font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
   }
 </style>
 </head>
@@ -631,6 +722,27 @@
   let deferredPrompt = null;
   let itemParaExcluir = null;
 
+  const colorMap = {
+    "336": { cor: "branco", texto: "Saca Branca" },
+    "287": { cor: "branco", texto: "Saca Branca" },
+    "286": { cor: "branco", texto: "Saca Branca" },
+    "318": { cor: "verde", texto: "Saca Verde" },
+    "365": { cor: "branco-cinza", texto: "Saca Branca e Cinza" },
+    "304-03": { cor: "branco-cinza", texto: "Saca Branca e Cinza" },
+    "410": { cor: "verde", texto: "Saca Verde" },
+    "311": { cor: "branco-cinza", texto: "Saca Branca e Cinza" },
+    "307": { cor: "verde", texto: "Saca Verde" },
+    "340": { cor: "verde", texto: "Saca Verde" },
+    "304": { cor: "vermelho", texto: "Consulte o líder para verificar a cor da saca" }
+  };
+
+  function obterInfoCor(numeracao) {
+    if (colorMap[numeracao]) {
+      return colorMap[numeracao];
+    }
+    return { cor: "vermelho", texto: "Consulte o líder para verificar a cor da saca" };
+  }
+
   const viewLotes = document.getElementById("view-lotes");
   const viewAdmin = document.getElementById("view-admin");
   const modalPin = document.getElementById("modal-pin");
@@ -661,7 +773,7 @@
     toastNotification.classList.remove("hidden");
     setTimeout(() => {
       toastNotification.classList.add("hidden");
-    }, 2000);
+    }, 2500);
   }
 
   window.addEventListener("beforeinstallprompt", (e) => {
@@ -915,6 +1027,33 @@
     } catch (e) {}
   }
 
+  function exportarGrupoExcel(grupo, numObj) {
+    let csvContent = "\uFEFFGrupo;Numeração;Código de Barras;Status\n";
+    for (const [numeracao, lotesArr] of Object.entries(numObj)) {
+      lotesArr.forEach(lote => {
+        let statusAtual = lote.status;
+        const chave = `${lote.barcode}-${lote.grupo}`;
+        const override = statusOverrides[chave];
+        if (override && (Date.now() - override.time < 10000)) {
+          if (override.excluido) return;
+          statusAtual = override.status;
+        } else if (override) {
+          delete statusOverrides[chave];
+        }
+        csvContent += `"${grupo}";"${numeracao}";"${lote.barcode}";"${statusAtual}"\n`;
+      });
+    }
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Lotes_${grupo.replace(/[^a-zA-Z0-9]/g, "_")}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   function renderizarLotes(dados) {
     const agrupado = {};
     const gruposMeta = {};
@@ -944,7 +1083,28 @@
       
       const grupoHeader = document.createElement("div");
       grupoHeader.className = "grupo-header";
-      grupoHeader.innerHTML = `<span class="material-symbols-outlined">inventory_2</span> ${grupo} <span class="material-symbols-outlined expand-icon">expand_more</span>`;
+      
+      const headerTitle = document.createElement("span");
+      headerTitle.style.display = "inline-flex";
+      headerTitle.style.alignItems = "center";
+      headerTitle.style.gap = "8px";
+      headerTitle.innerHTML = `<span class="material-symbols-outlined">inventory_2</span> ${grupo}`;
+
+      const btnExport = document.createElement("button");
+      btnExport.className = "btn-export";
+      btnExport.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">download</span> Exportar Excel';
+      btnExport.onclick = (e) => {
+        e.stopPropagation();
+        exportarGrupoExcel(grupo, numObj);
+      };
+
+      const expandIcon = document.createElement("span");
+      expandIcon.className = "material-symbols-outlined expand-icon";
+      expandIcon.innerText = "expand_more";
+
+      grupoHeader.appendChild(headerTitle);
+      grupoHeader.appendChild(btnExport);
+      grupoHeader.appendChild(expandIcon);
       
       grupoHeader.onclick = (e) => {
         e.stopPropagation();
@@ -1014,9 +1174,10 @@
         });
         
         if (lotesVisiveisCount > 0) {
+          const infoCor = obterInfoCor(numeracao);
           const numTitle = document.createElement("div");
           numTitle.className = "num-title";
-          numTitle.innerHTML = `<span class="material-symbols-outlined">tag</span> Numeração: ${numeracao} (${lotesVisiveisCount} lotes)`;
+          numTitle.innerHTML = `<span class="material-symbols-outlined">tag</span> Numeração: ${numeracao} (${lotesVisiveisCount} lotes) <span class="color-dot dot-${infoCor.cor}" onclick="event.stopPropagation(); exibirNotificacao('${infoCor.texto}')"></span>`;
           numSecao.appendChild(numTitle);
           numSecao.appendChild(contentDiv);
           grupoBody.appendChild(numSecao);
