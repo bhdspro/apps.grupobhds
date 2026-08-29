@@ -214,6 +214,7 @@
     border-radius: var(--md-sys-shape-corner-extra-large);
     background: var(--md-sys-color-surface-variant);
     overflow: hidden;
+    transition: all 0.3s ease;
   }
   
   .grupo-header {
@@ -225,6 +226,29 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .grupo-header:hover {
+    background: #f0c3c1;
+  }
+
+  .expand-icon {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+  }
+
+  .grupo-container.expanded .expand-icon {
+    transform: rotate(180deg);
+  }
+
+  .grupo-body {
+    display: none;
+  }
+
+  .grupo-container.expanded .grupo-body {
+    display: block;
   }
   
   .num-secao {
@@ -276,6 +300,12 @@
     color: var(--md-sys-color-outline);
   }
   
+  .actions-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .btn-status {
     width: auto;
     margin: 0;
@@ -301,6 +331,24 @@
   .status-incompleto {
     background-color: var(--md-sys-color-warning-container);
     color: var(--md-sys-color-on-warning-container);
+  }
+
+  .btn-delete {
+    background: transparent;
+    border: none;
+    color: var(--md-sys-color-outline);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .btn-delete:hover {
+    background-color: var(--md-sys-color-warning-container);
+    color: var(--md-sys-color-primary);
   }
 
   #modal-pin, #modal-novo-num {
@@ -381,6 +429,7 @@
     font-size: 14px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
   }
 
@@ -537,11 +586,13 @@
 </div>
 
 <script>
-  const WORKER_URL = "https://api.jtexpress.grupobhds.com";
+  const WORKER_URL = "bipageminteligente.jtexpress.grupobhds.com";
   let adminPinValido = "";
   let lotesSessao = [];
   let gruposExistentes = [];
   let html5QrcodeScanner = null;
+  let grupoExpandido = null;
+  const statusOverrides = {};
 
   const viewLotes = document.getElementById("view-lotes");
   const viewAdmin = document.getElementById("view-admin");
@@ -672,12 +723,20 @@
   function onScanFailure(error) {
   }
 
+  function removerLoteSessao(index) {
+    lotesSessao.splice(index, 1);
+    atualizarListaBipagem();
+    document.getElementById("input-bipagem").focus();
+  }
+
   function atualizarListaBipagem() {
     const div = document.getElementById("lista-bipagem");
     div.innerHTML = "";
-    lotesSessao.slice().reverse().forEach(l => {
+    lotesSessao.slice().reverse().forEach((l, indexReverso) => {
+      const indexReal = lotesSessao.length - 1 - indexReverso;
       const p = document.createElement("p");
-      p.innerHTML = `<span class="material-symbols-outlined">barcode</span> ${l.numeracao} - ${l.barcode}`;
+      p.innerHTML = `<span style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined">barcode</span> ${l.numeracao} - ${l.barcode}</span>
+                     <button class="btn-delete" onclick="removerLoteSessao(${indexReal})"><span class="material-symbols-outlined">close</span></button>`;
       div.appendChild(p);
     });
   }
@@ -754,62 +813,129 @@
     
     for (const [grupo, numObj] of Object.entries(agrupado)) {
       const grupoDiv = document.createElement("div");
-      grupoDiv.className = "grupo-container";
+      grupoDiv.className = "grupo-container" + (grupoExpandido === grupo ? " expanded" : "");
       
       const grupoHeader = document.createElement("div");
       grupoHeader.className = "grupo-header";
-      grupoHeader.innerHTML = `<span class="material-symbols-outlined">inventory_2</span> ${grupo}`;
+      grupoHeader.innerHTML = `<span class="material-symbols-outlined">inventory_2</span> ${grupo} <span class="material-symbols-outlined expand-icon">expand_more</span>`;
+      grupoHeader.onclick = () => {
+        if (grupoExpandido === grupo) {
+          grupoExpandido = null;
+        } else {
+          grupoExpandido = grupo;
+        }
+        carregarDados();
+      };
       grupoDiv.appendChild(grupoHeader);
       
+      const grupoBody = document.createElement("div");
+      grupoBody.className = "grupo-body";
+
       for (const [numeracao, lotesArr] of Object.entries(numObj)) {
         const numSecao = document.createElement("div");
         numSecao.className = "num-secao";
         
-        const numTitle = document.createElement("div");
-        numTitle.className = "num-title";
-        numTitle.innerHTML = `<span class="material-symbols-outlined">tag</span> Numeração: ${numeracao} (${lotesArr.length} lotes)`;
-        numSecao.appendChild(numTitle);
+        let lotesVisiveisCount = 0;
         
+        const contentDiv = document.createElement("div");
+
         lotesArr.forEach(lote => {
+          let statusAtual = lote.status;
+          const chave = `${lote.barcode}-${lote.grupo}`;
+          const override = statusOverrides[chave];
+          
+          if (override && (Date.now() - override.time < 10000)) {
+            if (override.excluido) return;
+            statusAtual = override.status;
+          } else if (override) {
+            delete statusOverrides[chave];
+          }
+
+          lotesVisiveisCount++;
+
           const linha = document.createElement("div");
           linha.className = "lote-linha";
           
           const codigo = document.createElement("span");
           codigo.className = "lote-codigo";
           codigo.innerHTML = `<span class="material-symbols-outlined">qr_code</span> ${lote.barcode}`;
-          codigo.onclick = () => copiarBarcode(lote.barcode, lote.grupo, codigo.nextElementSibling);
+          codigo.onclick = () => copiarBarcode(lote.barcode, lote.grupo, btnStatus);
           
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "actions-container";
+
           const btnStatus = document.createElement("button");
-          btnStatus.className = `btn-status status-${lote.status.toLowerCase()}`;
-          btnStatus.innerText = lote.status;
+          btnStatus.className = `btn-status status-${statusAtual.toLowerCase()}`;
+          btnStatus.innerText = statusAtual;
           btnStatus.onclick = () => alterarStatusBotao(lote.barcode, lote.grupo, btnStatus);
           
+          const btnExcluir = document.createElement("button");
+          btnExcluir.className = "btn-delete";
+          btnExcluir.innerHTML = '<span class="material-symbols-outlined">close</span>';
+          btnExcluir.onclick = () => excluirLote(lote.barcode, lote.grupo);
+
+          actionsDiv.appendChild(btnStatus);
+          actionsDiv.appendChild(btnExcluir);
+
           linha.appendChild(codigo);
-          linha.appendChild(btnStatus);
-          numSecao.appendChild(linha);
+          linha.appendChild(actionsDiv);
+          contentDiv.appendChild(linha);
         });
         
-        grupoDiv.appendChild(numSecao);
+        if (lotesVisiveisCount > 0) {
+          const numTitle = document.createElement("div");
+          numTitle.className = "num-title";
+          numTitle.innerHTML = `<span class="material-symbols-outlined">tag</span> Numeração: ${numeracao} (${lotesVisiveisCount} lotes)`;
+          numSecao.appendChild(numTitle);
+          numSecao.appendChild(contentDiv);
+          grupoBody.appendChild(numSecao);
+        }
       }
-      lotesContainer.appendChild(grupoDiv);
+      
+      if (grupoBody.children.length > 0) {
+        grupoDiv.appendChild(grupoBody);
+        lotesContainer.appendChild(grupoDiv);
+      }
     }
   }
 
   function copiarBarcode(barcode, grupo, btnStatusElement) {
     navigator.clipboard.writeText(barcode);
     if (btnStatusElement.innerText === "Novo") {
-      btnStatusElement.innerText = "Usado";
-      btnStatusElement.className = "btn-status status-usado";
-      atualizarStatusBackend(barcode, grupo, "Usado");
+      let novoStatus = "Usado";
+      btnStatusElement.innerText = novoStatus;
+      btnStatusElement.className = `btn-status status-${novoStatus.toLowerCase()}`;
+      
+      statusOverrides[`${barcode}-${grupo}`] = {
+        status: novoStatus,
+        time: Date.now()
+      };
+      
+      atualizarStatusBackend(barcode, grupo, novoStatus);
     }
   }
 
   function alterarStatusBotao(barcode, grupo, btnStatusElement) {
-    if (btnStatusElement.innerText === "Usado") {
-      btnStatusElement.innerText = "Incompleto";
-      btnStatusElement.className = "btn-status status-incompleto";
-      atualizarStatusBackend(barcode, grupo, "Incompleto");
+    let currentStatus = btnStatusElement.innerText;
+    let novoStatus = "";
+    
+    if (currentStatus === "Usado") {
+      novoStatus = "Incompleto";
+    } else if (currentStatus === "Incompleto") {
+      novoStatus = "Novo";
+    } else {
+      return;
     }
+    
+    btnStatusElement.innerText = novoStatus;
+    btnStatusElement.className = `btn-status status-${novoStatus.toLowerCase()}`;
+    
+    statusOverrides[`${barcode}-${grupo}`] = {
+      status: novoStatus,
+      time: Date.now()
+    };
+    
+    atualizarStatusBackend(barcode, grupo, novoStatus);
   }
 
   async function atualizarStatusBackend(barcode, grupo, novoStatus) {
@@ -817,6 +943,24 @@
       await fetch(WORKER_URL + "/api/status", {
         method: "POST",
         body: JSON.stringify({ acao: "atualizarStatus", barcode: barcode, grupo: grupo, status: novoStatus })
+      });
+    } catch (e) {}
+  }
+
+  async function excluirLote(barcode, grupo) {
+    if (!confirm(`Deseja excluir o código ${barcode}?`)) return;
+    
+    statusOverrides[`${barcode}-${grupo}`] = {
+      excluido: true,
+      time: Date.now()
+    };
+    
+    carregarDados();
+    
+    try {
+      await fetch(WORKER_URL + "/api/excluir", {
+        method: "POST",
+        body: JSON.stringify({ acao: "excluir", barcode: barcode, grupo: grupo })
       });
     } catch (e) {}
   }
