@@ -19,7 +19,6 @@
   --md-sys-color-surface-variant: #dbe4e6;
   --md-sys-color-on-surface: #191c1d;
   --md-sys-color-outline: #6f797a;
-  --md-sys-color-warning: #ffb4ab;
   --border-radius-xl: 28px;
   --border-radius-lg: 16px;
   --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -32,6 +31,42 @@ body {
   color: var(--md-sys-color-on-surface);
   overflow-x: hidden;
   user-select: none;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+.toast-container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background-color: var(--md-sys-color-on-surface);
+  color: var(--md-sys-color-surface);
+  padding: 12px 24px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 .pin-screen {
   position: fixed;
@@ -56,6 +91,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 24px;
+  animation: slideUp 0.5s ease;
 }
 .pin-input {
   font-size: 32px;
@@ -67,6 +103,10 @@ body {
   width: 200px;
   outline: none;
   color: var(--md-sys-color-on-surface);
+  transition: border-color 0.3s;
+}
+.pin-input:focus {
+  border-bottom-width: 4px;
 }
 .btn-primary {
   background-color: var(--md-sys-color-primary);
@@ -78,10 +118,25 @@ body {
   font-weight: 500;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
+  transition: transform 0.2s, background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 .btn-primary:active {
   transform: scale(0.95);
+}
+.btn-install {
+  background-color: var(--md-sys-color-on-primary);
+  color: var(--md-sys-color-primary);
+  margin-top: 16px;
+  font-weight: 700;
+}
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 .header-card {
   background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, #004a53 100%);
@@ -90,12 +145,37 @@ body {
   border-bottom-left-radius: var(--border-radius-xl);
   border-bottom-right-radius: var(--border-radius-xl);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  margin-bottom: 24px;
+  position: relative;
+  z-index: 10;
+}
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.icon-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+.icon-btn:active {
+  background: rgba(255,255,255,0.4);
+  transform: scale(0.9);
 }
 .month-year {
-  font-size: 14px;
-  opacity: 0.9;
-  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: capitalize;
   letter-spacing: 1px;
 }
 .totals-grid {
@@ -108,6 +188,7 @@ body {
   background: rgba(255,255,255,0.1);
   padding: 16px;
   border-radius: var(--border-radius-lg);
+  backdrop-filter: blur(4px);
 }
 .total-label {
   font-size: 12px;
@@ -119,26 +200,118 @@ body {
   margin-top: 4px;
 }
 .main-content {
-  padding: 0 16px 100px 16px;
+  padding: 16px 16px 100px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
+.tools-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.search-bar {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--md-sys-color-surface-variant);
+  background: var(--md-sys-color-surface);
+  font-size: 16px;
+  color: var(--md-sys-color-on-surface);
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-sizing: border-box;
+}
+.search-bar:focus {
+  border-color: var(--md-sys-color-primary);
+}
+.filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.filter-chip {
+  padding: 8px 16px;
+  border-radius: 100px;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-surface-variant);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-chip.active {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border-color: var(--md-sys-color-primary-container);
+}
+.expense-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.swipe-container {
+  position: relative;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--md-sys-color-surface-variant);
+}
+.swipe-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  box-sizing: border-box;
+  font-weight: 700;
+  font-size: 14px;
+}
+.bg-pay { background: var(--md-sys-color-primary); color: white; }
+.bg-del { background: var(--md-sys-color-error); color: white; }
 .expense-card {
   background-color: var(--md-sys-color-surface);
   border-radius: var(--border-radius-lg);
   padding: 16px;
-  margin-bottom: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   border: 1px solid var(--md-sys-color-surface-variant);
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: background-color 0.3s;
+  align-items: center;
+  gap: 12px;
+  transition: transform 0.2s;
+  animation: slideUp 0.4s ease forwards;
+  position: relative;
+  z-index: 2;
+  will-change: transform;
+}
+.expense-card:active {
+  transform: scale(0.98);
 }
 .expense-card.overdue {
   background-color: var(--md-sys-color-error-container);
   border-color: var(--md-sys-color-error);
+  animation: fadePulse 2s infinite;
 }
 .expense-card.thursday {
   border-left: 6px solid var(--md-sys-color-primary);
+}
+.expense-chk {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: var(--md-sys-color-primary);
+}
+.expense-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .expense-header {
   display: flex;
@@ -167,6 +340,51 @@ body {
   font-size: 10px;
   font-weight: 700;
   align-self: flex-start;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.pc-actions {
+  display: none;
+  gap: 8px;
+}
+.icon-action {
+  background: var(--md-sys-color-surface-variant);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-action:hover {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+.bulk-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  background: var(--md-sys-color-surface);
+  padding: 16px 24px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+  transform: translateY(100%);
+  transition: transform 0.3s;
+  box-sizing: border-box;
+}
+.bulk-bar.active {
+  transform: translateY(0);
+}
+.bulk-text {
+  font-weight: 600;
+  font-size: 16px;
 }
 .fab {
   position: fixed;
@@ -183,11 +401,14 @@ body {
   font-size: 32px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
   cursor: pointer;
-  transition: transform 0.2s;
-  z-index: 100;
+  transition: transform 0.2s, bottom 0.3s;
+  z-index: 98;
 }
 .fab:active {
   transform: scale(0.9);
+}
+.fab.lifted {
+  bottom: 100px;
 }
 .modal-overlay {
   position: fixed;
@@ -202,18 +423,21 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s;
+  backdrop-filter: blur(2px);
 }
 .modal-overlay.active {
   opacity: 1;
   pointer-events: all;
 }
 .modal-sheet {
+  position: relative;
   background-color: var(--md-sys-color-surface);
   width: 100%;
   max-height: 90vh;
   border-top-left-radius: var(--border-radius-xl);
   border-top-right-radius: var(--border-radius-xl);
   padding: 24px;
+  padding-bottom: 80px;
   box-sizing: border-box;
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
@@ -221,6 +445,27 @@ body {
 }
 .modal-overlay.active .modal-sheet {
   transform: translateY(0);
+}
+.btn-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--md-sys-color-surface-variant);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 20px;
+  color: var(--md-sys-color-on-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  z-index: 10;
+}
+.btn-close:active {
+  transform: scale(0.8);
 }
 .input-group {
   margin-bottom: 16px;
@@ -240,6 +485,7 @@ body {
   background: transparent;
   outline: none;
   color: var(--md-sys-color-on-surface);
+  transition: border-color 0.3s;
 }
 .input-field:focus {
   border-color: var(--md-sys-color-primary);
@@ -306,6 +552,11 @@ input:checked + .slider:before {
   flex: 1;
   text-align: center;
   cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+.btn-secondary:active {
+  transform: scale(0.95);
+  background-color: var(--md-sys-color-surface-variant);
 }
 .btn-danger {
   background-color: var(--md-sys-color-error);
@@ -318,6 +569,10 @@ input:checked + .slider:before {
   flex: 1;
   text-align: center;
   cursor: pointer;
+  transition: transform 0.2s;
+}
+.btn-danger:active {
+  transform: scale(0.95);
 }
 .btn-submit {
   flex: 2;
@@ -328,46 +583,123 @@ select.input-field {
 .hidden-element {
   display: none !important;
 }
+@media (min-width: 768px) {
+  .app-layout {
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .header-card {
+    width: 300px;
+    height: 100vh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+    box-sizing: border-box;
+  }
+  .totals-grid {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+  }
+  .main-content {
+    padding: 32px;
+    overflow-y: auto;
+  }
+  .tools-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .search-bar {
+    width: 300px;
+  }
+  .expense-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .expense-card:hover .pc-actions {
+    display: flex;
+  }
+  .modal-overlay {
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-sheet {
+    width: 500px;
+    border-radius: var(--border-radius-xl);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .modal-overlay.active .modal-sheet {
+    transform: scale(1);
+    opacity: 1;
+  }
+  .bulk-bar {
+    left: 300px;
+    width: calc(100vw - 300px);
+  }
+}
 </style>
 </head>
 <body>
-
+<div id="toastContainer" class="toast-container"></div>
 <div id="pinScreen" class="pin-screen">
   <div class="pin-container">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--md-sys-color-primary)"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm3 11a2 2 0 110-4 2 2 0 010 4z"/></svg>
-    <h2>Acesso Restrito</h2>
+    <h2 style="margin:0;">Acesso Restrito</h2>
     <input type="password" id="pinInput" class="pin-input" maxlength="6" inputmode="numeric" />
     <button id="btnAuth" class="btn-primary">Entrar</button>
+    <button id="btnInstallApp" class="btn-primary btn-install hidden-element">Instalar Aplicativo</button>
   </div>
 </div>
-
-<div class="header-card">
-  <div class="month-year" id="currentMonthYear"></div>
-  <div class="totals-grid">
-    <div class="total-box">
-      <div class="total-label">Pendentes</div>
-      <div class="total-value" id="totalPendente">R$ 0,00</div>
+<div class="app-layout">
+  <div class="header-card">
+    <div class="month-nav">
+      <button id="btnPrevMonth" class="icon-btn">&lt;</button>
+      <div class="month-year" id="currentMonthYear"></div>
+      <button id="btnNextMonth" class="icon-btn">&gt;</button>
     </div>
-    <div class="total-box">
-      <div class="total-label">Pagas</div>
-      <div class="total-value" id="totalPaga">R$ 0,00</div>
+    <div class="totals-grid">
+      <div class="total-box">
+        <div class="total-label">Pendentes</div>
+        <div class="total-value" id="totalPendente">R$ 0,00</div>
+      </div>
+      <div class="total-box">
+        <div class="total-label">Pagas</div>
+        <div class="total-value" id="totalPaga">R$ 0,00</div>
+      </div>
     </div>
   </div>
+  <div class="main-content">
+    <div class="tools-bar">
+      <input type="text" id="inpSearch" class="search-bar" placeholder="Pesquisar despesa..." />
+      <div class="filters">
+        <div class="filter-chip active" data-filter="all">Todas</div>
+        <div class="filter-chip" data-filter="pendentes">Pendentes</div>
+        <div class="filter-chip" data-filter="pagas">Pagas</div>
+        <div class="filter-chip" data-filter="atrasadas">Atrasadas</div>
+      </div>
+    </div>
+    <div class="expense-grid" id="expenseList"></div>
+  </div>
 </div>
-
-<div class="main-content" id="expenseList"></div>
-
+<div class="bulk-bar" id="bulkBar">
+  <div class="bulk-text" id="bulkText">0 selecionadas</div>
+  <button class="btn-primary" id="btnBulkPay">Pagar Selecionadas</button>
+</div>
 <div class="fab" id="fabAdd">+</div>
-
 <div class="modal-overlay" id="addModal">
   <div class="modal-sheet">
-    <h2 id="modalTitle">Nova Despesa</h2>
-    
+    <button class="btn-close" id="btnCloseAdd">&times;</button>
+    <h2 id="modalTitle" style="margin-top:0;">Nova Despesa</h2>
     <div class="input-group">
       <label>Valor (R$)</label>
-      <input type="number" id="inpValor" class="input-field" step="0.01" />
+      <input type="text" id="inpValor" class="input-field" inputmode="numeric" placeholder="R$ 0,00" />
     </div>
-
     <div class="input-group switch-container">
       <label class="switch">
         <input type="checkbox" id="inpValorTotalSwitch">
@@ -375,27 +707,22 @@ select.input-field {
       </label>
       <span>Valor da Parcela / Valor Total</span>
     </div>
-
     <div class="input-group">
       <label>Descrição</label>
       <input type="text" id="inpDescricao" class="input-field" />
     </div>
-
     <div class="input-group">
       <label>Vencimento</label>
       <input type="date" id="inpVencimento" class="input-field" />
     </div>
-
     <div class="input-group">
       <label>Multa (R$)</label>
-      <input type="number" id="inpMulta" class="input-field" step="0.01" value="0" />
+      <input type="text" id="inpMulta" class="input-field" inputmode="numeric" placeholder="R$ 0,00" />
     </div>
-
     <div class="input-group">
       <label>Juros ao Dia (%)</label>
-      <input type="number" id="inpJuros" class="input-field" step="0.01" value="0" />
+      <input type="text" id="inpJuros" class="input-field" inputmode="numeric" placeholder="0,00%" />
     </div>
-
     <div class="input-group">
       <label>Recorrência</label>
       <select id="selRecorrencia" class="input-field">
@@ -404,42 +731,38 @@ select.input-field {
         <option value="installments">Parcelado</option>
       </select>
     </div>
-
     <div class="input-group hidden-element" id="grpFrequencia">
       <label>Frequência</label>
       <select id="selFrequencia" class="input-field">
+        <option value="daily">Todo dia</option>
         <option value="weekly">Toda semana</option>
         <option value="monthly" selected>Todo mês</option>
         <option value="semester">Cada 6 meses</option>
         <option value="yearly">Anualmente</option>
       </select>
     </div>
-
     <div class="input-group hidden-element" id="grpParcelas">
       <label>Número de Parcelas</label>
       <input type="number" id="inpParcelasTotais" class="input-field" />
       <label style="margin-top:8px;">Parcela Atual</label>
       <input type="number" id="inpParcelaAtual" class="input-field" />
     </div>
-
     <div class="btn-row">
       <button class="btn-secondary" id="btnCancelAdd">Cancelar</button>
       <button class="btn-primary btn-submit" id="btnSaveExpense">Adicionar</button>
     </div>
   </div>
 </div>
-
 <div class="modal-overlay" id="detailModal">
   <div class="modal-sheet">
-    <h2 id="detDescricao"></h2>
-    
+    <button class="btn-close" id="btnCloseDetIcon">&times;</button>
+    <h2 id="detDescricao" style="margin-top:0;"></h2>
     <div class="input-group">
       <div style="font-size:24px; font-weight:700;" id="detValor"></div>
       <div id="detMeta" style="font-size:14px; color:var(--md-sys-color-outline);"></div>
       <div id="detJurosInfo" style="font-size:14px; color:var(--md-sys-color-error); margin-top:8px;"></div>
       <div id="detRecomendacao" style="background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); padding:12px; border-radius:8px; margin-top:16px; font-size:14px; font-weight:500;" class="hidden-element"></div>
     </div>
-
     <div class="btn-row" style="flex-wrap: wrap;">
       <button class="btn-secondary" id="btnEditDet" style="flex-basis: 100%;">Editar</button>
       <button class="btn-danger" id="btnDelDet">Excluir</button>
@@ -448,14 +771,16 @@ select.input-field {
     </div>
   </div>
 </div>
-
 <script>
 const WORKER_URL = "https://minhas-despesas.grupo-bhds.workers.dev";
-
 let cachedPin = localStorage.getItem("app_pin");
 let expensesData = [];
 let currentEditId = null;
-
+let currentViewDate = new Date();
+let deferredPrompt;
+let activeFilter = 'all';
+let searchQuery = '';
+let selectedIds = new Set();
 const pinScreen = document.getElementById("pinScreen");
 const pinInput = document.getElementById("pinInput");
 const btnAuth = document.getElementById("btnAuth");
@@ -463,19 +788,76 @@ const fabAdd = document.getElementById("fabAdd");
 const addModal = document.getElementById("addModal");
 const detailModal = document.getElementById("detailModal");
 const expenseList = document.getElementById("expenseList");
-
-const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'}).format(val);
-
-function updateCurrentMonthLabel() {
-  const dt = new Date();
-  const formatter = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
-  document.getElementById("currentMonthYear").innerText = formatter.format(dt);
+const bulkBar = document.getElementById("bulkBar");
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('btnInstallApp').classList.remove('hidden-element');
+});
+document.getElementById('btnInstallApp').addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('btnInstallApp').classList.add('hidden-element');
+    }
+    deferredPrompt = null;
+  }
+});
+function showToast(msg) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.innerText = msg;
+  document.getElementById("toastContainer").appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("show"));
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
-
+function maskCurrency(e) {
+  let v = e.target.value.replace(/\D/g, "");
+  if(v === "") { e.target.value = ""; return; }
+  v = (parseInt(v) / 100).toFixed(2);
+  v = v.replace(".", ",");
+  v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+  e.target.value = "R$ " + v;
+}
+function maskPercent(e) {
+  let v = e.target.value.replace(/\D/g, "");
+  if(v === "") { e.target.value = ""; return; }
+  v = (parseInt(v) / 100).toFixed(2);
+  v = v.replace(".", ",");
+  e.target.value = v + "%";
+}
+function unmaskValue(str) {
+  if(!str) return 0;
+  let val = str.replace("R$ ", "").replace("%", "").replace(/\./g, "").replace(",", ".");
+  return parseFloat(val);
+}
+function formatCurrencyStr(val) {
+  return new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'}).format(val);
+}
+document.getElementById('inpValor').addEventListener('input', maskCurrency);
+document.getElementById('inpMulta').addEventListener('input', maskCurrency);
+document.getElementById('inpJuros').addEventListener('input', maskPercent);
+function updateMonthView() {
+  const formatter = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
+  document.getElementById("currentMonthYear").innerText = formatter.format(currentViewDate);
+  renderExpenses();
+}
+document.getElementById('btnPrevMonth').addEventListener('click', () => {
+  currentViewDate.setMonth(currentViewDate.getMonth() - 1);
+  updateMonthView();
+});
+document.getElementById('btnNextMonth').addEventListener('click', () => {
+  currentViewDate.setMonth(currentViewDate.getMonth() + 1);
+  updateMonthView();
+});
 function calculateProgressiveInterest(expense) {
-  if (expense.status === "pago") return expense.valor;
-  const due = new Date(expense.vencimento);
-  const now = new Date();
+  if (expense.status === "pago") return parseFloat(expense.valor);
+  const due = new Date(expense.vencimento + 'T00:00:00');
+  const now = new Date(new Date().setHours(0,0,0,0));
   if (now > due) {
     const diffTime = Math.abs(now - due);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -486,55 +868,164 @@ function calculateProgressiveInterest(expense) {
   }
   return parseFloat(expense.valor);
 }
-
 function isTargetThursday(dueDateStr) {
-  const due = new Date(dueDateStr);
+  const due = new Date(dueDateStr + 'T00:00:00');
   const now = new Date();
   const nextThursday = new Date(now);
   nextThursday.setDate(now.getDate() + ((4 + 7 - now.getDay()) % 7));
+  nextThursday.setHours(0,0,0,0);
   const diffTime = due - nextThursday;
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
   return diffDays >= -6 && diffDays <= 0;
 }
-
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', (e) => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    e.target.classList.add('active');
+    activeFilter = e.target.getAttribute('data-filter');
+    renderExpenses();
+  });
+});
+document.getElementById('inpSearch').addEventListener('input', (e) => {
+  searchQuery = e.target.value.toLowerCase();
+  renderExpenses();
+});
+function updateBulkUI() {
+  if (selectedIds.size > 0) {
+    bulkBar.classList.add('active');
+    document.getElementById('bulkText').innerText = `${selectedIds.size} selecionadas`;
+    fabAdd.classList.add('lifted');
+  } else {
+    bulkBar.classList.remove('active');
+    fabAdd.classList.remove('lifted');
+  }
+}
 function renderExpenses() {
   expenseList.innerHTML = "";
   let totPend = 0;
   let totPago = 0;
-
-  expensesData.forEach(exp => {
-    const isOverdue = new Date(exp.vencimento) < new Date() && exp.status !== "pago";
+  let filtered = expensesData.filter(exp => {
+    if(!exp.vencimento) return false;
+    const pts = exp.vencimento.split('-');
+    if(pts.length !== 3) return false;
+    const y = parseInt(pts[0]);
+    const m = parseInt(pts[1]) - 1;
+    if (y !== currentViewDate.getFullYear() || m !== currentViewDate.getMonth()) return false;
+    if (searchQuery && !exp.descricao.toLowerCase().includes(searchQuery)) return false;
+    const isOverdue = new Date(exp.vencimento + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0)) && exp.status !== "pago";
+    if (activeFilter === 'pendentes' && exp.status === 'pago') return false;
+    if (activeFilter === 'pagas' && exp.status !== 'pago') return false;
+    if (activeFilter === 'atrasadas' && !isOverdue) return false;
+    return true;
+  });
+  filtered.forEach(exp => {
+    const isOverdue = new Date(exp.vencimento + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0)) && exp.status !== "pago";
     const isThursday = exp.status !== "pago" && isTargetThursday(exp.vencimento);
     const currentValue = calculateProgressiveInterest(exp);
-
+    const pts = exp.vencimento.split('-');
     if (exp.status === "pago") totPago += parseFloat(exp.valor);
     else totPend += currentValue;
-
+    const container = document.createElement("div");
+    container.className = "swipe-container";
+    const bg = document.createElement("div");
+    bg.className = "swipe-bg";
+    bg.innerHTML = `<span style="color:var(--md-sys-color-error)">Excluir</span><span style="color:var(--md-sys-color-primary)">Pagar</span>`;
     const card = document.createElement("div");
     card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${isThursday ? 'thursday' : ''}`;
-    
     let thTag = isThursday ? `<div class="tag-thursday">Pagar nesta Quinta!</div>` : '';
     let parcelInfo = exp.recorrencia === 'installments' ? ` - Parcela ${exp.parcelaAtual}/${exp.parcelasTotais}` : '';
-
     card.innerHTML = `
-      ${thTag}
-      <div class="expense-header">
-        <div class="expense-title">${exp.descricao}${parcelInfo}</div>
-        <div class="expense-value">${formatCurrency(currentValue)}</div>
+      <input type="checkbox" class="expense-chk" data-id="${exp.id}" ${selectedIds.has(exp.id) ? 'checked' : ''} />
+      <div class="expense-content">
+        ${thTag}
+        <div class="expense-header">
+          <div class="expense-title">${exp.descricao}${parcelInfo}</div>
+          <div class="expense-value">${formatCurrencyStr(currentValue)}</div>
+        </div>
+        <div class="expense-meta">
+          <span>Venc: ${pts[2]}/${pts[1]}/${pts[0]}</span>
+          <span>${exp.status === 'pago' ? 'Paga' : 'Pendente'}</span>
+        </div>
       </div>
-      <div class="expense-meta">
-        <span>Venc: ${new Date(exp.vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</span>
-        <span>${exp.status === 'pago' ? 'Paga' : 'Pendente'}</span>
+      <div class="pc-actions">
+        ${exp.status !== 'pago' ? `<button class="icon-action btn-pay-fast" data-id="${exp.id}">$</button>` : ''}
+        <button class="icon-action btn-edit-fast" data-id="${exp.id}">E</button>
+        <button class="icon-action btn-del-fast" data-id="${exp.id}">X</button>
       </div>
     `;
-    card.addEventListener("click", () => openDetail(exp.id));
-    expenseList.appendChild(card);
+    let startX = 0;
+    let currentX = 0;
+    card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+    card.addEventListener('touchmove', e => {
+      currentX = e.touches[0].clientX - startX;
+      if (Math.abs(currentX) > 20) {
+        card.style.transform = `translateX(${currentX}px)`;
+        if(currentX > 0) bg.className = "swipe-bg bg-pay";
+        else bg.className = "swipe-bg bg-del";
+      }
+    });
+    card.addEventListener('touchend', async () => {
+      card.style.transform = `translateX(0)`;
+      if (currentX > 80 && exp.status !== 'pago') {
+        await fastPay(exp.id);
+      } else if (currentX < -80) {
+        await fastDelete(exp.id);
+      }
+      currentX = 0;
+    });
+    const chk = card.querySelector('.expense-chk');
+    chk.addEventListener('change', (e) => {
+      if (e.target.checked) selectedIds.add(exp.id);
+      else selectedIds.delete(exp.id);
+      updateBulkUI();
+    });
+    card.querySelector('.expense-content').addEventListener('click', () => openDetail(exp.id));
+    const payBtn = card.querySelector('.btn-pay-fast');
+    if (payBtn) payBtn.addEventListener('click', (e) => { e.stopPropagation(); fastPay(exp.id); });
+    card.querySelector('.btn-edit-fast').addEventListener('click', (e) => { e.stopPropagation(); openEdit(exp.id); });
+    card.querySelector('.btn-del-fast').addEventListener('click', (e) => { e.stopPropagation(); fastDelete(exp.id); });
+    container.appendChild(bg);
+    container.appendChild(card);
+    expenseList.appendChild(container);
   });
-
-  document.getElementById("totalPendente").innerText = formatCurrency(totPend);
-  document.getElementById("totalPaga").innerText = formatCurrency(totPago);
+  document.getElementById("totalPendente").innerText = formatCurrencyStr(totPend);
+  document.getElementById("totalPaga").innerText = formatCurrencyStr(totPago);
 }
-
+async function fastPay(id) {
+  const exp = expensesData.find(e => e.id === id);
+  if(!exp) return;
+  exp.status = "pago";
+  await fetch(WORKER_URL, {
+    method: "POST",
+    headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
+    body: JSON.stringify(exp)
+  });
+  fetchExpenses();
+  showToast("Despesa paga");
+}
+async function fastDelete(id) {
+  if (confirm("Tem certeza que deseja excluir esta despesa?")) {
+    await fetch(`${WORKER_URL}?id=${id}`, {
+      method: "DELETE",
+      headers: { "x-pin": cachedPin }
+    });
+    fetchExpenses();
+    showToast("Excluída");
+  }
+}
+document.getElementById('btnBulkPay').addEventListener('click', async () => {
+  if(selectedIds.size === 0) return;
+  const ids = Array.from(selectedIds);
+  await fetch(WORKER_URL + "/bulk-pay", {
+    method: "POST",
+    headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
+    body: JSON.stringify({ ids: ids })
+  });
+  selectedIds.clear();
+  updateBulkUI();
+  fetchExpenses();
+  showToast("Despesas selecionadas foram pagas!");
+});
 async function fetchExpenses() {
   try {
     const res = await fetch(WORKER_URL, {
@@ -548,10 +1039,11 @@ async function fetchExpenses() {
       return;
     }
     expensesData = await res.json();
-    renderExpenses();
-  } catch(e) {}
+    updateMonthView();
+  } catch(e) {
+    showToast("Erro ao carregar despesas");
+  }
 }
-
 btnAuth.addEventListener("click", async () => {
   const val = pinInput.value;
   try {
@@ -564,17 +1056,18 @@ btnAuth.addEventListener("click", async () => {
       localStorage.setItem("app_pin", val);
       pinScreen.classList.add("hidden");
       fetchExpenses();
+      showToast("Acesso Liberado");
+    } else {
+      showToast("PIN Incorreto");
     }
-  } catch(e) {}
+  } catch(e) {
+    showToast("Erro de conexão");
+  }
 });
-
 if (cachedPin) {
   pinScreen.classList.add("hidden");
   fetchExpenses();
 }
-
-updateCurrentMonthLabel();
-
 fabAdd.addEventListener("click", () => {
   currentEditId = null;
   document.getElementById("modalTitle").innerText = "Nova Despesa";
@@ -582,15 +1075,13 @@ fabAdd.addEventListener("click", () => {
   document.getElementById("inpValorTotalSwitch").checked = false;
   document.getElementById("inpDescricao").value = "";
   document.getElementById("inpVencimento").value = "";
-  document.getElementById("inpMulta").value = "0";
-  document.getElementById("inpJuros").value = "0";
+  document.getElementById("inpMulta").value = "";
+  document.getElementById("inpJuros").value = "";
   document.getElementById("selRecorrencia").value = "none";
   triggerRecorrencia();
   addModal.classList.add("active");
 });
-
 document.getElementById("selRecorrencia").addEventListener("change", triggerRecorrencia);
-
 function triggerRecorrencia() {
   const val = document.getElementById("selRecorrencia").value;
   document.getElementById("grpFrequencia").classList.add("hidden-element");
@@ -601,66 +1092,61 @@ function triggerRecorrencia() {
     document.getElementById("grpParcelas").classList.remove("hidden-element");
   }
 }
-
-document.getElementById("btnCancelAdd").addEventListener("click", () => {
-  addModal.classList.remove("active");
-});
-
+function closeAddModal() { addModal.classList.remove("active"); }
+document.getElementById("btnCancelAdd").addEventListener("click", closeAddModal);
+document.getElementById("btnCloseAdd").addEventListener("click", closeAddModal);
 document.getElementById("btnSaveExpense").addEventListener("click", async () => {
   const id = currentEditId || crypto.randomUUID();
-  let baseValue = parseFloat(document.getElementById("inpValor").value);
+  let baseValue = unmaskValue(document.getElementById("inpValor").value);
   const isTotal = document.getElementById("inpValorTotalSwitch").checked;
   const recorrencia = document.getElementById("selRecorrencia").value;
   const parcelasTotais = parseInt(document.getElementById("inpParcelasTotais").value || 1);
   const parcelaAtual = parseInt(document.getElementById("inpParcelaAtual").value || 1);
-
   if (recorrencia === "installments" && isTotal) {
     baseValue = baseValue / parcelasTotais;
   }
-
   const payload = {
     id: id,
     valor: baseValue.toFixed(2),
     descricao: document.getElementById("inpDescricao").value,
     vencimento: document.getElementById("inpVencimento").value,
-    multa: document.getElementById("inpMulta").value,
-    juros: document.getElementById("inpJuros").value,
+    multa: unmaskValue(document.getElementById("inpMulta").value).toFixed(2),
+    juros: unmaskValue(document.getElementById("inpJuros").value).toFixed(2),
     recorrencia: recorrencia,
     frequencia: document.getElementById("selFrequencia").value,
     parcelasTotais: parcelasTotais,
     parcelaAtual: parcelaAtual,
-    status: "pendente"
+    status: "pendente",
+    nextGenerated: false
   };
-
   try {
     await fetch(WORKER_URL, {
       method: "POST",
       headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    addModal.classList.remove("active");
+    closeAddModal();
     fetchExpenses();
-  } catch(e) {}
+    showToast("Despesa salva com sucesso");
+  } catch(e) {
+    showToast("Erro ao salvar");
+  }
 });
-
 function openDetail(id) {
   const exp = expensesData.find(e => e.id === id);
   if (!exp) return;
   currentEditId = exp.id;
-
   const currentVal = calculateProgressiveInterest(exp);
-  
+  const pts = exp.vencimento.split('-');
   document.getElementById("detDescricao").innerText = exp.descricao;
-  document.getElementById("detValor").innerText = formatCurrency(currentVal);
-  document.getElementById("detMeta").innerText = `Vencimento: ${new Date(exp.vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}`;
-  
+  document.getElementById("detValor").innerText = formatCurrencyStr(currentVal);
+  document.getElementById("detMeta").innerText = `Vencimento: ${pts[2]}/${pts[1]}/${pts[0]}`;
   const jurosBox = document.getElementById("detJurosInfo");
   if (currentVal > exp.valor && exp.status !== "pago") {
-    jurosBox.innerText = `Atrasado. Valor original: ${formatCurrency(exp.valor)}. Juros + Multa aplicados.`;
+    jurosBox.innerText = `Atrasado. Valor original: ${formatCurrencyStr(exp.valor)}. Juros + Multa aplicados.`;
   } else {
     jurosBox.innerText = "";
   }
-
   const recBox = document.getElementById("detRecomendacao");
   if (exp.status !== "pago" && isTargetThursday(exp.vencimento)) {
     recBox.innerText = "Melhor dia para pagar: Na próxima quinta-feira, logo após o seu recebimento.";
@@ -668,64 +1154,50 @@ function openDetail(id) {
   } else {
     recBox.classList.add("hidden-element");
   }
-
   detailModal.classList.add("active");
 }
-
-document.getElementById("btnCloseDet").addEventListener("click", () => {
-  detailModal.classList.remove("active");
-});
-
+function closeDetailModal() { detailModal.classList.remove("active"); }
+document.getElementById("btnCloseDet").addEventListener("click", closeDetailModal);
+document.getElementById("btnCloseDetIcon").addEventListener("click", closeDetailModal);
 document.getElementById("btnPayDet").addEventListener("click", async () => {
-  const exp = expensesData.find(e => e.id === currentEditId);
-  exp.status = "pago";
-  await fetch(WORKER_URL, {
-    method: "POST",
-    headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
-    body: JSON.stringify(exp)
-  });
-  detailModal.classList.remove("active");
-  fetchExpenses();
+  fastPay(currentEditId);
+  closeDetailModal();
 });
-
 document.getElementById("btnDelDet").addEventListener("click", async () => {
-  if (confirm("Tem certeza que deseja excluir esta despesa?")) {
-    const exp = expensesData.find(e => e.id === currentEditId);
-    if (exp.recorrencia === "installments") {
-    }
-    await fetch(`${WORKER_URL}?id=${currentEditId}`, {
-      method: "DELETE",
-      headers: { "x-pin": cachedPin }
-    });
-    detailModal.classList.remove("active");
-    fetchExpenses();
-  }
+  fastDelete(currentEditId);
+  closeDetailModal();
 });
-
-document.getElementById("btnEditDet").addEventListener("click", () => {
-  detailModal.classList.remove("active");
-  const exp = expensesData.find(e => e.id === currentEditId);
+function openEdit(id) {
+  currentEditId = id;
+  const exp = expensesData.find(e => e.id === id);
   document.getElementById("modalTitle").innerText = "Editar Despesa";
-  document.getElementById("inpValor").value = exp.valor;
+  let valStr = (parseFloat(exp.valor)*100).toString();
+  document.getElementById("inpValor").value = valStr;
+  maskCurrency({target: document.getElementById("inpValor")});
   document.getElementById("inpDescricao").value = exp.descricao;
   document.getElementById("inpVencimento").value = exp.vencimento;
-  document.getElementById("inpMulta").value = exp.multa;
-  document.getElementById("inpJuros").value = exp.juros;
+  let mulStr = (parseFloat(exp.multa||0)*100).toString();
+  document.getElementById("inpMulta").value = mulStr;
+  maskCurrency({target: document.getElementById("inpMulta")});
+  let jurStr = (parseFloat(exp.juros||0)*100).toString();
+  document.getElementById("inpJuros").value = jurStr;
+  maskPercent({target: document.getElementById("inpJuros")});
   document.getElementById("selRecorrencia").value = exp.recorrencia;
   document.getElementById("selFrequencia").value = exp.frequencia || "monthly";
   document.getElementById("inpParcelasTotais").value = exp.parcelasTotais || 1;
   document.getElementById("inpParcelaAtual").value = exp.parcelaAtual || 1;
   triggerRecorrencia();
   addModal.classList.add("active");
+}
+document.getElementById("btnEditDet").addEventListener("click", () => {
+  closeDetailModal();
+  openEdit(currentEditId);
 });
 </script>
-
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then(registration => {
-      }).catch(err => {
-      });
+      navigator.serviceWorker.register('./sw.js').then(r => {}).catch(e => {});
     });
   }
 </script>
