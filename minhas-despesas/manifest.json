@@ -1,0 +1,15 @@
+{
+  "name": "Minhas Despesas",
+  "short_name": "Despesas",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fbfdfd",
+  "theme_color": "#006874",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
