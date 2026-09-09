@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Minhas Despesas</title>
-<!-- Favicon (Ícone na aba do PC) -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23006874'/%3E%3Crect x='128' y='192' width='256' height='128' rx='32' fill='%2397f0ff'/%3E%3Ccircle cx='256' cy='256' r='32' fill='%23006874'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
@@ -44,7 +43,6 @@ body {
   50% { transform: scale(1.02); }
   100% { transform: scale(1); }
 }
-/* Notificações no App (Toasts) */
 .toast-container {
   position: fixed;
   top: 24px;
@@ -147,19 +145,11 @@ body {
   position: relative;
   z-index: 10;
 }
-.header-actions {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  display: flex;
-  gap: 12px;
-}
 .month-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
-  margin-top: 24px;
 }
 .icon-btn {
   background: rgba(255,255,255,0.2);
@@ -294,7 +284,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  transition: transform 0.2s;
+  transition: transform 0.2s, opacity 0.3s;
   animation: slideUp 0.4s ease forwards;
   position: relative;
   z-index: 2;
@@ -310,6 +300,19 @@ body {
 }
 .expense-card.priority-card {
   border-left: 6px solid #f9a825;
+}
+.expense-card.is-paid {
+  opacity: 0.55;
+  background-color: var(--md-sys-color-surface-variant);
+}
+.expense-card.is-paid .expense-title, 
+.expense-card.is-paid .expense-value {
+  text-decoration: line-through;
+  color: var(--md-sys-color-outline);
+}
+.expense-card.is-virtual {
+  border-style: dashed;
+  border-color: var(--md-sys-color-primary);
 }
 .expense-chk {
   width: 24px;
@@ -343,11 +346,13 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.3s;
 }
 .expense-value {
   font-size: 18px;
   font-weight: 700;
   white-space: nowrap;
+  transition: color 0.3s;
 }
 .expense-meta {
   font-size: 12px;
@@ -595,6 +600,7 @@ select.input-field {
   align-items: center;
   gap: 8px;
 }
+/* Layout Desktop Dashboard Fix */
 @media (min-width: 768px) {
   .app-layout {
     flex-direction: row;
@@ -605,10 +611,16 @@ select.input-field {
     width: 320px;
     height: 100vh;
     border-radius: 0;
+    position: fixed;
     display: flex;
     flex-direction: column;
     padding: 32px;
     box-sizing: border-box;
+    left: 0;
+    top: 0;
+  }
+  .month-nav {
+    margin-top: 0;
   }
   .totals-grid {
     display: flex;
@@ -616,8 +628,11 @@ select.input-field {
     margin-top: auto;
   }
   .main-content {
+    margin-left: 320px;
+    width: calc(100vw - 320px);
     padding: 32px;
     overflow-y: auto;
+    box-sizing: border-box;
   }
   .tools-bar {
     flex-direction: row;
@@ -664,10 +679,7 @@ select.input-field {
 </style>
 </head>
 <body>
-
-<!-- Notificações Toast do Sistema -->
 <div id="toastContainer" class="toast-container"></div>
-
 <div id="pinScreen" class="pin-screen">
   <div class="pin-container">
     <span class="material-symbols-rounded" style="font-size: 64px; color: var(--md-sys-color-primary)">lock</span>
@@ -678,12 +690,6 @@ select.input-field {
 </div>
 <div class="app-layout">
   <div class="header-card">
-    <div class="header-actions">
-      <!-- Botão para Instalar no Android nativamente -->
-      <button id="btnInstallApp" class="icon-btn hidden-element" title="Instalar Aplicativo">
-        <span class="material-symbols-rounded">download</span>
-      </button>
-    </div>
     <div class="month-nav">
       <button id="btnPrevMonth" class="icon-btn">
         <span class="material-symbols-rounded">chevron_left</span>
@@ -722,6 +728,9 @@ select.input-field {
         </div>
         <div class="filter-chip" data-filter="prioridade">
           <span class="material-symbols-rounded" style="font-size: 16px;">star</span> Prioridade
+        </div>
+        <div class="filter-chip" id="btnTogglePagas">
+          <span class="material-symbols-rounded" style="font-size: 16px;">visibility_off</span> Ocultar Pagas
         </div>
       </div>
     </div>
@@ -847,10 +856,11 @@ let cachedPin = localStorage.getItem("app_pin");
 let expensesData = [];
 let currentEditId = null;
 let currentViewDate = new Date();
-let deferredPrompt;
 let activeFilter = 'all';
 let searchQuery = '';
 let selectedIds = new Set();
+let hidePagas = false;
+
 const pinScreen = document.getElementById("pinScreen");
 const pinInput = document.getElementById("pinInput");
 const btnAuth = document.getElementById("btnAuth");
@@ -860,23 +870,6 @@ const detailModal = document.getElementById("detailModal");
 const expenseList = document.getElementById("expenseList");
 const bulkBar = document.getElementById("bulkBar");
 const fabContainer = document.getElementById("fabContainer");
-
-// PWA Instalador
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('btnInstallApp').classList.remove('hidden-element');
-});
-document.getElementById('btnInstallApp').addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      document.getElementById('btnInstallApp').classList.add('hidden-element');
-    }
-    deferredPrompt = null;
-  }
-});
 
 function showToast(msg) {
   const toast = document.createElement("div");
@@ -953,13 +946,21 @@ function getBestThursday(dueDateStr) {
   best.setDate(due.getDate() - diff);
   return best;
 }
-document.querySelectorAll('.filter-chip').forEach(chip => {
+document.querySelectorAll('.filter-chip:not(#btnTogglePagas)').forEach(chip => {
   chip.addEventListener('click', (e) => {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.filter-chip:not(#btnTogglePagas)').forEach(c => c.classList.remove('active'));
     e.currentTarget.classList.add('active');
     activeFilter = e.currentTarget.getAttribute('data-filter');
     renderExpenses();
   });
+});
+document.getElementById('btnTogglePagas').addEventListener('click', (e) => {
+  hidePagas = !hidePagas;
+  e.currentTarget.classList.toggle('active');
+  e.currentTarget.innerHTML = hidePagas 
+    ? `<span class="material-symbols-rounded" style="font-size: 16px;">visibility</span> Mostrar Pagas`
+    : `<span class="material-symbols-rounded" style="font-size: 16px;">visibility_off</span> Ocultar Pagas`;
+  renderExpenses();
 });
 document.getElementById('inpSearch').addEventListener('input', (e) => {
   searchQuery = e.target.value.toLowerCase();
@@ -975,52 +976,127 @@ function updateBulkUI() {
     fabContainer.classList.remove('lifted');
   }
 }
+
+// Lógica de Projeção Virtual Inteligente
+function getVirtualExpenses(targetDate, allExpenses) {
+  const virtuals = [];
+  const targetY = targetDate.getFullYear();
+  const targetM = targetDate.getMonth();
+
+  allExpenses.forEach(exp => {
+    if (exp.recorrencia === 'none') return;
+    const expDate = new Date(exp.vencimento + 'T12:00:00');
+    if (expDate.getFullYear() > targetY || (expDate.getFullYear() === targetY && expDate.getMonth() >= targetM)) return;
+
+    let projDate = new Date(expDate);
+    let loopCount = 0;
+    let currentParcela = exp.parcelaAtual || 1;
+
+    while (projDate.getFullYear() < targetY || (projDate.getFullYear() === targetY && projDate.getMonth() < targetM)) {
+      if (exp.frequencia === 'daily') projDate.setDate(projDate.getDate() + 1);
+      else if (exp.frequencia === 'weekly') projDate.setDate(projDate.getDate() + 7);
+      else if (exp.frequencia === 'monthly') projDate.setMonth(projDate.getMonth() + 1);
+      else if (exp.frequencia === 'semester') projDate.setMonth(projDate.getMonth() + 6);
+      else if (exp.frequencia === 'yearly') projDate.setFullYear(projDate.getFullYear() + 1);
+      
+      currentParcela++;
+      loopCount++;
+      if (loopCount > 500) break; 
+    }
+
+    if (projDate.getFullYear() === targetY && projDate.getMonth() === targetM) {
+      if (exp.recorrencia === 'installments' && currentParcela > exp.parcelasTotais) return;
+      const exists = allExpenses.some(e => {
+        if (e.descricao !== exp.descricao) return false;
+        const eD = new Date(e.vencimento + 'T12:00:00');
+        return eD.getFullYear() === targetY && eD.getMonth() === targetM;
+      });
+      if (!exists) {
+        virtuals.push({
+          ...exp,
+          id: 'virtual-' + exp.id,
+          vencimento: projDate.toISOString().split('T')[0],
+          status: 'projetado',
+          parcelaAtual: currentParcela,
+          isVirtual: true
+        });
+      }
+    }
+  });
+  return virtuals;
+}
+
 function renderExpenses() {
   expenseList.innerHTML = "";
   let totPend = 0;
   let totPago = 0;
-  let filtered = expensesData.filter(exp => {
+
+  let baseFiltered = expensesData.filter(exp => {
     if(!exp.vencimento) return false;
     const pts = exp.vencimento.split('-');
     if(pts.length !== 3) return false;
     const y = parseInt(pts[0]);
     const m = parseInt(pts[1]) - 1;
-    if (y !== currentViewDate.getFullYear() || m !== currentViewDate.getMonth()) return false;
+    return y === currentViewDate.getFullYear() && m === currentViewDate.getMonth();
+  });
+
+  const virtuals = getVirtualExpenses(currentViewDate, expensesData);
+  let allForMonth = [...baseFiltered, ...virtuals];
+
+  let filtered = allForMonth.filter(exp => {
     if (searchQuery && !exp.descricao.toLowerCase().includes(searchQuery)) return false;
-    const isOverdue = new Date(exp.vencimento + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0)) && exp.status !== "pago";
+    if (hidePagas && exp.status === 'pago') return false;
+    const isOverdue = new Date(exp.vencimento + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0)) && exp.status !== "pago" && exp.status !== "projetado";
     if (activeFilter === 'pendentes' && exp.status === 'pago') return false;
     if (activeFilter === 'pagas' && exp.status !== 'pago') return false;
     if (activeFilter === 'atrasadas' && !isOverdue) return false;
     if (activeFilter === 'prioridade' && !exp.prioridade) return false;
     return true;
   });
-  filtered.sort((a, b) => new Date(a.vencimento + 'T00:00:00') - new Date(b.vencimento + 'T00:00:00'));
+
+  // Ordenação: Pendentes/Atrasadas por data primeiro -> Pagas por último
+  filtered.sort((a, b) => {
+    if (a.status === 'pago' && b.status !== 'pago') return 1;
+    if (a.status !== 'pago' && b.status === 'pago') return -1;
+    return new Date(a.vencimento + 'T00:00:00') - new Date(b.vencimento + 'T00:00:00');
+  });
+
   filtered.forEach(exp => {
-    const isOverdue = new Date(exp.vencimento + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0)) && exp.status !== "pago";
+    const isOverdue = new Date(exp.vencimento + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0)) && exp.status !== "pago" && !exp.isVirtual;
     const currentValue = calculateProgressiveInterest(exp);
     const pts = exp.vencimento.split('-');
     if (exp.status === "pago") totPago += parseFloat(exp.valor);
     else totPend += currentValue;
+
     const container = document.createElement("div");
     container.className = "swipe-container";
     const bg = document.createElement("div");
     bg.className = "swipe-bg";
     bg.innerHTML = `<span style="color:var(--md-sys-color-error)">Excluir</span><span style="color:var(--md-sys-color-primary)">Pagar/Pend.</span>`;
+    
+    let isPaidClass = exp.status === 'pago' ? 'is-paid' : '';
+    let isVirtualClass = exp.isVirtual ? 'is-virtual' : '';
     const card = document.createElement("div");
-    card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${exp.prioridade ? 'priority-card' : ''}`;
+    card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${exp.prioridade ? 'priority-card' : ''} ${isPaidClass} ${isVirtualClass}`;
+    
     const bestDay = getBestThursday(exp.vencimento);
     let thTag = "";
     if (exp.status !== "pago") {
       const formattedBestDay = bestDay.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
       thTag = `<div class="tag-thursday"><span class="material-symbols-rounded" style="font-size:12px;">lightbulb</span>Pagar na Quinta, ${formattedBestDay}</div>`;
     }
+    if (exp.isVirtual) {
+      thTag += `<div class="tag-thursday" style="background:#e8def8; color:#1d192b;"><span class="material-symbols-rounded" style="font-size:12px;">update</span>Projeção</div>`;
+    }
+
     let parcelInfo = exp.recorrencia === 'installments' ? ` - Parcela ${exp.parcelaAtual}/${exp.parcelasTotais}` : '';
     let priorityIcon = exp.prioridade ? `<span class="material-symbols-rounded" style="color: #f9a825; font-size: 18px;">star</span>` : '';
     let toggleIcon = exp.status === 'pago' ? 'undo' : 'check';
+
     card.innerHTML = `
-      <input type="checkbox" class="expense-chk" data-id="${exp.id}" ${selectedIds.has(exp.id) ? 'checked' : ''} />
+      <input type="checkbox" class="expense-chk" data-id="${exp.id}" ${selectedIds.has(exp.id) ? 'checked' : ''} ${exp.isVirtual ? 'disabled' : ''}/>
       <div class="expense-content">
-        ${thTag}
+        <div style="display:flex; gap:4px;">${thTag}</div>
         <div class="expense-header">
           <div class="expense-title-container">
             ${priorityIcon}
@@ -1030,53 +1106,58 @@ function renderExpenses() {
         </div>
         <div class="expense-meta">
           <span>Venc: ${pts[2]}/${pts[1]}/${pts[0]}</span>
-          <span>${exp.status === 'pago' ? 'Paga' : 'Pendente'}</span>
+          <span>${exp.status === 'pago' ? 'Paga' : (exp.isVirtual ? 'Projetada' : 'Pendente')}</span>
         </div>
       </div>
       <div class="pc-actions">
-        <button class="icon-action btn-pay-fast" data-id="${exp.id}"><span class="material-symbols-rounded">${toggleIcon}</span></button>
-        <button class="icon-action btn-edit-fast" data-id="${exp.id}"><span class="material-symbols-rounded">edit</span></button>
-        <button class="icon-action btn-del-fast" data-id="${exp.id}"><span class="material-symbols-rounded">delete</span></button>
+        ${!exp.isVirtual ? `<button class="icon-action btn-pay-fast" data-id="${exp.id}"><span class="material-symbols-rounded">${toggleIcon}</span></button>` : ''}
+        ${!exp.isVirtual ? `<button class="icon-action btn-edit-fast" data-id="${exp.id}"><span class="material-symbols-rounded">edit</span></button>` : ''}
+        ${!exp.isVirtual ? `<button class="icon-action btn-del-fast" data-id="${exp.id}"><span class="material-symbols-rounded">delete</span></button>` : ''}
       </div>
     `;
-    let startX = 0;
-    let currentX = 0;
-    card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
-    card.addEventListener('touchmove', e => {
-      currentX = e.touches[0].clientX - startX;
-      if (Math.abs(currentX) > 20) {
-        card.style.transform = `translateX(${currentX}px)`;
-        if(currentX > 0) bg.className = "swipe-bg bg-pay";
-        else bg.className = "swipe-bg bg-del";
-      }
-    }, {passive: true});
-    card.addEventListener('touchend', async () => {
-      card.style.transform = `translateX(0)`;
-      if (currentX > 80) {
-        await fastPayToggle(exp.id);
-      } else if (currentX < -80) {
-        await fastDelete(exp.id);
-      }
-      currentX = 0;
-    });
-    const chk = card.querySelector('.expense-chk');
-    chk.addEventListener('change', (e) => {
-      if (e.target.checked) selectedIds.add(exp.id);
-      else selectedIds.delete(exp.id);
-      updateBulkUI();
-    });
-    card.querySelector('.expense-content').addEventListener('click', () => openDetail(exp.id));
-    const payBtn = card.querySelector('.btn-pay-fast');
-    if (payBtn) payBtn.addEventListener('click', (e) => { e.stopPropagation(); fastPayToggle(exp.id); });
-    card.querySelector('.btn-edit-fast').addEventListener('click', (e) => { e.stopPropagation(); openEdit(exp.id); });
-    card.querySelector('.btn-del-fast').addEventListener('click', (e) => { e.stopPropagation(); fastDelete(exp.id); });
+
+    if (!exp.isVirtual) {
+      let startX = 0;
+      let currentX = 0;
+      card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
+      card.addEventListener('touchmove', e => {
+        currentX = e.touches[0].clientX - startX;
+        if (Math.abs(currentX) > 20) {
+          card.style.transform = `translateX(${currentX}px)`;
+          if(currentX > 0) bg.className = "swipe-bg bg-pay";
+          else bg.className = "swipe-bg bg-del";
+        }
+      }, {passive: true});
+      card.addEventListener('touchend', async () => {
+        card.style.transform = `translateX(0)`;
+        if (currentX > 80) await fastPayToggle(exp.id);
+        else if (currentX < -80) await fastDelete(exp.id);
+        currentX = 0;
+      });
+
+      const chk = card.querySelector('.expense-chk');
+      chk.addEventListener('change', (e) => {
+        if (e.target.checked) selectedIds.add(exp.id);
+        else selectedIds.delete(exp.id);
+        updateBulkUI();
+      });
+
+      card.querySelector('.expense-content').addEventListener('click', () => openDetail(exp.id));
+      const payBtn = card.querySelector('.btn-pay-fast');
+      if (payBtn) payBtn.addEventListener('click', (e) => { e.stopPropagation(); fastPayToggle(exp.id); });
+      card.querySelector('.btn-edit-fast').addEventListener('click', (e) => { e.stopPropagation(); openEdit(exp.id); });
+      card.querySelector('.btn-del-fast').addEventListener('click', (e) => { e.stopPropagation(); fastDelete(exp.id); });
+    }
+
     container.appendChild(bg);
     container.appendChild(card);
     expenseList.appendChild(container);
   });
+
   document.getElementById("totalPendente").innerText = formatCurrencyStr(totPend);
   document.getElementById("totalPaga").innerText = formatCurrencyStr(totPago);
 }
+
 async function fastPayToggle(id) {
   const exp = expensesData.find(e => e.id === id);
   if(!exp) return;

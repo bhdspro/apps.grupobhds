@@ -7,15 +7,15 @@
   "theme_color": "#006874",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23006874'/%3E%3Crect x='128' y='192' width='256' height='128' rx='32' fill='%2397f0ff'/%3E%3Ccircle cx='256' cy='256' r='32' fill='%23006874'/%3E%3C/svg%3E",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23006874'/%3E%3Crect x='128' y='192' width='256' height='128' rx='32' fill='%2397f0ff'/%3E%3Ccircle cx='256' cy='256' r='32' fill='%23006874'/%3E%3C/svg%3E",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
