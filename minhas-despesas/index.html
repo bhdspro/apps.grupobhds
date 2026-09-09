@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Minhas Despesas</title>
 <link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
 <style>
 :root {
   --md-sys-color-primary: #006874;
@@ -123,15 +124,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  width: 100%;
 }
 .btn-primary:active {
   transform: scale(0.95);
-}
-.btn-install {
-  background-color: var(--md-sys-color-on-primary);
-  color: var(--md-sys-color-primary);
-  margin-top: 16px;
-  font-weight: 700;
 }
 .app-layout {
   display: flex;
@@ -148,11 +144,19 @@ body {
   position: relative;
   z-index: 10;
 }
+.header-actions {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+}
 .month-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  margin-top: 24px;
 }
 .icon-btn {
   background: rgba(255,255,255,0.2);
@@ -161,7 +165,6 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -173,7 +176,7 @@ body {
   transform: scale(0.9);
 }
 .month-year {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   text-transform: capitalize;
   letter-spacing: 1px;
@@ -198,6 +201,7 @@ body {
   font-size: 24px;
   font-weight: 700;
   margin-top: 4px;
+  word-break: break-all;
 }
 .main-content {
   padding: 16px 16px 100px 16px;
@@ -242,6 +246,9 @@ body {
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .filter-chip.active {
   background: var(--md-sys-color-primary-container);
@@ -298,33 +305,46 @@ body {
   border-color: var(--md-sys-color-error);
   animation: fadePulse 2s infinite;
 }
-.expense-card.thursday {
-  border-left: 6px solid var(--md-sys-color-primary);
+.expense-card.priority-card {
+  border-left: 6px solid #f9a825;
 }
 .expense-chk {
   width: 24px;
   height: 24px;
   cursor: pointer;
   accent-color: var(--md-sys-color-primary);
+  flex-shrink: 0;
 }
 .expense-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: hidden;
 }
 .expense-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+}
+.expense-title-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
 }
 .expense-title {
   font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .expense-value {
   font-size: 18px;
   font-weight: 700;
+  white-space: nowrap;
 }
 .expense-meta {
   font-size: 12px;
@@ -337,10 +357,12 @@ body {
   color: var(--md-sys-color-on-primary-container);
   padding: 4px 8px;
   border-radius: 8px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   align-self: flex-start;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-bottom: 4px;
 }
 .pc-actions {
@@ -350,14 +372,14 @@ body {
 .icon-action {
   background: var(--md-sys-color-surface-variant);
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--md-sys-color-on-surface);
 }
 .icon-action:hover {
   background: var(--md-sys-color-primary-container);
@@ -386,10 +408,21 @@ body {
   font-weight: 600;
   font-size: 16px;
 }
-.fab {
+.fab-container {
   position: fixed;
   bottom: 24px;
   right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 98;
+  align-items: center;
+  transition: transform 0.3s, bottom 0.3s;
+}
+.fab-container.lifted {
+  bottom: 100px;
+}
+.fab-main {
   width: 64px;
   height: 64px;
   background-color: var(--md-sys-color-primary-container);
@@ -398,17 +431,28 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
   cursor: pointer;
-  transition: transform 0.2s, bottom 0.3s;
-  z-index: 98;
+  transition: transform 0.2s;
 }
-.fab:active {
+.fab-main:active {
   transform: scale(0.9);
 }
-.fab.lifted {
-  bottom: 100px;
+.fab-secondary {
+  width: 48px;
+  height: 48px;
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-surface);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.fab-secondary:active {
+  transform: scale(0.9);
 }
 .modal-overlay {
   position: fixed;
@@ -446,25 +490,35 @@ body {
 .modal-overlay.active .modal-sheet {
   transform: translateY(0);
 }
-.btn-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
+.modal-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.modal-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+.modal-top-icons {
+  display: flex;
+  gap: 12px;
+}
+.icon-btn-modal {
   background: var(--md-sys-color-surface-variant);
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  font-size: 20px;
   color: var(--md-sys-color-on-surface);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.2s;
-  z-index: 10;
 }
-.btn-close:active {
+.icon-btn-modal:active {
   transform: scale(0.8);
 }
 .input-group {
@@ -558,30 +612,37 @@ input:checked + .slider:before {
   transform: scale(0.95);
   background-color: var(--md-sys-color-surface-variant);
 }
-.btn-danger {
-  background-color: var(--md-sys-color-error);
-  color: white;
-  border: none;
-  border-radius: 100px;
-  padding: 16px;
-  font-size: 16px;
-  font-weight: 500;
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.btn-danger:active {
-  transform: scale(0.95);
-}
-.btn-submit {
-  flex: 2;
-}
 select.input-field {
   appearance: none;
 }
 .hidden-element {
   display: none !important;
+}
+.smart-pay-result {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.smart-pay-item {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--md-sys-color-surface-variant);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.suggestion-box {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 @media (min-width: 768px) {
   .app-layout {
@@ -590,7 +651,7 @@ select.input-field {
     overflow: hidden;
   }
   .header-card {
-    width: 300px;
+    width: 320px;
     height: 100vh;
     border-radius: 0;
     display: flex;
@@ -619,6 +680,11 @@ select.input-field {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 16px;
+    align-items: start;
+    align-content: start;
+  }
+  .expense-card {
+    height: 100%;
   }
   .expense-card:hover .pc-actions {
     display: flex;
@@ -633,14 +699,15 @@ select.input-field {
     transform: scale(0.9);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    padding-bottom: 24px;
   }
   .modal-overlay.active .modal-sheet {
     transform: scale(1);
     opacity: 1;
   }
   .bulk-bar {
-    left: 300px;
-    width: calc(100vw - 300px);
+    left: 320px;
+    width: calc(100vw - 320px);
   }
 }
 </style>
@@ -649,19 +716,27 @@ select.input-field {
 <div id="toastContainer" class="toast-container"></div>
 <div id="pinScreen" class="pin-screen">
   <div class="pin-container">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--md-sys-color-primary)"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm3 11a2 2 0 110-4 2 2 0 010 4z"/></svg>
+    <span class="material-symbols-rounded" style="font-size: 64px; color: var(--md-sys-color-primary)">lock</span>
     <h2 style="margin:0;">Acesso Restrito</h2>
     <input type="password" id="pinInput" class="pin-input" maxlength="6" inputmode="numeric" />
     <button id="btnAuth" class="btn-primary">Entrar</button>
-    <button id="btnInstallApp" class="btn-primary btn-install hidden-element">Instalar Aplicativo</button>
   </div>
 </div>
 <div class="app-layout">
   <div class="header-card">
+    <div class="header-actions">
+      <button id="btnInstallApp" class="icon-btn hidden-element">
+        <span class="material-symbols-rounded">download</span>
+      </button>
+    </div>
     <div class="month-nav">
-      <button id="btnPrevMonth" class="icon-btn">&lt;</button>
+      <button id="btnPrevMonth" class="icon-btn">
+        <span class="material-symbols-rounded">chevron_left</span>
+      </button>
       <div class="month-year" id="currentMonthYear"></div>
-      <button id="btnNextMonth" class="icon-btn">&gt;</button>
+      <button id="btnNextMonth" class="icon-btn">
+        <span class="material-symbols-rounded">chevron_right</span>
+      </button>
     </div>
     <div class="totals-grid">
       <div class="total-box">
@@ -682,6 +757,9 @@ select.input-field {
         <div class="filter-chip" data-filter="pendentes">Pendentes</div>
         <div class="filter-chip" data-filter="pagas">Pagas</div>
         <div class="filter-chip" data-filter="atrasadas">Atrasadas</div>
+        <div class="filter-chip" data-filter="prioridade">
+          <span class="material-symbols-rounded" style="font-size: 16px;">star</span> Prioridade
+        </div>
       </div>
     </div>
     <div class="expense-grid" id="expenseList"></div>
@@ -689,13 +767,26 @@ select.input-field {
 </div>
 <div class="bulk-bar" id="bulkBar">
   <div class="bulk-text" id="bulkText">0 selecionadas</div>
-  <button class="btn-primary" id="btnBulkPay">Pagar Selecionadas</button>
+  <button class="btn-primary" style="width: auto;" id="btnBulkPay">Pagar Selecionadas</button>
 </div>
-<div class="fab" id="fabAdd">+</div>
+<div class="fab-container" id="fabContainer">
+  <div class="fab-secondary" id="fabSmartPay">
+    <span class="material-symbols-rounded">calculate</span>
+  </div>
+  <div class="fab-main" id="fabAdd">
+    <span class="material-symbols-rounded">add</span>
+  </div>
+</div>
 <div class="modal-overlay" id="addModal">
   <div class="modal-sheet">
-    <button class="btn-close" id="btnCloseAdd">&times;</button>
-    <h2 id="modalTitle" style="margin-top:0;">Nova Despesa</h2>
+    <div class="modal-header-top">
+      <h2 class="modal-title" id="modalTitle">Nova Despesa</h2>
+      <div class="modal-top-icons">
+        <button class="icon-btn-modal" id="btnCloseAdd">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+    </div>
     <div class="input-group">
       <label>Valor (R$)</label>
       <input type="text" id="inpValor" class="input-field" inputmode="numeric" placeholder="R$ 0,00" />
@@ -706,6 +797,13 @@ select.input-field {
         <span class="slider"></span>
       </label>
       <span>Valor da Parcela / Valor Total</span>
+    </div>
+    <div class="input-group switch-container">
+      <label class="switch">
+        <input type="checkbox" id="inpPrioridadeSwitch">
+        <span class="slider"></span>
+      </label>
+      <span>Marcar como Prioridade</span>
     </div>
     <div class="input-group">
       <label>Descrição</label>
@@ -748,27 +846,56 @@ select.input-field {
       <input type="number" id="inpParcelaAtual" class="input-field" />
     </div>
     <div class="btn-row">
-      <button class="btn-secondary" id="btnCancelAdd">Cancelar</button>
-      <button class="btn-primary btn-submit" id="btnSaveExpense">Adicionar</button>
+      <button class="btn-primary" id="btnSaveExpense">Adicionar</button>
     </div>
   </div>
 </div>
 <div class="modal-overlay" id="detailModal">
   <div class="modal-sheet">
-    <button class="btn-close" id="btnCloseDetIcon">&times;</button>
-    <h2 id="detDescricao" style="margin-top:0;"></h2>
+    <div class="modal-header-top">
+      <h2 class="modal-title" id="detDescricao"></h2>
+      <div class="modal-top-icons">
+        <button class="icon-btn-modal" id="btnEditDetIcon">
+          <span class="material-symbols-rounded">edit</span>
+        </button>
+        <button class="icon-btn-modal" id="btnDelDetIcon">
+          <span class="material-symbols-rounded" style="color: var(--md-sys-color-error)">delete</span>
+        </button>
+        <button class="icon-btn-modal" id="btnCloseDetIcon">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+    </div>
     <div class="input-group">
-      <div style="font-size:24px; font-weight:700;" id="detValor"></div>
+      <div style="font-size:32px; font-weight:700;" id="detValor"></div>
       <div id="detMeta" style="font-size:14px; color:var(--md-sys-color-outline);"></div>
       <div id="detJurosInfo" style="font-size:14px; color:var(--md-sys-color-error); margin-top:8px;"></div>
-      <div id="detRecomendacao" style="background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); padding:12px; border-radius:8px; margin-top:16px; font-size:14px; font-weight:500;" class="hidden-element"></div>
+      <div id="detRecomendacao" class="suggestion-box hidden-element">
+        <span class="material-symbols-rounded">lightbulb</span>
+        <span id="detRecomendacaoText"></span>
+      </div>
     </div>
-    <div class="btn-row" style="flex-wrap: wrap;">
-      <button class="btn-secondary" id="btnEditDet" style="flex-basis: 100%;">Editar</button>
-      <button class="btn-danger" id="btnDelDet">Excluir</button>
-      <button class="btn-primary" id="btnPayDet" style="flex:2;">Marcar como Paga</button>
-      <button class="btn-secondary" id="btnCloseDet" style="flex-basis: 100%; margin-top:8px;">Fechar</button>
+    <div class="btn-row">
+      <button class="btn-primary" id="btnPayDet"></button>
     </div>
+  </div>
+</div>
+<div class="modal-overlay" id="smartPayModal">
+  <div class="modal-sheet">
+    <div class="modal-header-top">
+      <h2 class="modal-title">Pagamento Inteligente</h2>
+      <div class="modal-top-icons">
+        <button class="icon-btn-modal" id="btnCloseSmartPay">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Valor Recebido (R$)</label>
+      <input type="text" id="inpSmartPayAmount" class="input-field" inputmode="numeric" placeholder="R$ 0,00" />
+    </div>
+    <button class="btn-primary" id="btnCalcSmartPay">Sugerir Despesas</button>
+    <div id="smartPayResult" class="smart-pay-result"></div>
   </div>
 </div>
 <script>
@@ -785,10 +912,13 @@ const pinScreen = document.getElementById("pinScreen");
 const pinInput = document.getElementById("pinInput");
 const btnAuth = document.getElementById("btnAuth");
 const fabAdd = document.getElementById("fabAdd");
+const fabSmartPay = document.getElementById("fabSmartPay");
 const addModal = document.getElementById("addModal");
 const detailModal = document.getElementById("detailModal");
+const smartPayModal = document.getElementById("smartPayModal");
 const expenseList = document.getElementById("expenseList");
 const bulkBar = document.getElementById("bulkBar");
+const fabContainer = document.getElementById("fabContainer");
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -841,9 +971,12 @@ function formatCurrencyStr(val) {
 document.getElementById('inpValor').addEventListener('input', maskCurrency);
 document.getElementById('inpMulta').addEventListener('input', maskCurrency);
 document.getElementById('inpJuros').addEventListener('input', maskPercent);
+document.getElementById('inpSmartPayAmount').addEventListener('input', maskCurrency);
 function updateMonthView() {
-  const formatter = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
-  document.getElementById("currentMonthYear").innerText = formatter.format(currentViewDate);
+  const m = currentViewDate.toLocaleString('pt-BR', { month: 'long' });
+  const y = currentViewDate.getFullYear();
+  const formatted = m.charAt(0).toUpperCase() + m.slice(1) + '/' + y;
+  document.getElementById("currentMonthYear").innerText = formatted;
   renderExpenses();
 }
 document.getElementById('btnPrevMonth').addEventListener('click', () => {
@@ -868,21 +1001,19 @@ function calculateProgressiveInterest(expense) {
   }
   return parseFloat(expense.valor);
 }
-function isTargetThursday(dueDateStr) {
-  const due = new Date(dueDateStr + 'T00:00:00');
-  const now = new Date();
-  const nextThursday = new Date(now);
-  nextThursday.setDate(now.getDate() + ((4 + 7 - now.getDay()) % 7));
-  nextThursday.setHours(0,0,0,0);
-  const diffTime = due - nextThursday;
-  const diffDays = diffTime / (1000 * 60 * 60 * 24);
-  return diffDays >= -6 && diffDays <= 0;
+function getBestThursday(dueDateStr) {
+  const due = new Date(dueDateStr + 'T12:00:00');
+  const day = due.getDay();
+  const diff = (day >= 4) ? (day - 4) : (day + 3);
+  const best = new Date(due);
+  best.setDate(due.getDate() - diff);
+  return best;
 }
 document.querySelectorAll('.filter-chip').forEach(chip => {
   chip.addEventListener('click', (e) => {
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    e.target.classList.add('active');
-    activeFilter = e.target.getAttribute('data-filter');
+    e.currentTarget.classList.add('active');
+    activeFilter = e.currentTarget.getAttribute('data-filter');
     renderExpenses();
   });
 });
@@ -894,10 +1025,10 @@ function updateBulkUI() {
   if (selectedIds.size > 0) {
     bulkBar.classList.add('active');
     document.getElementById('bulkText').innerText = `${selectedIds.size} selecionadas`;
-    fabAdd.classList.add('lifted');
+    fabContainer.classList.add('lifted');
   } else {
     bulkBar.classList.remove('active');
-    fabAdd.classList.remove('lifted');
+    fabContainer.classList.remove('lifted');
   }
 }
 function renderExpenses() {
@@ -916,11 +1047,12 @@ function renderExpenses() {
     if (activeFilter === 'pendentes' && exp.status === 'pago') return false;
     if (activeFilter === 'pagas' && exp.status !== 'pago') return false;
     if (activeFilter === 'atrasadas' && !isOverdue) return false;
+    if (activeFilter === 'prioridade' && !exp.prioridade) return false;
     return true;
   });
+  filtered.sort((a, b) => new Date(a.vencimento + 'T00:00:00') - new Date(b.vencimento + 'T00:00:00'));
   filtered.forEach(exp => {
     const isOverdue = new Date(exp.vencimento + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0)) && exp.status !== "pago";
-    const isThursday = exp.status !== "pago" && isTargetThursday(exp.vencimento);
     const currentValue = calculateProgressiveInterest(exp);
     const pts = exp.vencimento.split('-');
     if (exp.status === "pago") totPago += parseFloat(exp.valor);
@@ -929,17 +1061,27 @@ function renderExpenses() {
     container.className = "swipe-container";
     const bg = document.createElement("div");
     bg.className = "swipe-bg";
-    bg.innerHTML = `<span style="color:var(--md-sys-color-error)">Excluir</span><span style="color:var(--md-sys-color-primary)">Pagar</span>`;
+    bg.innerHTML = `<span style="color:var(--md-sys-color-error)">Excluir</span><span style="color:var(--md-sys-color-primary)">Pagar/Pend.</span>`;
     const card = document.createElement("div");
-    card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${isThursday ? 'thursday' : ''}`;
-    let thTag = isThursday ? `<div class="tag-thursday">Pagar nesta Quinta!</div>` : '';
+    card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${exp.prioridade ? 'priority-card' : ''}`;
+    const bestDay = getBestThursday(exp.vencimento);
+    let thTag = "";
+    if (exp.status !== "pago") {
+      const formattedBestDay = bestDay.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+      thTag = `<div class="tag-thursday"><span class="material-symbols-rounded" style="font-size:12px;">lightbulb</span>Pagar na Quinta, ${formattedBestDay}</div>`;
+    }
     let parcelInfo = exp.recorrencia === 'installments' ? ` - Parcela ${exp.parcelaAtual}/${exp.parcelasTotais}` : '';
+    let priorityIcon = exp.prioridade ? `<span class="material-symbols-rounded" style="color: #f9a825; font-size: 18px;">star</span>` : '';
+    let toggleIcon = exp.status === 'pago' ? 'undo' : 'check';
     card.innerHTML = `
       <input type="checkbox" class="expense-chk" data-id="${exp.id}" ${selectedIds.has(exp.id) ? 'checked' : ''} />
       <div class="expense-content">
         ${thTag}
         <div class="expense-header">
-          <div class="expense-title">${exp.descricao}${parcelInfo}</div>
+          <div class="expense-title-container">
+            ${priorityIcon}
+            <div class="expense-title">${exp.descricao}${parcelInfo}</div>
+          </div>
           <div class="expense-value">${formatCurrencyStr(currentValue)}</div>
         </div>
         <div class="expense-meta">
@@ -948,14 +1090,14 @@ function renderExpenses() {
         </div>
       </div>
       <div class="pc-actions">
-        ${exp.status !== 'pago' ? `<button class="icon-action btn-pay-fast" data-id="${exp.id}">$</button>` : ''}
-        <button class="icon-action btn-edit-fast" data-id="${exp.id}">E</button>
-        <button class="icon-action btn-del-fast" data-id="${exp.id}">X</button>
+        <button class="icon-action btn-pay-fast" data-id="${exp.id}"><span class="material-symbols-rounded">${toggleIcon}</span></button>
+        <button class="icon-action btn-edit-fast" data-id="${exp.id}"><span class="material-symbols-rounded">edit</span></button>
+        <button class="icon-action btn-del-fast" data-id="${exp.id}"><span class="material-symbols-rounded">delete</span></button>
       </div>
     `;
     let startX = 0;
     let currentX = 0;
-    card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+    card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
     card.addEventListener('touchmove', e => {
       currentX = e.touches[0].clientX - startX;
       if (Math.abs(currentX) > 20) {
@@ -963,11 +1105,11 @@ function renderExpenses() {
         if(currentX > 0) bg.className = "swipe-bg bg-pay";
         else bg.className = "swipe-bg bg-del";
       }
-    });
+    }, {passive: true});
     card.addEventListener('touchend', async () => {
       card.style.transform = `translateX(0)`;
-      if (currentX > 80 && exp.status !== 'pago') {
-        await fastPay(exp.id);
+      if (currentX > 80) {
+        await fastPayToggle(exp.id);
       } else if (currentX < -80) {
         await fastDelete(exp.id);
       }
@@ -981,7 +1123,7 @@ function renderExpenses() {
     });
     card.querySelector('.expense-content').addEventListener('click', () => openDetail(exp.id));
     const payBtn = card.querySelector('.btn-pay-fast');
-    if (payBtn) payBtn.addEventListener('click', (e) => { e.stopPropagation(); fastPay(exp.id); });
+    if (payBtn) payBtn.addEventListener('click', (e) => { e.stopPropagation(); fastPayToggle(exp.id); });
     card.querySelector('.btn-edit-fast').addEventListener('click', (e) => { e.stopPropagation(); openEdit(exp.id); });
     card.querySelector('.btn-del-fast').addEventListener('click', (e) => { e.stopPropagation(); fastDelete(exp.id); });
     container.appendChild(bg);
@@ -991,17 +1133,17 @@ function renderExpenses() {
   document.getElementById("totalPendente").innerText = formatCurrencyStr(totPend);
   document.getElementById("totalPaga").innerText = formatCurrencyStr(totPago);
 }
-async function fastPay(id) {
+async function fastPayToggle(id) {
   const exp = expensesData.find(e => e.id === id);
   if(!exp) return;
-  exp.status = "pago";
+  exp.status = exp.status === "pago" ? "pendente" : "pago";
   await fetch(WORKER_URL, {
     method: "POST",
     headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
     body: JSON.stringify(exp)
   });
   fetchExpenses();
-  showToast("Despesa paga");
+  showToast(exp.status === "pago" ? "Despesa paga" : "Despesa pendente");
 }
 async function fastDelete(id) {
   if (confirm("Tem certeza que deseja excluir esta despesa?")) {
@@ -1010,7 +1152,7 @@ async function fastDelete(id) {
       headers: { "x-pin": cachedPin }
     });
     fetchExpenses();
-    showToast("Excluída");
+    showToast("Excluída com sucesso");
   }
 }
 document.getElementById('btnBulkPay').addEventListener('click', async () => {
@@ -1073,6 +1215,7 @@ fabAdd.addEventListener("click", () => {
   document.getElementById("modalTitle").innerText = "Nova Despesa";
   document.getElementById("inpValor").value = "";
   document.getElementById("inpValorTotalSwitch").checked = false;
+  document.getElementById("inpPrioridadeSwitch").checked = false;
   document.getElementById("inpDescricao").value = "";
   document.getElementById("inpVencimento").value = "";
   document.getElementById("inpMulta").value = "";
@@ -1080,6 +1223,50 @@ fabAdd.addEventListener("click", () => {
   document.getElementById("selRecorrencia").value = "none";
   triggerRecorrencia();
   addModal.classList.add("active");
+});
+fabSmartPay.addEventListener("click", () => {
+  document.getElementById("inpSmartPayAmount").value = "";
+  document.getElementById("smartPayResult").innerHTML = "";
+  smartPayModal.classList.add("active");
+});
+document.getElementById("btnCloseSmartPay").addEventListener("click", () => {
+  smartPayModal.classList.remove("active");
+});
+document.getElementById("btnCalcSmartPay").addEventListener("click", () => {
+  const amountStr = document.getElementById("inpSmartPayAmount").value;
+  let available = unmaskValue(amountStr);
+  if(available <= 0) {
+    showToast("Insira um valor válido");
+    return;
+  }
+  let pending = expensesData.filter(e => e.status !== "pago");
+  pending.sort((a, b) => {
+    let valA = calculateProgressiveInterest(a);
+    let valB = calculateProgressiveInterest(b);
+    return valA - valB;
+  });
+  let selectedToPay = [];
+  let totalCost = 0;
+  for(let p of pending) {
+    let cost = calculateProgressiveInterest(p);
+    if(available >= cost) {
+      available -= cost;
+      totalCost += cost;
+      selectedToPay.push(p);
+    }
+  }
+  const resultDiv = document.getElementById("smartPayResult");
+  resultDiv.innerHTML = "";
+  if(selectedToPay.length === 0) {
+    resultDiv.innerHTML = `<div class="smart-pay-item">Nenhuma despesa pode ser paga com esse valor.</div>`;
+    return;
+  }
+  let html = `<div style="font-weight:700; margin-bottom:8px;">Sugestão para maximizar o pagamento:</div>`;
+  selectedToPay.forEach(item => {
+    html += `<div class="smart-pay-item"><span>${item.descricao}</span><span>${formatCurrencyStr(calculateProgressiveInterest(item))}</span></div>`;
+  });
+  html += `<div style="margin-top:8px; font-weight:700;">Total Sugerido: ${formatCurrencyStr(totalCost)}</div>`;
+  resultDiv.innerHTML = html;
 });
 document.getElementById("selRecorrencia").addEventListener("change", triggerRecorrencia);
 function triggerRecorrencia() {
@@ -1093,18 +1280,20 @@ function triggerRecorrencia() {
   }
 }
 function closeAddModal() { addModal.classList.remove("active"); }
-document.getElementById("btnCancelAdd").addEventListener("click", closeAddModal);
 document.getElementById("btnCloseAdd").addEventListener("click", closeAddModal);
 document.getElementById("btnSaveExpense").addEventListener("click", async () => {
   const id = currentEditId || crypto.randomUUID();
   let baseValue = unmaskValue(document.getElementById("inpValor").value);
   const isTotal = document.getElementById("inpValorTotalSwitch").checked;
+  const isPrioridade = document.getElementById("inpPrioridadeSwitch").checked;
   const recorrencia = document.getElementById("selRecorrencia").value;
   const parcelasTotais = parseInt(document.getElementById("inpParcelasTotais").value || 1);
   const parcelaAtual = parseInt(document.getElementById("inpParcelaAtual").value || 1);
   if (recorrencia === "installments" && isTotal) {
     baseValue = baseValue / parcelasTotais;
   }
+  const oldExp = expensesData.find(e => e.id === currentEditId);
+  const statusToSave = oldExp ? oldExp.status : "pendente";
   const payload = {
     id: id,
     valor: baseValue.toFixed(2),
@@ -1116,8 +1305,9 @@ document.getElementById("btnSaveExpense").addEventListener("click", async () => 
     frequencia: document.getElementById("selFrequencia").value,
     parcelasTotais: parcelasTotais,
     parcelaAtual: parcelaAtual,
-    status: "pendente",
-    nextGenerated: false
+    prioridade: isPrioridade,
+    status: statusToSave,
+    nextGenerated: oldExp ? oldExp.nextGenerated : false
   };
   try {
     await fetch(WORKER_URL, {
@@ -1148,22 +1338,30 @@ function openDetail(id) {
     jurosBox.innerText = "";
   }
   const recBox = document.getElementById("detRecomendacao");
-  if (exp.status !== "pago" && isTargetThursday(exp.vencimento)) {
-    recBox.innerText = "Melhor dia para pagar: Na próxima quinta-feira, logo após o seu recebimento.";
+  const recText = document.getElementById("detRecomendacaoText");
+  if (exp.status !== "pago") {
+    const bestDay = getBestThursday(exp.vencimento);
+    const formattedBestDay = bestDay.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+    recText.innerText = `Recomendação: Pagar na Quinta-feira, ${formattedBestDay}`;
     recBox.classList.remove("hidden-element");
   } else {
     recBox.classList.add("hidden-element");
   }
+  const btnPay = document.getElementById("btnPayDet");
+  if (exp.status === "pago") {
+    btnPay.innerText = "Marcar como Pendente";
+  } else {
+    btnPay.innerText = "Marcar como Paga";
+  }
   detailModal.classList.add("active");
 }
 function closeDetailModal() { detailModal.classList.remove("active"); }
-document.getElementById("btnCloseDet").addEventListener("click", closeDetailModal);
 document.getElementById("btnCloseDetIcon").addEventListener("click", closeDetailModal);
 document.getElementById("btnPayDet").addEventListener("click", async () => {
-  fastPay(currentEditId);
+  fastPayToggle(currentEditId);
   closeDetailModal();
 });
-document.getElementById("btnDelDet").addEventListener("click", async () => {
+document.getElementById("btnDelDetIcon").addEventListener("click", async () => {
   fastDelete(currentEditId);
   closeDetailModal();
 });
@@ -1176,6 +1374,7 @@ function openEdit(id) {
   maskCurrency({target: document.getElementById("inpValor")});
   document.getElementById("inpDescricao").value = exp.descricao;
   document.getElementById("inpVencimento").value = exp.vencimento;
+  document.getElementById("inpPrioridadeSwitch").checked = exp.prioridade || false;
   let mulStr = (parseFloat(exp.multa||0)*100).toString();
   document.getElementById("inpMulta").value = mulStr;
   maskCurrency({target: document.getElementById("inpMulta")});
@@ -1189,7 +1388,7 @@ function openEdit(id) {
   triggerRecorrencia();
   addModal.classList.add("active");
 }
-document.getElementById("btnEditDet").addEventListener("click", () => {
+document.getElementById("btnEditDetIcon").addEventListener("click", () => {
   closeDetailModal();
   openEdit(currentEditId);
 });
