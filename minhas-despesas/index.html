@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Minhas Despesas</title>
+<!-- Favicon (Ícone na aba do PC) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23006874'/%3E%3Crect x='128' y='192' width='256' height='128' rx='32' fill='%2397f0ff'/%3E%3Ccircle cx='256' cy='256' r='32' fill='%23006874'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
 <style>
@@ -42,6 +44,7 @@ body {
   50% { transform: scale(1.02); }
   100% { transform: scale(1); }
 }
+/* Notificações no App (Toasts) */
 .toast-container {
   position: fixed;
   top: 24px;
@@ -248,7 +251,7 @@ body {
   transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .filter-chip.active {
   background: var(--md-sys-color-primary-container);
@@ -438,22 +441,6 @@ body {
 .fab-main:active {
   transform: scale(0.9);
 }
-.fab-secondary {
-  width: 48px;
-  height: 48px;
-  background-color: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-surface);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.fab-secondary:active {
-  transform: scale(0.9);
-}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -590,47 +577,11 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(20px);
 }
-.btn-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-}
-.btn-secondary {
-  background-color: transparent;
-  color: var(--md-sys-color-primary);
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 100px;
-  padding: 16px;
-  font-size: 16px;
-  font-weight: 500;
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
-}
-.btn-secondary:active {
-  transform: scale(0.95);
-  background-color: var(--md-sys-color-surface-variant);
-}
 select.input-field {
   appearance: none;
 }
 .hidden-element {
   display: none !important;
-}
-.smart-pay-result {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.smart-pay-item {
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--md-sys-color-surface-variant);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 .suggestion-box {
   background: var(--md-sys-color-primary-container);
@@ -713,7 +664,10 @@ select.input-field {
 </style>
 </head>
 <body>
+
+<!-- Notificações Toast do Sistema -->
 <div id="toastContainer" class="toast-container"></div>
+
 <div id="pinScreen" class="pin-screen">
   <div class="pin-container">
     <span class="material-symbols-rounded" style="font-size: 64px; color: var(--md-sys-color-primary)">lock</span>
@@ -725,7 +679,8 @@ select.input-field {
 <div class="app-layout">
   <div class="header-card">
     <div class="header-actions">
-      <button id="btnInstallApp" class="icon-btn hidden-element">
+      <!-- Botão para Instalar no Android nativamente -->
+      <button id="btnInstallApp" class="icon-btn hidden-element" title="Instalar Aplicativo">
         <span class="material-symbols-rounded">download</span>
       </button>
     </div>
@@ -753,10 +708,18 @@ select.input-field {
     <div class="tools-bar">
       <input type="text" id="inpSearch" class="search-bar" placeholder="Pesquisar despesa..." />
       <div class="filters">
-        <div class="filter-chip active" data-filter="all">Todas</div>
-        <div class="filter-chip" data-filter="pendentes">Pendentes</div>
-        <div class="filter-chip" data-filter="pagas">Pagas</div>
-        <div class="filter-chip" data-filter="atrasadas">Atrasadas</div>
+        <div class="filter-chip active" data-filter="all">
+          <span class="material-symbols-rounded" style="font-size: 16px;">list_alt</span> Todas
+        </div>
+        <div class="filter-chip" data-filter="pendentes">
+          <span class="material-symbols-rounded" style="font-size: 16px;">pending_actions</span> Pendentes
+        </div>
+        <div class="filter-chip" data-filter="pagas">
+          <span class="material-symbols-rounded" style="font-size: 16px;">check_circle</span> Pagas
+        </div>
+        <div class="filter-chip" data-filter="atrasadas">
+          <span class="material-symbols-rounded" style="font-size: 16px;">error</span> Atrasadas
+        </div>
         <div class="filter-chip" data-filter="prioridade">
           <span class="material-symbols-rounded" style="font-size: 16px;">star</span> Prioridade
         </div>
@@ -770,9 +733,6 @@ select.input-field {
   <button class="btn-primary" style="width: auto;" id="btnBulkPay">Pagar Selecionadas</button>
 </div>
 <div class="fab-container" id="fabContainer">
-  <div class="fab-secondary" id="fabSmartPay">
-    <span class="material-symbols-rounded">calculate</span>
-  </div>
   <div class="fab-main" id="fabAdd">
     <span class="material-symbols-rounded">add</span>
   </div>
@@ -845,7 +805,7 @@ select.input-field {
       <label style="margin-top:8px;">Parcela Atual</label>
       <input type="number" id="inpParcelaAtual" class="input-field" />
     </div>
-    <div class="btn-row">
+    <div style="margin-top: 24px;">
       <button class="btn-primary" id="btnSaveExpense">Adicionar</button>
     </div>
   </div>
@@ -875,29 +835,12 @@ select.input-field {
         <span id="detRecomendacaoText"></span>
       </div>
     </div>
-    <div class="btn-row">
+    <div style="margin-top: 24px;">
       <button class="btn-primary" id="btnPayDet"></button>
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="smartPayModal">
-  <div class="modal-sheet">
-    <div class="modal-header-top">
-      <h2 class="modal-title">Pagamento Inteligente</h2>
-      <div class="modal-top-icons">
-        <button class="icon-btn-modal" id="btnCloseSmartPay">
-          <span class="material-symbols-rounded">close</span>
-        </button>
-      </div>
-    </div>
-    <div class="input-group">
-      <label>Valor Recebido (R$)</label>
-      <input type="text" id="inpSmartPayAmount" class="input-field" inputmode="numeric" placeholder="R$ 0,00" />
-    </div>
-    <button class="btn-primary" id="btnCalcSmartPay">Sugerir Despesas</button>
-    <div id="smartPayResult" class="smart-pay-result"></div>
-  </div>
-</div>
+
 <script>
 const WORKER_URL = "https://minhas-despesas.grupo-bhds.workers.dev";
 let cachedPin = localStorage.getItem("app_pin");
@@ -912,13 +855,13 @@ const pinScreen = document.getElementById("pinScreen");
 const pinInput = document.getElementById("pinInput");
 const btnAuth = document.getElementById("btnAuth");
 const fabAdd = document.getElementById("fabAdd");
-const fabSmartPay = document.getElementById("fabSmartPay");
 const addModal = document.getElementById("addModal");
 const detailModal = document.getElementById("detailModal");
-const smartPayModal = document.getElementById("smartPayModal");
 const expenseList = document.getElementById("expenseList");
 const bulkBar = document.getElementById("bulkBar");
 const fabContainer = document.getElementById("fabContainer");
+
+// PWA Instalador
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -934,6 +877,7 @@ document.getElementById('btnInstallApp').addEventListener('click', async () => {
     deferredPrompt = null;
   }
 });
+
 function showToast(msg) {
   const toast = document.createElement("div");
   toast.className = "toast";
@@ -971,7 +915,7 @@ function formatCurrencyStr(val) {
 document.getElementById('inpValor').addEventListener('input', maskCurrency);
 document.getElementById('inpMulta').addEventListener('input', maskCurrency);
 document.getElementById('inpJuros').addEventListener('input', maskPercent);
-document.getElementById('inpSmartPayAmount').addEventListener('input', maskCurrency);
+
 function updateMonthView() {
   const m = currentViewDate.toLocaleString('pt-BR', { month: 'long' });
   const y = currentViewDate.getFullYear();
@@ -1223,50 +1167,6 @@ fabAdd.addEventListener("click", () => {
   document.getElementById("selRecorrencia").value = "none";
   triggerRecorrencia();
   addModal.classList.add("active");
-});
-fabSmartPay.addEventListener("click", () => {
-  document.getElementById("inpSmartPayAmount").value = "";
-  document.getElementById("smartPayResult").innerHTML = "";
-  smartPayModal.classList.add("active");
-});
-document.getElementById("btnCloseSmartPay").addEventListener("click", () => {
-  smartPayModal.classList.remove("active");
-});
-document.getElementById("btnCalcSmartPay").addEventListener("click", () => {
-  const amountStr = document.getElementById("inpSmartPayAmount").value;
-  let available = unmaskValue(amountStr);
-  if(available <= 0) {
-    showToast("Insira um valor válido");
-    return;
-  }
-  let pending = expensesData.filter(e => e.status !== "pago");
-  pending.sort((a, b) => {
-    let valA = calculateProgressiveInterest(a);
-    let valB = calculateProgressiveInterest(b);
-    return valA - valB;
-  });
-  let selectedToPay = [];
-  let totalCost = 0;
-  for(let p of pending) {
-    let cost = calculateProgressiveInterest(p);
-    if(available >= cost) {
-      available -= cost;
-      totalCost += cost;
-      selectedToPay.push(p);
-    }
-  }
-  const resultDiv = document.getElementById("smartPayResult");
-  resultDiv.innerHTML = "";
-  if(selectedToPay.length === 0) {
-    resultDiv.innerHTML = `<div class="smart-pay-item">Nenhuma despesa pode ser paga com esse valor.</div>`;
-    return;
-  }
-  let html = `<div style="font-weight:700; margin-bottom:8px;">Sugestão para maximizar o pagamento:</div>`;
-  selectedToPay.forEach(item => {
-    html += `<div class="smart-pay-item"><span>${item.descricao}</span><span>${formatCurrencyStr(calculateProgressiveInterest(item))}</span></div>`;
-  });
-  html += `<div style="margin-top:8px; font-weight:700;">Total Sugerido: ${formatCurrencyStr(totalCost)}</div>`;
-  resultDiv.innerHTML = html;
 });
 document.getElementById("selRecorrencia").addEventListener("change", triggerRecorrencia);
 function triggerRecorrencia() {
