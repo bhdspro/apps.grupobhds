@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<meta charset="UTF-8"><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Minhas Despesas</title>
@@ -146,18 +149,17 @@ body {
   z-index: 10;
 }
 .header-actions {
-  position: absolute;
-  top: 24px;
-  right: 24px;
   display: flex;
+  justify-content: flex-end;
   gap: 12px;
+  margin-bottom: 12px;
+  width: 100%;
 }
 .month-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
-  margin-top: 24px;
 }
 .icon-btn {
   background: rgba(255,255,255,0.2);
@@ -204,11 +206,68 @@ body {
   margin-top: 4px;
   word-break: break-all;
 }
+.thermo-container {
+  margin-top: 24px;
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+}
+.thermo-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+.thermo-bar {
+  height: 8px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.thermo-fill {
+  height: 100%;
+  background: var(--md-sys-color-primary-container);
+  width: 0%;
+  transition: width 0.5s, background-color 0.3s;
+}
 .main-content {
   padding: 16px 16px 100px 16px;
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+.chart-container-pc {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 150px;
+  padding: 24px;
+  background: var(--md-sys-color-surface-variant);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 24px;
+  transition: all 0.3s;
+}
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 8px;
+  flex: 1;
+}
+.chart-bar {
+  width: 30%;
+  background: var(--md-sys-color-primary);
+  border-radius: 4px;
+  transition: height 0.5s;
+  min-height: 4px;
+}
+.chart-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
 }
 .tools-bar {
   display: flex;
@@ -494,7 +553,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 .modal-title {
   margin: 0;
@@ -521,35 +580,75 @@ body {
 .icon-btn-modal:active {
   transform: scale(0.8);
 }
-.input-group {
+.md-input-container {
+  position: relative;
   margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  width: 100%;
 }
-.input-group label {
-  font-size: 14px;
-  font-weight: 500;
-}
-.input-field {
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--md-sys-color-outline);
+.md-input {
+  width: 100%;
+  padding: 24px 16px 8px 16px;
+  border-radius: 8px 8px 0 0;
+  border: none;
+  border-bottom: 1px solid var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-variant);
   font-size: 16px;
-  background: transparent;
-  outline: none;
   color: var(--md-sys-color-on-surface);
-  transition: border-color 0.3s;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
 }
-.input-field:focus {
-  border-color: var(--md-sys-color-primary);
-  border-width: 2px;
-  padding: 15px;
+.md-input:focus {
+  border-bottom: 2px solid var(--md-sys-color-primary);
+  background: #e2ebed;
+}
+.md-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-size: 16px;
+  color: var(--md-sys-color-outline);
+  pointer-events: none;
+  transition: 0.2s ease all;
+}
+.md-input:focus ~ .md-label,
+.md-input:not(:placeholder-shown) ~ .md-label {
+  top: 6px;
+  font-size: 12px;
+  color: var(--md-sys-color-primary);
+}
+.md-input-row {
+  display: flex;
+  gap: 12px;
+}
+.segmented-btn {
+  display: flex;
+  background: var(--md-sys-color-surface-variant);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.seg-opt {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.seg-opt.active {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
 }
 .switch-container {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--md-sys-color-surface-variant);
+  border-radius: 12px;
 }
 .switch {
   position: relative;
@@ -569,7 +668,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--md-sys-color-surface-variant);
+  background-color: var(--md-sys-color-outline);
   transition: .4s;
   border-radius: 32px;
 }
@@ -590,9 +689,6 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(20px);
 }
-select.input-field {
-  appearance: none;
-}
 .hidden-element {
   display: none !important;
 }
@@ -607,9 +703,6 @@ select.input-field {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-.chart-container-pc {
-  display: none;
 }
 @media (min-width: 768px) {
   .app-layout {
@@ -643,37 +736,6 @@ select.input-field {
     padding: 32px;
     overflow-y: auto;
     box-sizing: border-box;
-  }
-  .chart-container-pc {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-around;
-    height: 150px;
-    padding: 24px;
-    background: var(--md-sys-color-surface-variant);
-    border-radius: var(--border-radius-lg);
-    margin-bottom: 24px;
-  }
-  .chart-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    height: 100%;
-    gap: 8px;
-    flex: 1;
-  }
-  .chart-bar {
-    width: 30%;
-    background: var(--md-sys-color-primary);
-    border-radius: 4px;
-    transition: height 0.5s;
-    min-height: 4px;
-  }
-  .chart-lbl {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
   }
   .tools-bar {
     flex-direction: row;
@@ -732,6 +794,9 @@ select.input-field {
 <div class="app-layout">
   <div class="header-card">
     <div class="header-actions">
+      <button id="btnSettings" class="icon-btn" title="Configurações">
+        <span class="material-symbols-rounded">settings</span>
+      </button>
       <button id="btnBackup" class="icon-btn" title="Backup Local">
         <span class="material-symbols-rounded">cloud_download</span>
       </button>
@@ -758,16 +823,31 @@ select.input-field {
         <div class="total-value" id="totalPaga">R$ 0,00</div>
       </div>
     </div>
+    <div class="thermo-container" id="thermoContainer">
+      <div class="thermo-header">
+        <span>Sobrecarga (Próx. Recebimento)</span>
+        <span id="thermoText">0%</span>
+      </div>
+      <div class="thermo-bar">
+        <div class="thermo-fill" id="thermoFill"></div>
+      </div>
+    </div>
   </div>
   <div class="main-content">
-    <div class="chart-container-pc" id="chartPc">
-      <div class="chart-col"><div class="chart-bar" id="barS1" style="height:0%;"></div><div class="chart-lbl">Semana 1</div></div>
-      <div class="chart-col"><div class="chart-bar" id="barS2" style="height:0%;"></div><div class="chart-lbl">Semana 2</div></div>
-      <div class="chart-col"><div class="chart-bar" id="barS3" style="height:0%;"></div><div class="chart-lbl">Semana 3</div></div>
-      <div class="chart-col"><div class="chart-bar" id="barS4" style="height:0%;"></div><div class="chart-lbl">Semana 4</div></div>
+    <button id="btnToggleCharts" class="btn-primary" style="width:auto; margin-bottom:16px;">
+      <span class="material-symbols-rounded">bar_chart</span> Mostrar Gráficos
+    </button>
+    <div class="chart-container-pc hidden-element" id="chartPc">
+      <div class="chart-col"><div class="chart-bar" id="barS1" style="height:0%;"></div><div class="chart-lbl">Sem 1</div></div>
+      <div class="chart-col"><div class="chart-bar" id="barS2" style="height:0%;"></div><div class="chart-lbl">Sem 2</div></div>
+      <div class="chart-col"><div class="chart-bar" id="barS3" style="height:0%;"></div><div class="chart-lbl">Sem 3</div></div>
+      <div class="chart-col"><div class="chart-bar" id="barS4" style="height:0%;"></div><div class="chart-lbl">Sem 4</div></div>
     </div>
     <div class="tools-bar">
-      <input type="text" id="inpSearch" class="search-bar" placeholder="Pesquisar despesa..." />
+      <div class="md-input-container" style="margin-bottom:0;">
+        <input type="text" id="inpSearch" class="md-input" placeholder=" " />
+        <label class="md-label">Pesquisar despesa...</label>
+      </div>
       <div class="filters">
         <div class="filter-chip active" data-filter="all">
           <span class="material-symbols-rounded" style="font-size: 16px;">list_alt</span> Todas
@@ -801,73 +881,102 @@ select.input-field {
     <span class="material-symbols-rounded">add</span>
   </div>
 </div>
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-sheet">
+    <div class="modal-header-top">
+      <h2 class="modal-title">Configurações</h2>
+      <button class="icon-btn-modal" id="btnCloseSettings"><span class="material-symbols-rounded">close</span></button>
+    </div>
+    <div class="md-input-container">
+      <select id="selPaydayType" class="md-input">
+        <option value="weekly">Dia da Semana</option>
+        <option value="monthly">Dia do Mês</option>
+        <option value="business">5º Dia Útil</option>
+      </select>
+      <label class="md-label">Tipo de Recebimento</label>
+    </div>
+    <div class="md-input-container" id="grpPaydayValue">
+      <input type="number" id="inpPaydayValue" class="md-input" placeholder=" " />
+      <label class="md-label" id="lblPaydayValue">Dia (ex: 4 para Quinta)</label>
+    </div>
+    <div class="md-input-container">
+      <input type="text" id="inpExpectedIncome" class="md-input" inputmode="numeric" placeholder=" " />
+      <label class="md-label">Valor Esperado por Recebimento (R$)</label>
+    </div>
+    <div style="margin-top: 24px;">
+      <button class="btn-primary" id="btnSaveSettings">Salvar Configurações</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="addModal">
   <div class="modal-sheet">
     <div class="modal-header-top">
       <h2 class="modal-title" id="modalTitle">Nova Despesa</h2>
-      <div class="modal-top-icons">
-        <button class="icon-btn-modal" id="btnCloseAdd">
-          <span class="material-symbols-rounded">close</span>
-        </button>
+      <button class="icon-btn-modal" id="btnCloseAdd"><span class="material-symbols-rounded">close</span></button>
+    </div>
+    <div class="md-input-row">
+      <div class="md-input-container">
+        <input type="text" id="inpValor" class="md-input" inputmode="numeric" placeholder=" " />
+        <label class="md-label">Valor (R$)</label>
+      </div>
+      <div class="md-input-container">
+        <input type="date" id="inpVencimento" class="md-input" placeholder=" " />
+        <label class="md-label" style="top:6px; font-size:12px;">Vencimento</label>
       </div>
     </div>
-    <div class="input-group">
-      <label>Valor (R$)</label>
-      <input type="text" id="inpValor" class="input-field" inputmode="numeric" placeholder="R$ 0,00" />
+    <div class="switch-container">
+      <label class="switch"><input type="checkbox" id="inpValorTotalSwitch"><span class="slider"></span></label>
+      <span style="font-size:14px; font-weight:500;">O valor inserido é o Total da compra (Dividir)</span>
     </div>
-    <div class="input-group switch-container">
-      <label class="switch">
-        <input type="checkbox" id="inpValorTotalSwitch">
-        <span class="slider"></span>
-      </label>
-      <span>Valor da Parcela / Valor Total</span>
+    <div class="switch-container">
+      <label class="switch"><input type="checkbox" id="inpPrioridadeSwitch"><span class="slider"></span></label>
+      <span style="font-size:14px; font-weight:500;">Marcar como Prioridade</span>
     </div>
-    <div class="input-group switch-container">
-      <label class="switch">
-        <input type="checkbox" id="inpPrioridadeSwitch">
-        <span class="slider"></span>
-      </label>
-      <span>Marcar como Prioridade</span>
+    <div class="md-input-container">
+      <input type="text" id="inpDescricao" class="md-input" placeholder=" " />
+      <label class="md-label">Descrição</label>
     </div>
-    <div class="input-group">
-      <label>Descrição</label>
-      <input type="text" id="inpDescricao" class="input-field" />
+    <div class="md-input-row">
+      <div class="md-input-container">
+        <input type="text" id="inpMulta" class="md-input" inputmode="numeric" placeholder=" " />
+        <label class="md-label">Multa (R$)</label>
+      </div>
+      <div class="md-input-container">
+        <input type="text" id="inpJuros" class="md-input" inputmode="numeric" placeholder=" " />
+        <label class="md-label" id="lblJuros">Juros ao Dia</label>
+      </div>
     </div>
-    <div class="input-group">
-      <label>Vencimento</label>
-      <input type="date" id="inpVencimento" class="input-field" />
+    <div class="segmented-btn" id="segJuros">
+      <div class="seg-opt active" data-val="percent">% Porcentagem</div>
+      <div class="seg-opt" data-val="fixed">R$ Valor Fixo</div>
     </div>
-    <div class="input-group">
-      <label>Multa (R$)</label>
-      <input type="text" id="inpMulta" class="input-field" inputmode="numeric" placeholder="R$ 0,00" />
-    </div>
-    <div class="input-group">
-      <label>Juros ao Dia (%)</label>
-      <input type="text" id="inpJuros" class="input-field" inputmode="numeric" placeholder="0,00%" />
-    </div>
-    <div class="input-group">
-      <label>Recorrência</label>
-      <select id="selRecorrencia" class="input-field">
+    <div class="md-input-container">
+      <select id="selRecorrencia" class="md-input">
         <option value="none">Não repetir</option>
         <option value="always">Sempre</option>
         <option value="installments">Parcelado</option>
       </select>
+      <label class="md-label" style="top:6px; font-size:12px;">Recorrência</label>
     </div>
-    <div class="input-group hidden-element" id="grpFrequencia">
-      <label>Frequência</label>
-      <select id="selFrequencia" class="input-field">
+    <div class="md-input-container hidden-element" id="grpFrequencia">
+      <select id="selFrequencia" class="md-input">
         <option value="daily">Todo dia</option>
         <option value="weekly">Toda semana</option>
         <option value="monthly" selected>Todo mês</option>
         <option value="semester">Cada 6 meses</option>
         <option value="yearly">Anualmente</option>
       </select>
+      <label class="md-label" style="top:6px; font-size:12px;">Frequência</label>
     </div>
-    <div class="input-group hidden-element" id="grpParcelas">
-      <label>Número de Parcelas</label>
-      <input type="number" id="inpParcelasTotais" class="input-field" />
-      <label style="margin-top:8px;">Parcela Atual</label>
-      <input type="number" id="inpParcelaAtual" class="input-field" />
+    <div class="md-input-row hidden-element" id="grpParcelas">
+      <div class="md-input-container">
+        <input type="number" id="inpParcelaAtual" class="md-input" placeholder=" " />
+        <label class="md-label">Parcela Atual</label>
+      </div>
+      <div class="md-input-container">
+        <input type="number" id="inpParcelasTotais" class="md-input" placeholder=" " />
+        <label class="md-label">Total de Parcelas</label>
+      </div>
     </div>
     <div style="margin-top: 24px;">
       <button class="btn-primary" id="btnSaveExpense">Adicionar</button>
@@ -879,18 +988,12 @@ select.input-field {
     <div class="modal-header-top">
       <h2 class="modal-title" id="detDescricao"></h2>
       <div class="modal-top-icons">
-        <button class="icon-btn-modal" id="btnEditDetIcon">
-          <span class="material-symbols-rounded">edit</span>
-        </button>
-        <button class="icon-btn-modal" id="btnDelDetIcon">
-          <span class="material-symbols-rounded" style="color: var(--md-sys-color-error)">delete</span>
-        </button>
-        <button class="icon-btn-modal" id="btnCloseDetIcon">
-          <span class="material-symbols-rounded">close</span>
-        </button>
+        <button class="icon-btn-modal" id="btnEditDetIcon"><span class="material-symbols-rounded">edit</span></button>
+        <button class="icon-btn-modal" id="btnDelDetIcon"><span class="material-symbols-rounded" style="color: var(--md-sys-color-error)">delete</span></button>
+        <button class="icon-btn-modal" id="btnCloseDetIcon"><span class="material-symbols-rounded">close</span></button>
       </div>
     </div>
-    <div class="input-group">
+    <div style="margin-bottom: 16px;">
       <div style="font-size:32px; font-weight:700;" id="detValor"></div>
       <div id="detMeta" style="font-size:14px; color:var(--md-sys-color-outline);"></div>
       <div id="detJurosInfo" style="font-size:14px; color:var(--md-sys-color-error); margin-top:8px;"></div>
@@ -904,10 +1007,10 @@ select.input-field {
     </div>
   </div>
 </div>
-
 <script>
 const WORKER_URL = "https://minhas-despesas.grupo-bhds.workers.dev";
 let cachedPin = localStorage.getItem("app_pin");
+let appConfig = JSON.parse(localStorage.getItem("app_config") || '{"paydayType":"weekly","paydayValue":"4","expectedIncome":0}');
 let expensesData = [];
 let currentEditId = null;
 let currentViewDate = new Date();
@@ -916,6 +1019,7 @@ let activeFilter = 'all';
 let searchQuery = '';
 let selectedIds = new Set();
 let hidePagas = false;
+let currentJurosType = 'percent';
 
 const pinScreen = document.getElementById("pinScreen");
 const pinInput = document.getElementById("pinInput");
@@ -923,6 +1027,7 @@ const btnAuth = document.getElementById("btnAuth");
 const fabAdd = document.getElementById("fabAdd");
 const addModal = document.getElementById("addModal");
 const detailModal = document.getElementById("detailModal");
+const settingsModal = document.getElementById("settingsModal");
 const expenseList = document.getElementById("expenseList");
 const bulkBar = document.getElementById("bulkBar");
 const fabContainer = document.getElementById("fabContainer");
@@ -949,6 +1054,52 @@ document.getElementById('btnBackup').addEventListener('click', () => {
   dlAnchorElem.setAttribute("download", `minhas_despesas_backup_${new Date().getTime()}.json`);
   dlAnchorElem.click();
   showToast("Backup gerado com sucesso");
+});
+document.getElementById('btnSettings').addEventListener('click', () => {
+  document.getElementById('selPaydayType').value = appConfig.paydayType;
+  document.getElementById('inpPaydayValue').value = appConfig.paydayValue;
+  document.getElementById('inpExpectedIncome').value = (appConfig.expectedIncome * 100).toString();
+  maskCurrency({target: document.getElementById('inpExpectedIncome')});
+  triggerPaydayType();
+  settingsModal.classList.add('active');
+});
+document.getElementById('btnCloseSettings').addEventListener('click', () => {
+  settingsModal.classList.remove('active');
+});
+document.getElementById('selPaydayType').addEventListener('change', triggerPaydayType);
+function triggerPaydayType() {
+  const type = document.getElementById('selPaydayType').value;
+  const grp = document.getElementById('grpPaydayValue');
+  const lbl = document.getElementById('lblPaydayValue');
+  if(type === 'business') {
+    grp.classList.add('hidden-element');
+  } else {
+    grp.classList.remove('hidden-element');
+    lbl.innerText = type === 'weekly' ? 'Dia (ex: 4 para Quinta)' : 'Dia do Mês (1-31)';
+  }
+}
+document.getElementById('btnSaveSettings').addEventListener('click', () => {
+  appConfig.paydayType = document.getElementById('selPaydayType').value;
+  appConfig.paydayValue = document.getElementById('inpPaydayValue').value;
+  appConfig.expectedIncome = unmaskValue(document.getElementById('inpExpectedIncome').value);
+  localStorage.setItem("app_config", JSON.stringify(appConfig));
+  settingsModal.classList.remove('active');
+  showToast("Configurações salvas");
+  renderExpenses();
+});
+document.getElementById('btnToggleCharts').addEventListener('click', () => {
+  const c = document.getElementById('chartPc');
+  c.classList.toggle('hidden-element');
+});
+document.querySelectorAll('.seg-opt').forEach(opt => {
+  opt.addEventListener('click', (e) => {
+    document.querySelectorAll('.seg-opt').forEach(o => o.classList.remove('active'));
+    e.target.classList.add('active');
+    currentJurosType = e.target.getAttribute('data-val');
+    const inp = document.getElementById('inpJuros');
+    inp.value = '';
+    document.getElementById('lblJuros').innerText = currentJurosType === 'percent' ? 'Juros ao Dia (%)' : 'Juros ao Dia (R$)';
+  });
 });
 function showToast(msg) {
   const toast = document.createElement("div");
@@ -986,7 +1137,11 @@ function formatCurrencyStr(val) {
 }
 document.getElementById('inpValor').addEventListener('input', maskCurrency);
 document.getElementById('inpMulta').addEventListener('input', maskCurrency);
-document.getElementById('inpJuros').addEventListener('input', maskPercent);
+document.getElementById('inpExpectedIncome').addEventListener('input', maskCurrency);
+document.getElementById('inpJuros').addEventListener('input', (e) => {
+  if(currentJurosType === 'percent') maskPercent(e);
+  else maskCurrency(e);
+});
 function updateMonthView() {
   const m = currentViewDate.toLocaleString('pt-BR', { month: 'long' });
   const y = currentViewDate.getFullYear();
@@ -1010,19 +1165,71 @@ function calculateProgressiveInterest(expense) {
     const diffTime = Math.abs(now - due);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     let finalValue = parseFloat(expense.valor) + parseFloat(expense.multa || 0);
-    const jurosDia = parseFloat(expense.juros || 0) / 100;
-    finalValue = finalValue + (finalValue * jurosDia * diffDays);
+    if(expense.jurosType === 'fixed') {
+      finalValue = finalValue + (parseFloat(expense.juros || 0) * diffDays);
+    } else {
+      const jurosDia = parseFloat(expense.juros || 0) / 100;
+      finalValue = finalValue + (finalValue * jurosDia * diffDays);
+    }
     return finalValue;
   }
   return parseFloat(expense.valor);
 }
-function getBestThursday(dueDateStr) {
+function getBestPayday(dueDateStr) {
   const due = new Date(dueDateStr + 'T12:00:00');
-  const day = due.getDay();
-  const diff = (day >= 4) ? (day - 4) : (day + 3);
   const best = new Date(due);
-  best.setDate(due.getDate() - diff);
+  if(appConfig.paydayType === 'weekly') {
+    let targetDay = parseInt(appConfig.paydayValue) || 4;
+    const currentDay = due.getDay();
+    let diff = (currentDay >= targetDay) ? (currentDay - targetDay) : (currentDay + 7 - targetDay);
+    best.setDate(due.getDate() - diff);
+  } else if(appConfig.paydayType === 'monthly') {
+    let targetDate = parseInt(appConfig.paydayValue) || 5;
+    if(due.getDate() < targetDate) {
+      best.setMonth(due.getMonth() - 1);
+    }
+    best.setDate(targetDate);
+  } else if(appConfig.paydayType === 'business') {
+    let count = 0;
+    let tempDate = new Date(due.getFullYear(), due.getMonth(), 1, 12, 0, 0);
+    while(count < 5) {
+      if(tempDate.getDay() !== 0 && tempDate.getDay() !== 6) count++;
+      if(count < 5) tempDate.setDate(tempDate.getDate() + 1);
+    }
+    if(due < tempDate) {
+      tempDate = new Date(due.getFullYear(), due.getMonth() - 1, 1, 12, 0, 0);
+      count = 0;
+      while(count < 5) {
+        if(tempDate.getDay() !== 0 && tempDate.getDay() !== 6) count++;
+        if(count < 5) tempDate.setDate(tempDate.getDate() + 1);
+      }
+    }
+    best.setTime(tempDate.getTime());
+  }
   return best;
+}
+function updateThermometer() {
+  if(!appConfig.expectedIncome || appConfig.expectedIncome === 0) {
+    document.getElementById('thermoContainer').style.display = 'none';
+    return;
+  }
+  document.getElementById('thermoContainer').style.display = 'block';
+  let total = 0;
+  const now = new Date(new Date().setHours(0,0,0,0));
+  let pending = expensesData.filter(e => {
+    if(e.status === 'pago') return false;
+    let payD = getBestPayday(e.vencimento);
+    let nextPay = getBestPayday(new Date(now.getTime() + 7*24*60*60*1000).toISOString().split('T')[0]);
+    return payD <= nextPay;
+  });
+  pending.forEach(e => total += calculateProgressiveInterest(e));
+  let pct = (total / appConfig.expectedIncome) * 100;
+  let color = 'var(--md-sys-color-primary-container)';
+  if(pct > 80) color = '#ffb4ab';
+  if(pct > 100) { pct = 100; color = 'var(--md-sys-color-error)'; }
+  document.getElementById('thermoFill').style.width = pct + '%';
+  document.getElementById('thermoFill').style.backgroundColor = color;
+  document.getElementById('thermoText').innerText = formatCurrencyStr(total) + ' / ' + formatCurrencyStr(appConfig.expectedIncome);
 }
 document.querySelectorAll('.filter-chip:not(#btnTogglePagas)').forEach(chip => {
   chip.addEventListener('click', (e) => {
@@ -1128,6 +1335,7 @@ function renderExpenses() {
   const virtuals = getVirtualExpenses(currentViewDate, expensesData);
   let allForMonth = [...baseFiltered, ...virtuals];
   renderChart(allForMonth);
+  updateThermometer();
   let filtered = allForMonth.filter(exp => {
     if (searchQuery && !exp.descricao.toLowerCase().includes(searchQuery)) return false;
     if (hidePagas && exp.status === 'pago') return false;
@@ -1158,11 +1366,11 @@ function renderExpenses() {
     let isVirtualClass = exp.isVirtual ? 'is-virtual' : '';
     const card = document.createElement("div");
     card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${exp.prioridade ? 'priority-card' : ''} ${isPaidClass} ${isVirtualClass}`;
-    const bestDay = getBestThursday(exp.vencimento);
+    const bestDay = getBestPayday(exp.vencimento);
     let thTag = "";
     if (exp.status !== "pago") {
       const formattedBestDay = bestDay.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-      thTag = `<div class="tag-thursday"><span class="material-symbols-rounded" style="font-size:12px;">lightbulb</span>Pagar na Quinta, ${formattedBestDay}</div>`;
+      thTag = `<div class="tag-thursday"><span class="material-symbols-rounded" style="font-size:12px;">lightbulb</span>Pagar: ${formattedBestDay}</div>`;
     }
     if (exp.isVirtual) {
       thTag += `<div class="tag-thursday" style="background:#e8def8; color:#1d192b;"><span class="material-symbols-rounded" style="font-size:12px;">update</span>Projeção</div>`;
@@ -1331,6 +1539,10 @@ fabAdd.addEventListener("click", () => {
   document.getElementById("inpMulta").value = "";
   document.getElementById("inpJuros").value = "";
   document.getElementById("selRecorrencia").value = "none";
+  document.querySelectorAll('.seg-opt').forEach(o => o.classList.remove('active'));
+  document.querySelector('.seg-opt[data-val="percent"]').classList.add('active');
+  currentJurosType = 'percent';
+  document.getElementById('lblJuros').innerText = 'Juros ao Dia (%)';
   triggerRecorrencia();
   addModal.classList.add("active");
 });
@@ -1367,6 +1579,7 @@ document.getElementById("btnSaveExpense").addEventListener("click", async () => 
     vencimento: document.getElementById("inpVencimento").value,
     multa: unmaskValue(document.getElementById("inpMulta").value).toFixed(2),
     juros: unmaskValue(document.getElementById("inpJuros").value).toFixed(2),
+    jurosType: currentJurosType,
     recorrencia: recorrencia,
     frequencia: document.getElementById("selFrequencia").value,
     parcelasTotais: parcelasTotais,
@@ -1406,9 +1619,9 @@ function openDetail(id) {
   const recBox = document.getElementById("detRecomendacao");
   const recText = document.getElementById("detRecomendacaoText");
   if (exp.status !== "pago") {
-    const bestDay = getBestThursday(exp.vencimento);
+    const bestDay = getBestPayday(exp.vencimento);
     const formattedBestDay = bestDay.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-    recText.innerText = `Recomendação: Pagar na Quinta-feira, ${formattedBestDay}`;
+    recText.innerText = `Recomendação: Pagar dia ${formattedBestDay}`;
     recBox.classList.remove("hidden-element");
   } else {
     recBox.classList.add("hidden-element");
@@ -1444,9 +1657,17 @@ function openEdit(id) {
   let mulStr = (parseFloat(exp.multa||0)*100).toString();
   document.getElementById("inpMulta").value = mulStr;
   maskCurrency({target: document.getElementById("inpMulta")});
+  
+  currentJurosType = exp.jurosType || 'percent';
+  document.querySelectorAll('.seg-opt').forEach(o => o.classList.remove('active'));
+  document.querySelector(`.seg-opt[data-val="${currentJurosType}"]`).classList.add('active');
+  document.getElementById('lblJuros').innerText = currentJurosType === 'percent' ? 'Juros ao Dia (%)' : 'Juros ao Dia (R$)';
+  
   let jurStr = (parseFloat(exp.juros||0)*100).toString();
   document.getElementById("inpJuros").value = jurStr;
-  maskPercent({target: document.getElementById("inpJuros")});
+  if(currentJurosType === 'percent') maskPercent({target: document.getElementById("inpJuros")});
+  else maskCurrency({target: document.getElementById("inpJuros")});
+  
   document.getElementById("selRecorrencia").value = exp.recorrencia;
   document.getElementById("selFrequencia").value = exp.frequencia || "monthly";
   document.getElementById("inpParcelasTotais").value = exp.parcelasTotais || 1;
