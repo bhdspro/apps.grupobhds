@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle - Teimosinha 6</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #1f2833;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.1);
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+            border: 1px solid #45a29e;
+        }
+        h1 {
+            color: #66fcf1;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #45a29e;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .status-ciclo {
+            background-color: #0b0c10;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 22px;
+            font-weight: bold;
+            border-left: 5px solid #66fcf1;
+            color: #ffffff;
+        }
+        .alert-box {
+            background-color: #0b0c10;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            border-left: 5px solid #c5c6c7;
+            text-align: left;
+        }
+        .alert-title {
+            font-weight: bold;
+            color: #66fcf1;
+            margin-bottom: 5px;
+        }
+        .dezenas-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .dezena {
+            background-color: #0b0c10;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 20px;
+            border: 2px solid #45a29e;
+            color: #66fcf1;
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+        }
+        button {
+            background-color: #66fcf1;
+            color: #0b0c10;
+            border: none;
+            padding: 18px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: 0.3s;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            background-color: #45a29e;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Motor Tático Estocástico</h1>
+        <div class="subtitle">Monitoramento de Teimosinha e Gatilhos Inteligentes</div>
+        
+        <div class="status-ciclo" id="ciclo-box">
+            Sincronizando telemetria...
+        </div>
+
+        <div class="alert-box" id="alert-box" style="display: none;">
+            <div class="alert-title" id="alert-title">Status do Gatilho:</div>
+            <div id="alert-reason">Analisando...</div>
+        </div>
+
+        <div id="resultado-box" style="display: none;">
+            <div class="dezenas-grid" id="grid-dezenas"></div>
+            <p style="margin-top:25px; font-size:13px; color:#45a29e;" id="score-text"></p>
+        </div>
+
+        <button onclick="carregarDados()">Forçar Atualização</button>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://lotofacil.grupo-bhds.workers.dev/jogo-atual";
+
+        async function carregarDados() {
+            const cicloBox = document.getElementById("ciclo-box");
+            const resultadoBox = document.getElementById("resultado-box");
+            const grid = document.getElementById("grid-dezenas");
+            const scoreText = document.getElementById("score-text");
+            const alertBox = document.getElementById("alert-box");
+            const alertTitle = document.getElementById("alert-title");
+            const alertReason = document.getElementById("alert-reason");
+
+            cicloBox.innerText = "Consultando base de dados...";
+            
+            try {
+                const response = await fetch(WORKER_URL);
+                const data = await response.json();
+
+                if (data.jogo) {
+                    cicloBox.innerHTML = `CONCURSO ${data.concurso_atual_teimosinha} DE 6`;
+                    
+                    alertBox.style.display = "block";
+                    alertTitle.innerText = `Status do Sistema: ${data.alertas.status}`;
+                    alertReason.innerText = `Detalhe: ${data.alertas.motivo}`;
+
+                    if(data.alertas.status === "Ciclo Abortado" || data.alertas.status === "Ciclo Reiniciado Antecipadamente") {
+                        alertBox.style.borderLeftColor = "#ff4c4c";
+                        alertTitle.style.color = "#ff4c4c";
+                    } else {
+                        alertBox.style.borderLeftColor = "#66fcf1";
+                        alertTitle.style.color = "#66fcf1";
+                    }
+                    
+                    grid.innerHTML = "";
+                    data.jogo.dezenas.forEach(num => {
+                        const div = document.createElement("div");
+                        div.className = "dezena";
+                        div.innerText = num.toString().padStart(2, '0');
+                        grid.appendChild(div);
+                    });
+
+                    scoreText.innerText = `Score de Validação Interna: ${data.jogo.score_atingido}/100`;
+                    resultadoBox.style.display = "block";
+                } else {
+                    cicloBox.innerText = "Nenhum volante gerado ainda.";
+                }
+            } catch (error) {
+                cicloBox.innerText = "Falha na conexão com o Worker.";
+            }
+        }
+
+        window.onload = carregarDados;
+    </script>
+</body>
+</html>
