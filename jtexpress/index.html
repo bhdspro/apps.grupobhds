@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bipador Inteligente</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23B3261E'><path d='M20 8l-8-5-8 5v8l8 5 8-5V8zm-8-2.75L17.15 8 12 11.25 6.85 8 12 5.25zM5 9.5l6 3.75v6.5l-6-3.75V9.5zm14 6.5l-6 3.75v-6.5l6-3.75v6.5z'/></svg>" type="image/svg+xml">
-<link rel="manifest" href="data:application/json,{%22name%22:%22Bipador%20Inteligente%22,%22short_name%22:%22Bipador%22,%22start_url%22:%22/jtexpress/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23FFFBFE%22,%22theme_color%22:%22%23B3261E%22,%22icons%22:[{%22src%22:%22https://app.grupobhds.com/jtexpress/logo.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]}">
+<link rel="icon" href="https://app.grupobhds.com/jtexpress/app.png" type="image/png">
+<link rel="apple-touch-icon" href="https://app.grupobhds.com/jtexpress/app.png">
+<link rel="manifest" href="data:application/json,{%22name%22:%22Bipador%20Inteligente%22,%22short_name%22:%22Bipador%22,%22start_url%22:%22/jtexpress/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23FFFBFE%22,%22theme_color%22:%22%23B3261E%22,%22icons%22:[{%22src%22:%22https://app.grupobhds.com/jtexpress/app.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]}">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -306,38 +307,6 @@
     gap: 8px;
   }
 
-  .color-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: inline-block;
-    cursor: pointer;
-    vertical-align: middle;
-    margin-left: 8px;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-  }
-
-  .dot-branco {
-    background-color: #FFFFFF;
-    border: 1px solid #79747E;
-  }
-
-  .dot-verde {
-    background-color: #146C2E;
-    border: 1px solid #146C2E;
-  }
-
-  .dot-branco-cinza {
-    background: linear-gradient(90deg, #FFFFFF 50%, #79747E 50%);
-    border: 1px solid #79747E;
-  }
-
-  .dot-vermelho {
-    background-color: #B3261E;
-    border: 1px solid #B3261E;
-  }
-  
   .lote-linha {
     display: flex;
     justify-content: space-between;
@@ -428,7 +397,7 @@
     color: var(--md-sys-color-primary);
   }
 
-  #modal-pin, #modal-novo-num {
+  #modal-pin, #modal-novo-num, #modal-saca-info {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5);
@@ -587,6 +556,15 @@
 </head>
 <body>
 
+<svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="grad-bc" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="50%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#79747E" />
+    </linearGradient>
+  </defs>
+</svg>
+
 <header>
   <div class="logo-container">
     <img src="https://app.grupobhds.com/jtexpress/logo.png" alt="Logo J&T Express">
@@ -644,6 +622,8 @@
         <option value="318">318</option>
         <option value="340">340</option>
         <option value="336">336</option>
+        <option value="348">348</option>
+        <option value="419">419</option>
         <option value="304 (Apucarana)">304 (Apucarana)</option>
         <option value="NOVO">Adicionar Novo...</option>
       </select>
@@ -651,7 +631,10 @@
 
     <div class="input-field">
       <label>Bipar Código de Barras (Coletor / Leitor)</label>
-      <input type="text" id="input-bipagem" placeholder="Posicione o cursor aqui e bipe" autocomplete="off">
+      <form id="form-bipagem" style="margin:0; padding:0; display:block;">
+        <input type="text" id="input-bipagem" placeholder="Posicione o cursor aqui e bipe" autocomplete="off">
+        <button type="submit" style="display:none"></button>
+      </form>
     </div>
 
     <div class="admin-buttons">
@@ -705,6 +688,17 @@
   </div>
 </div>
 
+<div id="modal-saca-info" class="hidden">
+  <div class="modal-content">
+    <h3 id="saca-info-title">Cor da Saca</h3>
+    <p id="saca-info-text" style="font-size: 18px; font-weight: 500; margin-bottom: 8px;"></p>
+    <p id="saca-info-obs" style="font-size: 14px; color: var(--md-sys-color-primary);"></p>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="document.getElementById('modal-saca-info').classList.add('hidden')">Entendido</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-notification" class="hidden"></div>
 
 <footer>
@@ -723,24 +717,45 @@
   let itemParaExcluir = null;
 
   const colorMap = {
-    "336": { cor: "branco", texto: "Saca Branca" },
-    "287": { cor: "branco", texto: "Saca Branca" },
-    "286": { cor: "branco", texto: "Saca Branca" },
-    "318": { cor: "verde", texto: "Saca Verde" },
-    "365": { cor: "branco-cinza", texto: "Saca Branca e Cinza" },
-    "304-03": { cor: "branco-cinza", texto: "Saca Branca e Cinza" },
-    "410": { cor: "verde", texto: "Saca Verde" },
-    "311": { cor: "branco-cinza", texto: "Saca Branca e Cinza" },
-    "307": { cor: "verde", texto: "Saca Verde" },
-    "340": { cor: "verde", texto: "Saca Verde" },
-    "304": { cor: "vermelho", texto: "Consulte o líder para verificar a cor da saca" }
+    "336": { cor: "branco", texto: "Saca Branca", obs: "" },
+    "287": { cor: "branco", texto: "Saca Branca", obs: "" },
+    "286": { cor: "branco", texto: "Saca Branca", obs: "" },
+    "348": { cor: "branco", texto: "Saca Branca", obs: "Adicione junto com 286" },
+    "318": { cor: "verde", texto: "Saca Verde", obs: "" },
+    "365": { cor: "branco-cinza", texto: "Saca Branca e Cinza", obs: "" },
+    "304-03": { cor: "branco-cinza", texto: "Saca Branca e Cinza", obs: "" },
+    "410": { cor: "verde", texto: "Saca Verde", obs: "" },
+    "311": { cor: "branco-cinza", texto: "Saca Branca e Cinza", obs: "" },
+    "419": { cor: "branco-cinza", texto: "Saca Branca e Cinza", obs: "" },
+    "307": { cor: "verde", texto: "Saca Verde", obs: "" },
+    "340": { cor: "verde", texto: "Saca Verde", obs: "" },
+    "304": { cor: "vermelho", texto: "Saca não definida", obs: "Consulte o líder para verificar a cor da saca" }
   };
 
   function obterInfoCor(numeracao) {
     if (colorMap[numeracao]) {
       return colorMap[numeracao];
     }
-    return { cor: "vermelho", texto: "Consulte o líder para verificar a cor da saca" };
+    return { cor: "vermelho", texto: "Saca não definida", obs: "Consulte o líder para verificar a cor da saca" };
+  }
+
+  function getSacaIconHTML(corID) {
+    let fill = "#B3261E";
+    if (corID === "branco") fill = "#FFFFFF";
+    if (corID === "verde") fill = "#146C2E";
+    if (corID === "branco-cinza") fill = "url(#grad-bc)";
+    
+    return `<svg viewBox="0 0 24 24" width="26" height="26" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.3)); vertical-align: middle; cursor: pointer; margin-left: 8px;">
+      <path d="M8.5 2 C6.5 2, 6 4, 7 5.5 C4 8, 3 12, 3 18 C3 22, 6 22, 12 22 C18 22, 21 22, 21 18 C21 12, 20 8, 17 5.5 C18 4, 17.5 2, 15.5 2 C13.5 2, 12.5 4, 13 5 C12 5.5, 12 5.5, 12 5.5 C12 5.5, 12 5.5, 11 5 C11.5 4, 10.5 2, 8.5 2 Z" fill="${fill}" stroke="#49454F" stroke-width="1" stroke-linejoin="round"/>
+    </svg>`;
+  }
+
+  function abrirModalSaca(numeracao) {
+    const info = obterInfoCor(numeracao);
+    document.getElementById("saca-info-title").innerText = `Numeração ${numeracao}`;
+    document.getElementById("saca-info-text").innerText = info.texto;
+    document.getElementById("saca-info-obs").innerText = info.obs ? `Obs: ${info.obs}` : "";
+    document.getElementById("modal-saca-info").classList.remove("hidden");
   }
 
   const viewLotes = document.getElementById("view-lotes");
@@ -869,14 +884,10 @@
     document.getElementById("select-numeracao").selectedIndex = 0;
   });
 
-  function processarEntradaBipagem() {
-    const rawVal = inputBipagem.value;
-    if (!rawVal) return;
-
-    if (rawVal.includes("\n") || rawVal.includes("\r")) {
-      executarAdicaoBarcode(rawVal.replace(/[\r\n]+/g, "").trim());
-    }
-  }
+  document.getElementById("form-bipagem").addEventListener("submit", (e) => {
+    e.preventDefault();
+    executarAdicaoBarcode(inputBipagem.value.trim());
+  });
 
   function executarAdicaoBarcode(barcode) {
     if (!barcode) return;
@@ -896,16 +907,8 @@
       exibirNotificacao(`Atenção: Código já foi bipado!`);
     }
     inputBipagem.value = "";
+    inputBipagem.focus();
   }
-
-  inputBipagem.addEventListener("input", processarEntradaBipagem);
-
-  inputBipagem.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.keyCode === 13 || e.keyCode === 66) {
-      e.preventDefault();
-      executarAdicaoBarcode(inputBipagem.value.trim());
-    }
-  });
 
   document.getElementById("btn-abrir-camera").addEventListener("click", () => {
     document.getElementById("camera-container").classList.remove("hidden");
@@ -1177,7 +1180,7 @@
           const infoCor = obterInfoCor(numeracao);
           const numTitle = document.createElement("div");
           numTitle.className = "num-title";
-          numTitle.innerHTML = `<span class="material-symbols-outlined">tag</span> Numeração: ${numeracao} (${lotesVisiveisCount} lotes) <span class="color-dot dot-${infoCor.cor}" onclick="event.stopPropagation(); exibirNotificacao('${infoCor.texto}')"></span>`;
+          numTitle.innerHTML = `<span class="material-symbols-outlined">tag</span> Numeração: ${numeracao} (${lotesVisiveisCount} lotes) <span onclick="event.stopPropagation(); abrirModalSaca('${numeracao}')">${getSacaIconHTML(infoCor.cor)}</span>`;
           numSecao.appendChild(numTitle);
           numSecao.appendChild(contentDiv);
           grupoBody.appendChild(numSecao);
