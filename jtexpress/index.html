@@ -767,6 +767,7 @@
   const btnInstalar = document.getElementById("btn-instalar-app");
   const inputBipagem = document.getElementById("input-bipagem");
   const toastNotification = document.getElementById("toast-notification");
+  const formBipagem = document.getElementById("form-bipagem");
 
   function emitirBeep() {
     try {
@@ -853,6 +854,7 @@
         document.getElementById("div-select-grupo").classList.remove("hidden");
         atualizarDropdownGrupos();
       }
+      inputBipagem.focus();
     });
   });
 
@@ -884,18 +886,42 @@
     document.getElementById("select-numeracao").selectedIndex = 0;
   });
 
-  document.getElementById("form-bipagem").addEventListener("submit", (e) => {
+  formBipagem.addEventListener("submit", (e) => {
     e.preventDefault();
-    executarAdicaoBarcode(inputBipagem.value.trim());
+    const rawVal = inputBipagem.value;
+    executarAdicaoBarcode(rawVal);
   });
 
-  function executarAdicaoBarcode(barcode) {
+  inputBipagem.addEventListener("keyup", (e) => {
+    if (e.key === "Enter" || e.keyCode === 13 || e.keyCode === 66) {
+      e.preventDefault();
+      executarAdicaoBarcode(inputBipagem.value);
+    }
+  });
+
+  inputBipagem.addEventListener("change", (e) => {
+    executarAdicaoBarcode(e.target.value);
+  });
+
+  function executarAdicaoBarcode(barcodeOriginal) {
+    if (typeof barcodeOriginal !== "string") return;
+    const barcode = barcodeOriginal.replace(/[\n\r\t]/g, '').trim();
     if (!barcode) return;
+    
     const numeracao = document.getElementById("select-numeracao").value;
     const ehNovoGrupo = document.querySelector('input[name="tipo-grupo"]:checked').value === "novo";
-    const grupo = ehNovoGrupo ? document.getElementById("input-nome-grupo").value.trim() : document.getElementById("select-grupo").value;
+    const grupoInput = document.getElementById("input-nome-grupo").value.trim();
+    const grupoSelect = document.getElementById("select-grupo").value;
+    const grupo = ehNovoGrupo ? grupoInput : grupoSelect;
 
-    if (!grupo || numeracao === "NOVO") return;
+    if (!grupo) {
+      exibirNotificacao("Preencha ou selecione o Grupo!");
+      return;
+    }
+    if (numeracao === "NOVO") {
+      exibirNotificacao("Selecione uma numeração válida!");
+      return;
+    }
 
     const duplicado = lotesSessao.some(l => l.barcode === barcode);
     if (!duplicado) {
@@ -950,7 +976,7 @@
   }
 
   function onScanSuccess(decodedText, decodedResult) {
-    executarAdicaoBarcode(decodedText.trim());
+    executarAdicaoBarcode(decodedText);
   }
 
   function onScanFailure(error) {
