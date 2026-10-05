@@ -1058,7 +1058,7 @@
   }
 
   function exportarGrupoCSV(grupo, numObj) {
-    let csvContent = "\uFEFFGrupo;Numeração;Código de Barras;Status;Código de Barras (Fonte)\n";
+    let csvContent = "\uFEFFNome do Grupo;Lote;Codigo;Status;Codigo de Barras (Fonte Code39)\n";
     for (const [numeracao, lotesArr] of Object.entries(numObj)) {
       lotesArr.forEach(lote => {
         let statusAtual = lote.status;
@@ -1094,9 +1094,9 @@
     const worksheet = workbook.addWorksheet('Lotes');
 
     worksheet.columns = [
-      { header: 'Grupo', key: 'grupo', width: 20 },
-      { header: 'Numeros', key: 'num', width: 15 },
-      { header: 'Codigos', key: 'barcode', width: 25 },
+      { header: 'Nome do Grupo', key: 'grupo', width: 20 },
+      { header: 'Lote', key: 'num', width: 15 },
+      { header: 'Codigo', key: 'barcode', width: 25 },
       { header: 'Status', key: 'status', width: 15 },
       { header: 'Codigo de Barras (Fonte Code39)', key: 'barcode_font', width: 35 }
     ];
