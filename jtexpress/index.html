@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 <style>
   :root {
     --md-sys-color-primary: #B3261E;
@@ -1056,8 +1057,8 @@
     } catch (e) {}
   }
 
-  function exportarGrupoExcel(grupo, numObj) {
-    let csvContent = "\uFEFFGrupo;Numeração;Código de Barras;Status\n";
+  function exportarGrupoCSV(grupo, numObj) {
+    let csvContent = "\uFEFFGrupo;Numeração;Código de Barras;Status;Código de Barras (Fonte)\n";
     for (const [numeracao, lotesArr] of Object.entries(numObj)) {
       lotesArr.forEach(lote => {
         let statusAtual = lote.status;
@@ -1069,7 +1070,8 @@
         } else if (override) {
           delete statusOverrides[chave];
         }
-        csvContent += `"${grupo}";"${numeracao}";"${lote.barcode}";"${statusAtual}"\n`;
+        let barcodeParaFonte = `*${lote.barcode}*`;
+        csvContent += `"${grupo}";"${numeracao}";"${lote.barcode}";"${statusAtual}";"${barcodeParaFonte}"\n`;
       });
     }
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -1077,6 +1079,63 @@
     const a = document.createElement("a");
     a.href = url;
     a.download = `Lotes_${grupo.replace(/[^a-zA-Z0-9]/g, "_")}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function exportarGrupoXLSX(grupo, numObj) {
+    if (typeof ExcelJS === 'undefined') {
+      exibirNotificacao("Erro ao carregar biblioteca Excel. Exportando como CSV...");
+      return exportarGrupoCSV(grupo, numObj);
+    }
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Lotes');
+
+    worksheet.columns = [
+      { header: 'Grupo', key: 'grupo', width: 20 },
+      { header: 'Numeração', key: 'num', width: 15 },
+      { header: 'Código de Barras', key: 'barcode', width: 25 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Código de Barras (Fonte)', key: 'barcode_font', width: 35 }
+    ];
+
+    worksheet.getRow(1).font = { bold: true };
+
+    for (const [numeracao, lotesArr] of Object.entries(numObj)) {
+      lotesArr.forEach(lote => {
+        let statusAtual = lote.status;
+        const chave = `${lote.barcode}-${lote.grupo}`;
+        const override = statusOverrides[chave];
+        if (override && (Date.now() - override.time < 10000)) {
+          if (override.excluido) return;
+          statusAtual = override.status;
+        } else if (override) {
+          delete statusOverrides[chave];
+        }
+        
+        let barcodeParaFonte = `*${lote.barcode}*`;
+        
+        const row = worksheet.addRow({
+          grupo: grupo,
+          num: numeracao,
+          barcode: lote.barcode,
+          status: statusAtual,
+          barcode_font: barcodeParaFonte
+        });
+        
+        row.getCell(5).font = { name: 'Code 39', size: 28 };
+        row.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Lotes_${grupo.replace(/[^a-zA-Z0-9]/g, "_")}.xlsx`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1121,10 +1180,15 @@
 
       const btnExport = document.createElement("button");
       btnExport.className = "btn-export";
-      btnExport.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">download</span> Exportar Excel';
+      btnExport.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">download</span> Exportar Dados';
       btnExport.onclick = (e) => {
         e.stopPropagation();
-        exportarGrupoExcel(grupo, numObj);
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+          exportarGrupoCSV(grupo, numObj);
+        } else {
+          exportarGrupoXLSX(grupo, numObj);
+        }
       };
 
       const expandIcon = document.createElement("span");
