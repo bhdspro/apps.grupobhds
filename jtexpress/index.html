@@ -6,7 +6,7 @@
 <title>Bipador Inteligente</title>
 <link rel="icon" href="https://app.grupobhds.com/jtexpress/app.png" type="image/png">
 <link rel="apple-touch-icon" href="https://app.grupobhds.com/jtexpress/app.png">
-<link rel="manifest" href="data:application/json,{%22name%22:%22Bipador%20Inteligente%22,%22short_name%22:%22Bipador%22,%22start_url%22:%22/jtexpress/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23FFFBFE%22,%22theme_color%22:%22%23B3261E%22,%22icons%22:[{%22src%22:%22https://app.grupobhds.com/jtexpress/app.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]}">
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -1058,7 +1058,8 @@
   }
 
   function exportarGrupoCSV(grupo, numObj) {
-    let csvContent = "\uFEFFNome do Grupo;Lote;Codigo;Status;Codigo de Barras (Fonte Code39)\n";
+    let csvContent = "\uFEFFPara visualizar o codigo de barras, selecione a coluna no Excel e mude a fonte para 'Code 39'.\n\n";
+    csvContent += "Nome do Grupo;Lote;Codigo;Status;Codigo de Barras (Fonte Code39)\n";
     for (const [numeracao, lotesArr] of Object.entries(numObj)) {
       lotesArr.forEach(lote => {
         let statusAtual = lote.status;
@@ -1374,6 +1375,16 @@
 
   setInterval(carregarDados, 3000);
   carregarDados();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(registration => {
+        console.log('ServiceWorker registrado com sucesso:', registration.scope);
+      }).catch(err => {
+        console.log('Falha ao registrar o ServiceWorker:', err);
+      });
+    });
+  }
 </script>
 
 </body>
