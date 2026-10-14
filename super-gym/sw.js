@@ -1,8 +1,9 @@
-const CACHE_NAME = 'super-gym-v1';
+const CACHE_NAME = 'super-gym-v4';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './favicon.png'
 ];
 
 self.addEventListener('install', event => {

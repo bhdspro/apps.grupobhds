@@ -2,141 +2,558 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Super Gym</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#B3261E">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
 <style>
 :root {
---primary: #B3261E;
---primary-container: #FFDAD6;
---on-primary: #FFFFFF;
---background: #FFFFFF;
---surface: #F3F4F6;
---text: #1C1B1F;
---text-variant: #49454F;
---radius: 16px;
+    --md-sys-color-primary: #B3261E;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #F9DEDC;
+    --md-sys-color-on-primary-container: #410E0B;
+    --md-sys-color-background: #FFFBFF;
+    --md-sys-color-on-background: #201A19;
+    --md-sys-color-surface: #FFFBFF;
+    --md-sys-color-on-surface: #201A19;
+    --md-sys-color-surface-variant: #F4DDDB;
+    --md-sys-color-on-surface-variant: #524341;
+    --md-sys-color-surface-container: #F5EEED;
+    --md-sys-color-surface-container-high: #EAE1DF;
+    --md-sys-color-error: #BA1A1A;
+    --md-sys-color-success: #2E7D32;
+    --radius-sm: 16px;
+    --radius-md: 24px;
+    --radius-lg: 32px;
+    --radius-full: 9999px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-body { background-color: var(--background); color: var(--text); padding-bottom: 80px; }
-.top-bar { display: flex; justify-content: space-between; align-items: center; background-color: var(--primary); color: var(--on-primary); padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.top-bar h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-.icon-btn { background: none; border: none; color: inherit; font-size: 24px; cursor: pointer; }
-main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-.banner-container { width: 100%; border-radius: var(--radius); overflow: hidden; display: flex; justify-content: center; align-items: center; }
-.nano-banana-img { width: 100%; height: auto; max-height: 200px; object-fit: cover; border-radius: var(--radius); }
-.card { background-color: var(--surface); padding: 16px; border-radius: var(--radius); display: flex; flex-direction: column; gap: 12px; }
-.card h2 { font-size: 1.1rem; }
-input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
-.row { display: flex; gap: 8px; }
-.btn-primary { background-color: var(--primary); color: var(--on-primary); border: none; padding: 16px; border-radius: 24px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
-.ex-item { background-color: var(--surface); padding: 16px; border-radius: var(--radius); display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.ex-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold;}
-.ex-details { display: flex; gap: 8px; align-items: center; }
-.ex-details input { width: 70px; padding: 8px; text-align: center;}
-.ex-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 8px;}
-.ex-actions button { color: var(--primary); }
-#rest-timer { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background-color: var(--text); color: var(--on-primary); padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 12px; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 100; }
-.hidden { display: none !important; }
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 200; padding: 16px; }
-.modal-content { background: var(--background); padding: 24px; border-radius: var(--radius); width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative; }
-.close-modal { position: absolute; top: 16px; right: 16px; color: var(--text); }
-#modal-body { margin-top: 16px; line-height: 1.5; color: var(--text-variant); }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background-color: var(--md-sys-color-background); color: var(--md-sys-color-on-background); padding-bottom: 90px; transition: all 0.3s ease; }
+.top-bar { display: flex; flex-direction: column; background-color: var(--md-sys-color-surface); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); background-color: rgba(255, 251, 255, 0.85); border-bottom: 1px solid var(--md-sys-color-surface-container-high); }
+.top-bar-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
+.top-bar h1 { font-size: 1.3rem; display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: -0.5px; }
+.top-bar h1 .material-symbols-rounded { color: var(--md-sys-color-primary); font-size: 28px; }
+.icon-btn { background: none; border: none; color: var(--md-sys-color-on-surface); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: var(--radius-full); transition: background-color 0.2s ease, transform 0.1s ease; }
+.icon-btn:active { background-color: var(--md-sys-color-surface-variant); transform: scale(0.95); }
+.days-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 0 20px 16px 20px; scrollbar-width: none; }
+.days-scroll::-webkit-scrollbar { display: none; }
+.day-pill { padding: 8px 20px; border-radius: var(--radius-full); font-weight: 700; font-size: 0.9rem; background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface-variant); border: none; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+.day-pill.active { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); box-shadow: 0 4px 12px rgba(179, 38, 30, 0.3); }
+main { padding: 20px; display: flex; flex-direction: column; gap: 20px; max-width: 600px; margin: 0 auto; }
+.banner-container { width: 100%; border-radius: var(--radius-md); overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.nano-banana-img { width: 100%; height: auto; max-height: 160px; object-fit: cover; }
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dash-card { background-color: var(--md-sys-color-surface-container); padding: 20px; border-radius: var(--radius-md); display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(0,0,0,0.03); position: relative; overflow: hidden; }
+.dash-card-primary { background: linear-gradient(135deg, var(--md-sys-color-primary), #8C1D18); color: var(--md-sys-color-on-primary); grid-column: span 2; box-shadow: 0 8px 24px rgba(179, 38, 30, 0.25); }
+.dash-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; opacity: 0.8; margin-bottom: 8px; z-index: 1; }
+.dash-value { font-size: 2rem; font-weight: 800; z-index: 1; letter-spacing: -1px; }
+.dash-icon-bg { position: absolute; right: -15px; bottom: -15px; font-size: 80px; opacity: 0.1; z-index: 0; transform: rotate(-10deg); }
+.dash-card-primary .dash-icon-bg { font-size: 120px; right: -20px; bottom: -30px; }
+.radar-container { display: flex; justify-content: center; align-items: center; margin-top: 12px; z-index: 1; }
+.radar-svg { width: 100%; max-width: 250px; height: auto; }
+.section-title { font-size: 1.1rem; font-weight: 700; color: var(--md-sys-color-on-background); margin-top: 8px; margin-bottom: -8px; }
+.ex-item { background-color: var(--md-sys-color-surface-container); padding: 20px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 12px rgba(0,0,0,0.02); animation: slideIn 0.3s ease forwards; transition: opacity 0.3s ease; }
+.ex-item.completed { opacity: 0.5; }
+.ex-item.completed .ex-header div { text-decoration: line-through; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.ex-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.1rem; color: var(--md-sys-color-on-surface); }
+.ex-header small { display: block; font-weight: 500; font-size: 0.85rem; color: var(--md-sys-color-primary); margin-top: 4px; text-decoration: none !important; }
+.ex-group-tag { font-size: 0.7rem; background-color: var(--md-sys-color-surface-container-high); padding: 4px 8px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.ex-metrics { display: flex; gap: 8px; align-items: center; background-color: var(--md-sys-color-surface-container-high); padding: 12px; border-radius: var(--radius-sm); justify-content: space-between; }
+.metric-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.metric-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--md-sys-color-on-surface-variant); }
+.metric-input { width: 55px; padding: 8px; text-align: center; font-weight: 800; font-size: 1rem; background-color: var(--md-sys-color-surface); border: 2px solid transparent; border-radius: 8px; color: var(--md-sys-color-on-surface); }
+.metric-input:focus { border-color: var(--md-sys-color-primary); outline: none; }
+.ex-stats { display: flex; justify-content: space-around; background-color: rgba(179, 38, 30, 0.05); padding: 12px; border-radius: var(--radius-sm); }
+.ex-stat-item { display: flex; flex-direction: column; align-items: center; }
+.ex-stat-value { font-size: 1.1rem; font-weight: 800; color: var(--md-sys-color-primary); }
+.ex-stat-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--md-sys-color-on-surface-variant); }
+.ex-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.action-group { display: flex; gap: 8px; }
+.ex-actions .icon-btn { background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); width: 44px; height: 44px; }
+.ex-actions .btn-delete { background-color: transparent; color: var(--md-sys-color-error); }
+.ex-actions .btn-success { background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-success); }
+.fab { position: fixed; bottom: 24px; right: 24px; width: 64px; height: 64px; border-radius: 20px; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 12px 24px rgba(179, 38, 30, 0.4); cursor: pointer; z-index: 90; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.fab:active { transform: scale(0.92); }
+.fab .material-symbols-rounded { font-size: 32px; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); z-index: 100; opacity: 1; transition: opacity 0.3s ease; display: flex; justify-content: center; align-items: flex-end; }
+.modal-overlay.hidden { opacity: 0; pointer-events: none; }
+.bottom-sheet { background: var(--md-sys-color-surface); width: 100%; max-width: 600px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 24px; transform: translateY(0); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -8px 24px rgba(0,0,0,0.1); }
+.modal-overlay.hidden .bottom-sheet { transform: translateY(100%); }
+.sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.sheet-title { font-size: 1.3rem; font-weight: 700; color: var(--md-sys-color-on-surface); }
+.input-group { display: flex; flex-direction: column; gap: 8px; }
+.input-label { font-size: 0.9rem; font-weight: 600; color: var(--md-sys-color-on-surface-variant); }
+input.modal-input, select.modal-input { width: 100%; padding: 16px; border: 2px solid var(--md-sys-color-surface-container-high); border-radius: var(--radius-sm); font-size: 16px; background-color: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); transition: all 0.2s ease; outline: none; appearance: none; }
+input[type="range"] { padding: 0; height: 6px; background: var(--md-sys-color-surface-container-high); border-radius: 8px; border: none; }
+input.modal-input:focus, select.modal-input:focus { border-color: var(--md-sys-color-primary); background-color: var(--md-sys-color-surface); }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn-primary { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border: none; padding: 18px; border-radius: var(--radius-full); font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 12px; box-shadow: 0 4px 12px rgba(179, 38, 30, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-secondary { background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); border: none; padding: 18px; border-radius: var(--radius-full); font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+#rest-timer { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); padding: 12px 24px; border-radius: var(--radius-full); display: flex; align-items: center; gap: 12px; font-size: 1.8rem; font-weight: 800; box-shadow: 0 8px 24px rgba(179, 38, 30, 0.4); z-index: 150; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 2px; }
+#rest-timer.hidden { transform: translate(-50%, -150px); opacity: 0; }
+#rest-timer .icon-btn { width: 36px; height: 36px; color: var(--md-sys-color-on-primary); background-color: rgba(255,255,255,0.2); }
+.centered-modal { align-items: center; }
+.centered-modal .bottom-sheet { border-radius: var(--radius-lg); margin: 20px; }
+#modal-inst-body { line-height: 1.6; color: var(--md-sys-color-on-surface); font-size: 1rem; }
+#modal-inst-body ul { margin-left: 20px; margin-top: 8px; margin-bottom: 16px; }
+#modal-inst-body li { margin-bottom: 6px; }
+#modal-inst-body strong { color: var(--md-sys-color-primary); }
+#modal-inst-body h3 { color: var(--md-sys-color-primary); margin-bottom: 12px; font-size: 1.2rem; }
+.loading-sync { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--md-sys-color-primary); }
+.loading-sync .material-symbols-rounded { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@media (max-width: 380px) {
+    main { padding: 12px; gap: 12px; }
+    .top-bar-header { padding: 12px 16px; }
+    .days-scroll { padding: 0 16px 12px 16px; }
+    .dash-card { padding: 16px; }
+    .dash-value { font-size: 1.6rem; }
+    .ex-item { padding: 16px; }
+    .ex-metrics { padding: 8px; gap: 6px; }
+    .metric-input { width: 45px; font-size: 0.95rem; padding: 6px; }
+    .fab { width: 56px; height: 56px; bottom: 16px; right: 16px; }
+    .fab .material-symbols-rounded { font-size: 28px; }
+    .bottom-sheet { padding: 20px; }
+    input.modal-input, select.modal-input { padding: 14px; font-size: 15px; }
+    .btn-primary, .btn-secondary { padding: 16px; font-size: 15px; }
+    .row-3, .row-2 { gap: 8px; }
+    .ex-stats { padding: 8px; }
+}
 </style>
 </head>
 <body>
 <header class="top-bar">
+<div class="top-bar-header">
 <h1><span class="material-symbols-rounded">fitness_center</span> Super Gym</h1>
-<button id="btn-imc" class="icon-btn"><span class="material-symbols-rounded">monitor_weight</span></button>
+<button id="btn-open-imc" class="icon-btn"><span class="material-symbols-rounded">monitor_weight</span></button>
+</div>
+<div class="days-scroll" id="days-container"></div>
 </header>
 <main id="app-content">
 <div class="banner-container">
-<img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop" alt="Super Gym - Imagem original gerada por Nano Banana" class="nano-banana-img">
+<img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1470&auto=format&fit=crop" alt="Super Gym - Imagem gerada por Nano Banana" class="nano-banana-img">
 </div>
-<section class="card add-exercise">
-<h2>Adicionar Exercício</h2>
-<input type="text" id="ex-name" placeholder="Nome do Exercício" required>
-<input type="text" id="ex-machine" placeholder="Marca/Modelo da Máquina" required>
-<div class="row">
-<input type="number" id="ex-reps" placeholder="Repetições" required>
-<input type="number" id="ex-kg" placeholder="Carga (Kg)" required>
+<div class="dashboard-grid">
+<div class="dash-card dash-card-primary">
+<span class="material-symbols-rounded dash-icon-bg">radar</span>
+<div class="dash-title">Radar Muscular (Semana)</div>
+<div class="radar-container" id="radar-container"></div>
 </div>
-<button id="btn-add" class="btn-primary">Adicionar</button>
-</section>
-<section id="exercise-list" class="exercise-list"></section>
+<div class="dash-card">
+<span class="material-symbols-rounded dash-icon-bg">fitness_center</span>
+<div class="dash-title">Tonagem do Dia</div>
+<div class="dash-value" id="dash-tonagem">0 kg</div>
+</div>
+<div class="dash-card">
+<span class="material-symbols-rounded dash-icon-bg">monitor_weight</span>
+<div class="dash-title">IMC Atual</div>
+<div class="dash-value" id="dash-imc">--</div>
+</div>
+</div>
+<div class="section-title" id="lbl-treino-dia">Treino de Hoje</div>
+<section id="exercise-list"></section>
 </main>
+<button id="fab-add" class="fab"><span class="material-symbols-rounded">add</span></button>
 <div id="rest-timer" class="hidden">
 <span class="material-symbols-rounded">timer</span>
-<span id="time-display">01:00</span>
+<span id="time-display">00:00</span>
 <button id="btn-stop-timer" class="icon-btn"><span class="material-symbols-rounded">close</span></button>
 </div>
-<div id="modal-instructions" class="modal hidden">
-<div class="modal-content">
-<button id="btn-close-modal" class="icon-btn close-modal"><span class="material-symbols-rounded">close</span></button>
-<h2 id="modal-title">Instruções</h2>
-<div id="modal-body"></div>
+<div id="modal-add" class="modal-overlay hidden">
+<div class="bottom-sheet">
+<div class="sheet-header">
+<h2 class="sheet-title">Novo Exercício</h2>
+<button id="btn-close-add" class="icon-btn"><span class="material-symbols-rounded">close</span></button>
+</div>
+<div class="input-group">
+<span class="input-label">Nome do Exercício</span>
+<input type="text" id="ex-name" class="modal-input" placeholder="Ex: Supino Reto">
+</div>
+<div class="input-group">
+<span class="input-label">Máquina / Equipamento</span>
+<input type="text" id="ex-machine" class="modal-input" placeholder="Ex: Halteres, Kikos">
+</div>
+<div class="input-group">
+<span class="input-label">Grupo Muscular</span>
+<select id="ex-group" class="modal-input">
+<option value="peito">Peito</option>
+<option value="costas">Costas</option>
+<option value="pernas">Pernas</option>
+<option value="ombros">Ombros</option>
+<option value="bracos">Braços</option>
+<option value="core">Core</option>
+</select>
+</div>
+<div class="row-3">
+<div class="input-group">
+<span class="input-label">Séries</span>
+<input type="number" id="ex-sets" class="modal-input" placeholder="4">
+</div>
+<div class="input-group">
+<span class="input-label">Reps</span>
+<input type="number" id="ex-reps" class="modal-input" placeholder="12">
+</div>
+<div class="input-group">
+<span class="input-label">Kg</span>
+<input type="number" id="ex-kg" class="modal-input" placeholder="30">
+</div>
+</div>
+<button id="btn-save-ex" class="btn-primary">Salvar Exercício</button>
+</div>
+</div>
+<div id="modal-imc" class="modal-overlay centered-modal hidden">
+<div class="bottom-sheet">
+<div class="sheet-header">
+<h2 class="sheet-title">Atualizar Medidas</h2>
+<button id="btn-close-imc" class="icon-btn"><span class="material-symbols-rounded">close</span></button>
+</div>
+<div class="input-group">
+<span class="input-label">Sua Altura (cm)</span>
+<input type="number" id="user-height" class="modal-input" placeholder="Ex: 175">
+</div>
+<div class="input-group">
+<span class="input-label">Seu Peso Atual (kg)</span>
+<input type="number" id="user-weight" class="modal-input" placeholder="Ex: 75.5">
+</div>
+<button id="btn-save-imc" class="btn-primary">Atualizar Dashboard</button>
+</div>
+</div>
+<div id="modal-instructions" class="modal-overlay centered-modal hidden">
+<div class="bottom-sheet">
+<div class="sheet-header">
+<h2 class="sheet-title" id="modal-inst-title">Instruções</h2>
+<button id="btn-close-inst" class="icon-btn"><span class="material-symbols-rounded">close</span></button>
+</div>
+<div id="modal-inst-body"></div>
+</div>
+</div>
+<div id="modal-fatigue" class="modal-overlay centered-modal hidden">
+<div class="bottom-sheet">
+<div class="sheet-header">
+<h2 class="sheet-title">Feedback de Energia</h2>
+</div>
+<p style="color: var(--md-sys-color-on-surface-variant); font-size: 0.95rem;">Como está sua disposição e energia para o treino de hoje?</p>
+<div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.8rem; margin-top: 8px;">
+<span>1 (Exausto)</span>
+<span id="energy-val-display" style="font-size: 1.2rem; color: var(--md-sys-color-primary);">5</span>
+<span>10 (100%)</span>
+</div>
+<input type="range" id="energy-slider" min="1" max="10" value="5" class="modal-input">
+<div class="row-2">
+<button id="btn-skip-fatigue" class="btn-secondary">Pular</button>
+<button id="btn-save-fatigue" class="btn-primary">Salvar</button>
+</div>
 </div>
 </div>
 <script>
 const API_URL = "https://super-gym.grupo-bhds.workers.dev";
-let exercises = JSON.parse(localStorage.getItem('super_gym_exercises')) || [];
+const DIES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const GROUPS = ['peito', 'costas', 'pernas', 'ombros', 'bracos', 'core'];
+
+let appData = JSON.parse(localStorage.getItem('super_gym_data_v2')) || {
+    days: { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] },
+    metrics: { height: '', weight: '' },
+    history: []
+};
+
+let currentDay = new Date().getDay();
 let timerInterval;
+
+function initApp() {
+    renderDaysSelector();
+    renderExercises();
+    updateDashboard();
+    syncBackup();
+    checkFatigue();
+}
+
+function checkFatigue() {
+    const todayStr = new Date().toLocaleDateString();
+    const lastCheck = localStorage.getItem('last_fatigue_date');
+    if (lastCheck !== todayStr) {
+        document.getElementById('modal-fatigue').classList.remove('hidden');
+    }
+}
+
+document.getElementById('energy-slider').addEventListener('input', (e) => {
+    document.getElementById('energy-val-display').innerText = e.target.value;
+});
+
+document.getElementById('btn-skip-fatigue').addEventListener('click', () => {
+    localStorage.setItem('last_fatigue_date', new Date().toLocaleDateString());
+    document.getElementById('modal-fatigue').classList.add('hidden');
+});
+
+document.getElementById('btn-save-fatigue').addEventListener('click', () => {
+    const energy = parseInt(document.getElementById('energy-slider').value);
+    localStorage.setItem('last_fatigue_date', new Date().toLocaleDateString());
+    
+    if (energy < 4) {
+        appData.days[new Date().getDay()].forEach(ex => {
+            let s = parseInt(ex.sets);
+            if (s > 1) ex.sets = (s - 1).toString();
+        });
+        localStorage.setItem('super_gym_data_v2', JSON.stringify(appData));
+        if (currentDay === new Date().getDay()) renderExercises();
+        alert("Sua energia está baixa. O volume do treino de hoje foi reduzido automaticamente para focar na recuperação.");
+    }
+    document.getElementById('modal-fatigue').classList.add('hidden');
+});
+
+function renderDaysSelector() {
+    const container = document.getElementById('days-container');
+    container.innerHTML = '';
+    DIES.forEach((dayStr, index) => {
+        const btn = document.createElement('button');
+        btn.className = `day-pill ${index === currentDay ? 'active' : ''}`;
+        btn.innerText = dayStr;
+        btn.onclick = () => {
+            currentDay = index;
+            document.querySelectorAll('.day-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const today = new Date().getDay();
+            document.getElementById('lbl-treino-dia').innerText = index === today ? 'Treino de Hoje' : `Treino de ${DIES[index]}`;
+            renderExercises();
+            updateDashboard();
+        };
+        container.appendChild(btn);
+    });
+}
+
+function updateDashboard() {
+    if (appData.metrics.height && appData.metrics.weight) {
+        const h = parseFloat(appData.metrics.height) / 100;
+        const w = parseFloat(appData.metrics.weight);
+        const imc = (w / (h * h)).toFixed(1);
+        document.getElementById('dash-imc').innerText = imc;
+    }
+
+    const todayExs = appData.days[currentDay];
+    let tonagem = 0;
+    todayExs.forEach(ex => {
+        if (ex.completed) {
+            tonagem += (parseFloat(ex.sets) || 0) * (parseFloat(ex.reps) || 0) * (parseFloat(ex.kg) || 0);
+        }
+    });
+    document.getElementById('dash-tonagem').innerText = `${tonagem.toLocaleString()} kg`;
+
+    drawRadarChart();
+}
+
+function drawRadarChart() {
+    const container = document.getElementById('radar-container');
+    const stats = { peito: 0.1, costas: 0.1, pernas: 0.1, ombros: 0.1, bracos: 0.1, core: 0.1 };
+    
+    for (let d = 0; d < 7; d++) {
+        appData.days[d].forEach(ex => {
+            if(stats[ex.group] !== undefined && ex.completed) {
+                stats[ex.group] += 1;
+            }
+        });
+    }
+
+    const maxVal = Math.max(...Object.values(stats), 5);
+    const radius = 40;
+    const center = 50;
+    let polygonPoints = "";
+    let labelsHTML = "";
+
+    GROUPS.forEach((g, i) => {
+        const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+        const val = (stats[g] / maxVal) * radius;
+        const x = center + val * Math.cos(angle);
+        const y = center + val * Math.sin(angle);
+        polygonPoints += `${x},${y} `;
+
+        const lx = center + (radius + 8) * Math.cos(angle);
+        const ly = center + (radius + 8) * Math.sin(angle);
+        labelsHTML += `<text x="${lx}" y="${ly}" font-size="5" fill="#FFFFFF" text-anchor="middle" alignment-baseline="middle" opacity="0.9">${g.substring(0,3).toUpperCase()}</text>`;
+    });
+
+    const svg = `
+    <svg viewBox="0 0 100 100" class="radar-svg">
+        <polygon points="50,10 84.6,30 84.6,70 50,90 15.4,70 15.4,30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        <polygon points="50,30 67.3,40 67.3,60 50,70 32.7,60 32.7,40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <line x1="50" y1="50" x2="50" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <line x1="50" y1="50" x2="84.6" y2="30" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <line x1="50" y1="50" x2="84.6" y2="70" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <line x1="50" y1="50" x2="50" y2="90" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <line x1="50" y1="50" x2="15.4" y2="70" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <line x1="50" y1="50" x2="15.4" y2="30" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <polygon points="${polygonPoints.trim()}" fill="rgba(255,255,255,0.4)" stroke="#FFFFFF" stroke-width="1.5" stroke-linejoin="round"/>
+        ${labelsHTML}
+    </svg>`;
+    container.innerHTML = svg;
+}
 
 function renderExercises() {
     const list = document.getElementById('exercise-list');
     list.innerHTML = '';
-    exercises.forEach((ex, index) => {
+    
+    appData.days[currentDay].sort((a, b) => {
+        let aComp = a.completed ? 1 : 0;
+        let bComp = b.completed ? 1 : 0;
+        return aComp - bComp;
+    });
+
+    const dayExs = appData.days[currentDay];
+
+    dayExs.forEach((ex, index) => {
         const item = document.createElement('div');
-        item.className = 'ex-item';
+        item.className = `ex-item ${ex.completed ? 'completed' : ''}`;
+        
+        const sets = parseFloat(ex.sets) || 0;
+        const reps = parseFloat(ex.reps) || 0;
+        const kg = parseFloat(ex.kg) || 0;
+        const rm = Math.round(kg * (1 + 0.0333 * reps));
+        const ton = sets * reps * kg;
+
         item.innerHTML = `
             <div class="ex-header">
-                <span>${ex.name} <small>(${ex.machine})</small></span>
+                <div>
+                    ${ex.name} <span class="ex-group-tag">${ex.group}</span>
+                    <small>${ex.machine}</small>
+                </div>
             </div>
-            <div class="ex-details">
-                <input type="number" value="${ex.reps}" onchange="updateEx(${index}, 'reps', this.value)"> reps
-                <input type="number" value="${ex.kg}" onchange="updateEx(${index}, 'kg', this.value)"> kg
+            <div class="ex-metrics">
+                <div class="metric-group">
+                    <span class="metric-label">Séries</span>
+                    <input type="number" class="metric-input" value="${ex.sets}" onchange="updateEx(${index}, 'sets', this.value)" ${ex.completed ? 'disabled' : ''}>
+                </div>
+                <div class="metric-group">
+                    <span class="metric-label">Reps</span>
+                    <input type="number" class="metric-input" value="${ex.reps}" onchange="updateEx(${index}, 'reps', this.value)" ${ex.completed ? 'disabled' : ''}>
+                </div>
+                <div class="metric-group">
+                    <span class="metric-label">Kg</span>
+                    <input type="number" class="metric-input" value="${ex.kg}" onchange="updateEx(${index}, 'kg', this.value)" ${ex.completed ? 'disabled' : ''}>
+                </div>
+            </div>
+            <div class="ex-stats">
+                <div class="ex-stat-item">
+                    <span class="ex-stat-value">${rm} kg</span>
+                    <span class="ex-stat-label">1RM Est.</span>
+                </div>
+                <div class="ex-stat-item">
+                    <span class="ex-stat-value">${ton} kg</span>
+                    <span class="ex-stat-label">Volume</span>
+                </div>
             </div>
             <div class="ex-actions">
-                <button class="icon-btn" onclick="startTimer()"><span class="material-symbols-rounded">timer</span></button>
-                <button class="icon-btn" onclick="showInstructions('${ex.name}', '${ex.machine}')"><span class="material-symbols-rounded">visibility</span></button>
-                <button class="icon-btn" onclick="deleteEx(${index})"><span class="material-symbols-rounded">delete</span></button>
+                <div class="action-group">
+                    <button class="icon-btn btn-delete" onclick="deleteEx(${index})"><span class="material-symbols-rounded">delete</span></button>
+                    <button class="icon-btn" onclick="suggestSub('${ex.name}', '${ex.machine}', '${ex.group}')"><span class="material-symbols-rounded">autorenew</span></button>
+                </div>
+                <div class="action-group">
+                    <button class="icon-btn" onclick="showInstructions('${ex.name}', '${ex.machine}')"><span class="material-symbols-rounded">visibility</span></button>
+                    <button class="icon-btn" onclick="triggerSmartTimer('${ex.name}')"><span class="material-symbols-rounded">play_arrow</span></button>
+                    <button class="icon-btn btn-success" onclick="toggleComplete(${index})"><span class="material-symbols-rounded">check_circle</span></button>
+                </div>
             </div>
         `;
         list.appendChild(item);
     });
-    localStorage.setItem('super_gym_exercises', JSON.stringify(exercises));
+    localStorage.setItem('super_gym_data_v2', JSON.stringify(appData));
 }
 
-document.getElementById('btn-add').addEventListener('click', () => {
+document.getElementById('fab-add').addEventListener('click', () => {
+    document.getElementById('modal-add').classList.remove('hidden');
+    document.getElementById('ex-name').focus();
+});
+
+document.getElementById('btn-close-add').addEventListener('click', () => {
+    document.getElementById('modal-add').classList.add('hidden');
+});
+
+document.getElementById('ex-name').addEventListener('blur', (e) => {
+    const searchName = e.target.value.toLowerCase().trim();
+    if (!searchName) return;
+    const match = appData.history.find(h => h.name.toLowerCase() === searchName);
+    if (match) {
+        document.getElementById('ex-machine').value = match.machine;
+        document.getElementById('ex-group').value = match.group;
+        document.getElementById('ex-sets').value = match.sets;
+        document.getElementById('ex-reps').value = match.reps;
+        document.getElementById('ex-kg').value = (parseFloat(match.kg) + 1).toString();
+    }
+});
+
+document.getElementById('btn-save-ex').addEventListener('click', () => {
     const name = document.getElementById('ex-name').value;
     const machine = document.getElementById('ex-machine').value;
+    const group = document.getElementById('ex-group').value;
+    const sets = document.getElementById('ex-sets').value;
     const reps = document.getElementById('ex-reps').value;
     const kg = document.getElementById('ex-kg').value;
-    if(name && reps && kg) {
-        exercises.push({ id: Date.now(), name, machine, reps, kg });
+    
+    if(name && sets && reps && kg) {
+        const newEx = { id: Date.now(), name, machine, group, sets, reps, kg, completed: false };
+        appData.days[currentDay].push(newEx);
+        
+        appData.history = appData.history.filter(h => h.name.toLowerCase() !== name.toLowerCase());
+        appData.history.push(newEx);
+        
+        localStorage.setItem('super_gym_data_v2', JSON.stringify(appData));
+        
         renderExercises();
+        updateDashboard();
+
         document.getElementById('ex-name').value = '';
         document.getElementById('ex-machine').value = '';
+        document.getElementById('ex-sets').value = '';
+        document.getElementById('ex-reps').value = '';
+        document.getElementById('ex-kg').value = '';
+        document.getElementById('modal-add').classList.add('hidden');
+        syncBackup();
     }
 });
 
 function updateEx(index, field, value) {
-    exercises[index][field] = value;
-    localStorage.setItem('super_gym_exercises', JSON.stringify(exercises));
+    appData.days[currentDay][index][field] = value;
+    localStorage.setItem('super_gym_data_v2', JSON.stringify(appData));
+    renderExercises();
+    updateDashboard();
+    syncBackup();
 }
 
 function deleteEx(index) {
-    exercises.splice(index, 1);
+    appData.days[currentDay].splice(index, 1);
+    localStorage.setItem('super_gym_data_v2', JSON.stringify(appData));
     renderExercises();
+    updateDashboard();
+    syncBackup();
 }
 
-function startTimer(seconds = 60) {
+function toggleComplete(index) {
+    appData.days[currentDay][index].completed = !appData.days[currentDay][index].completed;
+    localStorage.setItem('super_gym_data_v2', JSON.stringify(appData));
+    renderExercises();
+    updateDashboard();
+    syncBackup();
+}
+
+function triggerSmartTimer(exName) {
+    const heavyExercises = /agachamento|leg|terra|supino|desenvolvimento/i;
+    const isHeavy = heavyExercises.test(exName);
+    startTimer(isHeavy ? 90 : 60);
+}
+
+function startTimer(seconds) {
     clearInterval(timerInterval);
     const timerEl = document.getElementById('rest-timer');
     const display = document.getElementById('time-display');
     timerEl.classList.remove('hidden');
     let timeLeft = seconds;
+    
+    let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    let s = (timeLeft % 60).toString().padStart(2, '0');
+    display.innerText = `${m}:${s}`;
+        
     timerInterval = setInterval(() => {
         timeLeft--;
         let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
@@ -145,7 +562,7 @@ function startTimer(seconds = 60) {
         if(timeLeft <= 0) {
             clearInterval(timerInterval);
             if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200, 100, 500]);
+                navigator.vibrate([200, 100, 200, 100, 500, 200, 100, 200, 100, 500]);
             }
             timerEl.classList.add('hidden');
         }
@@ -157,11 +574,30 @@ document.getElementById('btn-stop-timer').addEventListener('click', () => {
     document.getElementById('rest-timer').classList.add('hidden');
 });
 
+document.getElementById('btn-open-imc').addEventListener('click', () => {
+    document.getElementById('user-height').value = appData.metrics.height;
+    document.getElementById('user-weight').value = appData.metrics.weight;
+    document.getElementById('modal-imc').classList.remove('hidden');
+});
+
+document.getElementById('btn-close-imc').addEventListener('click', () => {
+    document.getElementById('modal-imc').classList.add('hidden');
+});
+
+document.getElementById('btn-save-imc').addEventListener('click', () => {
+    appData.metrics.height = document.getElementById('user-height').value;
+    appData.metrics.weight = document.getElementById('user-weight').value;
+    localStorage.setItem('super_gym_data_v2', JSON.stringify(appData));
+    updateDashboard();
+    document.getElementById('modal-imc').classList.add('hidden');
+    syncBackup();
+});
+
 async function showInstructions(name, machine) {
     const modal = document.getElementById('modal-instructions');
-    const body = document.getElementById('modal-body');
-    document.getElementById('modal-title').innerText = name;
-    body.innerHTML = '<span class="material-symbols-rounded">sync</span>';
+    const body = document.getElementById('modal-inst-body');
+    document.getElementById('modal-inst-title').innerText = name;
+    body.innerHTML = '<div class="loading-sync"><span class="material-symbols-rounded">sync</span> Analisando biomecânica...</div>';
     modal.classList.remove('hidden');
     
     const cachedInstruction = localStorage.getItem(`inst_${name}_${machine}`);
@@ -180,19 +616,49 @@ async function showInstructions(name, machine) {
         body.innerHTML = data.instruction; 
         localStorage.setItem(`inst_${name}_${machine}`, data.instruction);
     } catch (e) {
-        body.innerHTML = 'Você está offline. Conecte-se para baixar as instruções desta máquina.';
+        body.innerHTML = '<strong>Você está offline.</strong><br><br>Conecte-se à internet para que a IA possa baixar e salvar as instruções.';
     }
 }
 
-document.getElementById('btn-close-modal').addEventListener('click', () => {
+async function suggestSub(name, machine, group) {
+    const modal = document.getElementById('modal-instructions');
+    const body = document.getElementById('modal-inst-body');
+    document.getElementById('modal-inst-title').innerText = "Substituto Direto";
+    body.innerHTML = '<div class="loading-sync"><span class="material-symbols-rounded">sync</span> Buscando alternativa inteligente...</div>';
+    modal.classList.remove('hidden');
+
+    try {
+        const response = await fetch(`${API_URL}/api/substituto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, machine, group })
+        });
+        const data = await response.json();
+        body.innerHTML = data.instruction;
+    } catch (e) {
+        body.innerHTML = '<strong>Você está offline.</strong>';
+    }
+}
+
+document.getElementById('btn-close-inst').addEventListener('click', () => {
     document.getElementById('modal-instructions').classList.add('hidden');
 });
+
+async function syncBackup() {
+    try {
+        await fetch(`${API_URL}/api/backup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appData)
+        });
+    } catch (e) {}
+}
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
 }
 
-renderExercises();
+initApp();
 </script>
 </body>
 </html>
