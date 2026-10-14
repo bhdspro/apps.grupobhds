@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Super Gym</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#B3261E">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+<style>
+:root {
+--primary: #B3261E;
+--primary-container: #FFDAD6;
+--on-primary: #FFFFFF;
+--background: #FFFFFF;
+--surface: #F3F4F6;
+--text: #1C1B1F;
+--text-variant: #49454F;
+--radius: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+body { background-color: var(--background); color: var(--text); padding-bottom: 80px; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; background-color: var(--primary); color: var(--on-primary); padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.top-bar h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
+.icon-btn { background: none; border: none; color: inherit; font-size: 24px; cursor: pointer; }
+main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.banner-container { width: 100%; border-radius: var(--radius); overflow: hidden; display: flex; justify-content: center; align-items: center; }
+.nano-banana-img { width: 100%; height: auto; max-height: 200px; object-fit: cover; border-radius: var(--radius); }
+.card { background-color: var(--surface); padding: 16px; border-radius: var(--radius); display: flex; flex-direction: column; gap: 12px; }
+.card h2 { font-size: 1.1rem; }
+input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+.row { display: flex; gap: 8px; }
+.btn-primary { background-color: var(--primary); color: var(--on-primary); border: none; padding: 16px; border-radius: 24px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
+.ex-item { background-color: var(--surface); padding: 16px; border-radius: var(--radius); display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.ex-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold;}
+.ex-details { display: flex; gap: 8px; align-items: center; }
+.ex-details input { width: 70px; padding: 8px; text-align: center;}
+.ex-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 8px;}
+.ex-actions button { color: var(--primary); }
+#rest-timer { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background-color: var(--text); color: var(--on-primary); padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 12px; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 100; }
+.hidden { display: none !important; }
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 200; padding: 16px; }
+.modal-content { background: var(--background); padding: 24px; border-radius: var(--radius); width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative; }
+.close-modal { position: absolute; top: 16px; right: 16px; color: var(--text); }
+#modal-body { margin-top: 16px; line-height: 1.5; color: var(--text-variant); }
+</style>
+</head>
+<body>
+<header class="top-bar">
+<h1><span class="material-symbols-rounded">fitness_center</span> Super Gym</h1>
+<button id="btn-imc" class="icon-btn"><span class="material-symbols-rounded">monitor_weight</span></button>
+</header>
+<main id="app-content">
+<div class="banner-container">
+<img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop" alt="Super Gym - Imagem original gerada por Nano Banana" class="nano-banana-img">
+</div>
+<section class="card add-exercise">
+<h2>Adicionar Exercício</h2>
+<input type="text" id="ex-name" placeholder="Nome do Exercício" required>
+<input type="text" id="ex-machine" placeholder="Marca/Modelo da Máquina" required>
+<div class="row">
+<input type="number" id="ex-reps" placeholder="Repetições" required>
+<input type="number" id="ex-kg" placeholder="Carga (Kg)" required>
+</div>
+<button id="btn-add" class="btn-primary">Adicionar</button>
+</section>
+<section id="exercise-list" class="exercise-list"></section>
+</main>
+<div id="rest-timer" class="hidden">
+<span class="material-symbols-rounded">timer</span>
+<span id="time-display">01:00</span>
+<button id="btn-stop-timer" class="icon-btn"><span class="material-symbols-rounded">close</span></button>
+</div>
+<div id="modal-instructions" class="modal hidden">
+<div class="modal-content">
+<button id="btn-close-modal" class="icon-btn close-modal"><span class="material-symbols-rounded">close</span></button>
+<h2 id="modal-title">Instruções</h2>
+<div id="modal-body"></div>
+</div>
+</div>
+<script>
+const API_URL = "https://super-gym.grupo-bhds.workers.dev";
+let exercises = JSON.parse(localStorage.getItem('super_gym_exercises')) || [];
+let timerInterval;
+
+function renderExercises() {
+    const list = document.getElementById('exercise-list');
+    list.innerHTML = '';
+    exercises.forEach((ex, index) => {
+        const item = document.createElement('div');
+        item.className = 'ex-item';
+        item.innerHTML = `
+            <div class="ex-header">
+                <span>${ex.name} <small>(${ex.machine})</small></span>
+            </div>
+            <div class="ex-details">
+                <input type="number" value="${ex.reps}" onchange="updateEx(${index}, 'reps', this.value)"> reps
+                <input type="number" value="${ex.kg}" onchange="updateEx(${index}, 'kg', this.value)"> kg
+            </div>
+            <div class="ex-actions">
+                <button class="icon-btn" onclick="startTimer()"><span class="material-symbols-rounded">timer</span></button>
+                <button class="icon-btn" onclick="showInstructions('${ex.name}', '${ex.machine}')"><span class="material-symbols-rounded">visibility</span></button>
+                <button class="icon-btn" onclick="deleteEx(${index})"><span class="material-symbols-rounded">delete</span></button>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+    localStorage.setItem('super_gym_exercises', JSON.stringify(exercises));
+}
+
+document.getElementById('btn-add').addEventListener('click', () => {
+    const name = document.getElementById('ex-name').value;
+    const machine = document.getElementById('ex-machine').value;
+    const reps = document.getElementById('ex-reps').value;
+    const kg = document.getElementById('ex-kg').value;
+    if(name && reps && kg) {
+        exercises.push({ id: Date.now(), name, machine, reps, kg });
+        renderExercises();
+        document.getElementById('ex-name').value = '';
+        document.getElementById('ex-machine').value = '';
+    }
+});
+
+function updateEx(index, field, value) {
+    exercises[index][field] = value;
+    localStorage.setItem('super_gym_exercises', JSON.stringify(exercises));
+}
+
+function deleteEx(index) {
+    exercises.splice(index, 1);
+    renderExercises();
+}
+
+function startTimer(seconds = 60) {
+    clearInterval(timerInterval);
+    const timerEl = document.getElementById('rest-timer');
+    const display = document.getElementById('time-display');
+    timerEl.classList.remove('hidden');
+    let timeLeft = seconds;
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        let s = (timeLeft % 60).toString().padStart(2, '0');
+        display.innerText = `${m}:${s}`;
+        if(timeLeft <= 0) {
+            clearInterval(timerInterval);
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200, 100, 500]);
+            }
+            timerEl.classList.add('hidden');
+        }
+    }, 1000);
+}
+
+document.getElementById('btn-stop-timer').addEventListener('click', () => {
+    clearInterval(timerInterval);
+    document.getElementById('rest-timer').classList.add('hidden');
+});
+
+async function showInstructions(name, machine) {
+    const modal = document.getElementById('modal-instructions');
+    const body = document.getElementById('modal-body');
+    document.getElementById('modal-title').innerText = name;
+    body.innerHTML = '<span class="material-symbols-rounded">sync</span>';
+    modal.classList.remove('hidden');
+    
+    const cachedInstruction = localStorage.getItem(`inst_${name}_${machine}`);
+    if (cachedInstruction) {
+        body.innerHTML = cachedInstruction;
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/instrucoes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, machine })
+        });
+        const data = await response.json();
+        body.innerHTML = data.instruction; 
+        localStorage.setItem(`inst_${name}_${machine}`, data.instruction);
+    } catch (e) {
+        body.innerHTML = 'Você está offline. Conecte-se para baixar as instruções desta máquina.';
+    }
+}
+
+document.getElementById('btn-close-modal').addEventListener('click', () => {
+    document.getElementById('modal-instructions').classList.add('hidden');
+});
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+}
+
+renderExercises();
+</script>
+</body>
+</html>
