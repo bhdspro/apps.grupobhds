@@ -126,6 +126,7 @@ body {
   justify-content: center;
   gap: 8px;
   width: 100%;
+  box-sizing: border-box;
 }
 .btn-primary:active {
   transform: scale(0.95);
@@ -264,10 +265,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   font-size: 14px;
   font-weight: 500;
   position: relative;
   cursor: pointer;
+  transition: 0.2s;
 }
 .cal-day.empty {
   background: transparent;
@@ -276,12 +279,20 @@ body {
 .cal-day.today {
   border: 2px solid var(--md-sys-color-primary);
 }
+.cal-day.selected {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
 .cal-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--md-sys-color-error);
-  margin-top: 4px;
+  position: absolute;
+  bottom: 6px;
+}
+.cal-day.selected .cal-dot {
+  background: var(--md-sys-color-on-primary);
 }
 .tools-bar {
   display: flex;
@@ -545,6 +556,9 @@ body {
   transition: opacity 0.3s;
   backdrop-filter: blur(2px);
 }
+.modal-overlay.high-z {
+  z-index: 1050;
+}
 .modal-overlay.active {
   opacity: 1;
   pointer-events: all;
@@ -633,6 +647,22 @@ body {
   top: 6px;
   font-size: 12px;
   color: var(--md-sys-color-primary);
+}
+.calc-icon-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-top: 8px;
+  background: transparent;
+  border: none;
+  color: var(--md-sys-color-primary);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: auto;
 }
 .md-input-row {
   display: flex;
@@ -923,9 +953,11 @@ input:checked + .slider:before {
     <span id="bulkCount">0 selecionadas</span>
     <span id="bulkSum" style="color:var(--md-sys-color-primary); font-weight:700; margin-left:8px;"></span>
   </div>
-  <div style="display:flex; gap:8px;">
-    <button class="icon-btn-modal" id="btnBulkDelete" style="background:var(--md-sys-color-error-container); color:var(--md-sys-color-error);"><span class="material-symbols-rounded">delete</span></button>
-    <button class="btn-primary" style="width: auto;" id="btnBulkPay">Pagar</button>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <button class="icon-btn-modal" id="btnBulkDelete" style="background:var(--md-sys-color-error-container); color:var(--md-sys-color-error); width:48px; height:48px; border-radius:16px;">
+      <span class="material-symbols-rounded">delete</span>
+    </button>
+    <button class="btn-primary" style="width: auto; height:48px; margin:0;" id="btnBulkPay">Pagar</button>
   </div>
 </div>
 <div class="fab-container" id="fabContainer">
@@ -939,10 +971,10 @@ input:checked + .slider:before {
       <h2 class="modal-title">Backup de Dados</h2>
       <button class="icon-btn-modal" id="btnCloseBackup"><span class="material-symbols-rounded">close</span></button>
     </div>
-    <button class="btn-primary" id="btnExportData" style="margin-bottom:16px;">
+    <button class="btn-primary" id="btnExportData" style="margin-bottom:16px; width:100%; box-sizing:border-box; height:56px; justify-content:center;">
       <span class="material-symbols-rounded">download</span> Exportar Dados
     </button>
-    <label class="btn-primary" style="display:flex; cursor:pointer; background:var(--md-sys-color-surface-variant); color:var(--md-sys-color-on-surface);">
+    <label class="btn-primary" style="display:flex; cursor:pointer; background:var(--md-sys-color-surface-variant); color:var(--md-sys-color-on-surface); width:100%; box-sizing:border-box; height:56px; align-items:center; justify-content:center;">
       <span class="material-symbols-rounded">upload</span> Importar Dados
       <input type="file" id="inpImportFile" accept=".json" style="display:none;" />
     </label>
@@ -975,7 +1007,7 @@ input:checked + .slider:before {
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="calcModal">
+<div class="modal-overlay high-z" id="calcModal">
   <div class="modal-sheet" style="max-width: 400px; margin: 0 auto; padding-bottom: 24px;">
     <div class="modal-header-top" style="margin-bottom:0;">
       <h2 class="modal-title">Calculadora</h2>
@@ -1000,10 +1032,10 @@ input:checked + .slider:before {
       <div class="md-input-container" style="flex:1;">
         <input type="text" id="inpValor" class="md-input" inputmode="numeric" placeholder=" " style="padding-right: 48px;" />
         <label class="md-label">Valor (R$)</label>
-        <button class="icon-btn-modal" id="btnOpenCalc" style="position:absolute; right:8px; top:12px; width:32px; height:32px; background:transparent;"><span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);">calculate</span></button>
+        <button class="calc-icon-btn" id="btnOpenCalc"><span class="material-symbols-rounded">calculate</span></button>
       </div>
       <div class="md-input-container" style="flex:1;">
-        <input type="date" id="inpVencimento" class="md-input" placeholder=" " />
+        <input type="date" id="inpVencimento" class="md-input" placeholder=" " style="padding-right: 16px;" />
         <label class="md-label" style="top:6px; font-size:12px;">Vencimento</label>
       </div>
     </div>
@@ -1098,6 +1130,7 @@ let appConfig = JSON.parse(localStorage.getItem("app_config") || '{"paydayType":
 let expensesData = [];
 let currentEditId = null;
 let currentViewDate = new Date();
+let selectedCalendarDate = null;
 let deferredPrompt;
 let activeFilter = 'all';
 let searchQuery = '';
@@ -1204,7 +1237,8 @@ document.getElementById('btnSaveSettings').addEventListener('click', () => {
   showToast("Configurações salvas");
   renderExpenses();
 });
-document.getElementById('btnOpenCalc').addEventListener('click', () => {
+document.getElementById('btnOpenCalc').addEventListener('click', (e) => {
+  e.preventDefault();
   calcStr = "";
   document.getElementById('calcDisplay').innerText = "0";
   calcModal.classList.add('active');
@@ -1241,7 +1275,9 @@ document.getElementById('btnToggleCalendar').addEventListener('click', () => {
   const c = document.getElementById('calendarView');
   if(c.style.display === 'block') {
     c.style.display = 'none';
+    selectedCalendarDate = null;
     document.getElementById('btnToggleCalendar').innerHTML = `<span class="material-symbols-rounded">calendar_month</span> Mostrar Calendário`;
+    renderExpenses();
   } else {
     c.style.display = 'block';
     document.getElementById('btnToggleCalendar').innerHTML = `<span class="material-symbols-rounded">calendar_month</span> Ocultar Calendário`;
@@ -1307,10 +1343,12 @@ function updateMonthView() {
 }
 document.getElementById('btnPrevMonth').addEventListener('click', () => {
   currentViewDate.setMonth(currentViewDate.getMonth() - 1);
+  selectedCalendarDate = null;
   updateMonthView();
 });
 document.getElementById('btnNextMonth').addEventListener('click', () => {
   currentViewDate.setMonth(currentViewDate.getMonth() + 1);
+  selectedCalendarDate = null;
   updateMonthView();
 });
 function calculateProgressiveInterest(expense) {
@@ -1484,6 +1522,17 @@ function renderCalendar(filteredData) {
     if(y === today.getFullYear() && m === today.getMonth() && d === today.getDate()) el.classList.add('today');
     el.innerText = d;
     const dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
+    
+    if (selectedCalendarDate === dateStr) {
+      el.classList.add('selected');
+    }
+
+    el.addEventListener('click', () => {
+      if(selectedCalendarDate === dateStr) selectedCalendarDate = null;
+      else selectedCalendarDate = dateStr;
+      renderExpenses();
+    });
+
     const hasExp = filteredData.some(e => e.vencimento === dateStr);
     if(hasExp) {
       const dot = document.createElement('div');
@@ -1515,6 +1564,7 @@ function renderExpenses() {
   let filtered = allForMonth.filter(exp => {
     if (searchQuery && !exp.descricao.toLowerCase().includes(searchQuery)) return false;
     if (hidePagas && exp.status === 'pago') return false;
+    if (selectedCalendarDate && exp.vencimento !== selectedCalendarDate) return false;
     const isOverdue = new Date(exp.vencimento + 'T12:00:00') < new Date() && exp.status !== "pago" && exp.status !== "projetado";
     if (activeFilter === 'pendentes' && exp.status === 'pago') return false;
     if (activeFilter === 'pagas' && exp.status !== 'pago') return false;
@@ -1548,9 +1598,6 @@ function renderExpenses() {
       const formattedBestDay = bestDay.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
       thTag = `<div class="tag-thursday"><span class="material-symbols-rounded" style="font-size:12px;">lightbulb</span>Pagar: ${formattedBestDay}</div>`;
     }
-    if (exp.isVirtual) {
-      thTag += `<div class="tag-thursday" style="background:#e8def8; color:#1d192b;"><span class="material-symbols-rounded" style="font-size:12px;">update</span>Projeção</div>`;
-    }
     let parcelInfo = exp.recorrencia === 'installments' ? ` - Parcela ${exp.parcelaAtual}/${exp.parcelasTotais}` : '';
     let priorityIcon = exp.prioridade ? `<span class="material-symbols-rounded" style="color: #f9a825; font-size: 18px;">star</span>` : '';
     let toggleIcon = exp.status === 'pago' ? 'undo' : 'check';
@@ -1571,7 +1618,7 @@ function renderExpenses() {
         </div>
         <div class="expense-meta">
           <span>Venc: ${pts[2]}/${pts[1]}/${pts[0]}</span>
-          <span>${exp.status === 'pago' ? 'Paga' : (exp.isVirtual ? 'Projetada' : 'Pendente')}</span>
+          <span>${exp.status === 'pago' ? 'Paga' : 'Pendente'}</span>
         </div>
       </div>
       <div class="pc-actions">
@@ -1617,21 +1664,11 @@ function renderExpenses() {
   document.getElementById("totalPendente").innerText = formatCurrencyStr(totPend);
   document.getElementById("totalPaga").innerText = formatCurrencyStr(totPago);
 }
-async function saveVirtualAsReal(virtualExp) {
-  let expToSave = { ...virtualExp };
-  delete expToSave.isVirtual;
-  await fetch(WORKER_URL, {
-    method: "POST",
-    headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
-    body: JSON.stringify(expToSave)
-  });
-}
 async function fastPayToggle(id) {
   let exp = expensesData.find(e => e.id === id);
   if(!exp) {
     const virtuals = getVirtualExpenses(currentViewDate, expensesData);
     exp = virtuals.find(e => e.id === id);
-    if(exp) await saveVirtualAsReal(exp);
   }
   if(!exp) return;
   exp.status = exp.status === "pago" ? "pendente" : "pago";
@@ -1695,10 +1732,21 @@ document.getElementById('btnBulkDelete').addEventListener('click', async () => {
   if(selectedIds.size === 0) return;
   if(confirm("Tem certeza que deseja excluir as selecionadas?")) {
     const ids = Array.from(selectedIds);
-    await fetch(WORKER_URL + "/bulk-delete", {
+    let payloads = [];
+    const virtuals = getVirtualExpenses(currentViewDate, expensesData);
+    ids.forEach(id => {
+      let exp = expensesData.find(e => e.id === id) || virtuals.find(e => e.id === id);
+      if(exp) {
+        let copy = {...exp};
+        delete copy.isVirtual;
+        copy.status = "excluida";
+        payloads.push(copy);
+      }
+    });
+    await fetch(WORKER_URL + "/bulk-import", {
       method: "POST",
       headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
-      body: JSON.stringify({ ids: ids })
+      body: JSON.stringify(payloads)
     });
     selectedIds.clear();
     fetchExpenses();
@@ -1808,8 +1856,7 @@ document.getElementById("btnSaveExpense").addEventListener("click", async () => 
     parcelasTotais: parcelasTotais,
     parcelaAtual: parcelaAtual,
     prioridade: isPrioridade,
-    status: statusToSave === 'projetado' ? 'pendente' : statusToSave,
-    nextGenerated: oldExp ? oldExp.nextGenerated : false
+    status: statusToSave === 'projetado' ? 'pendente' : statusToSave
   };
   try {
     await fetch(WORKER_URL, {
