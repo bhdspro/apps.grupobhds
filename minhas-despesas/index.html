@@ -402,10 +402,6 @@ body {
   text-decoration: line-through;
   color: var(--md-sys-color-outline);
 }
-.expense-card.is-virtual {
-  border-style: dashed;
-  border-color: var(--md-sys-color-primary);
-}
 .expense-chk {
   width: 24px;
   height: 24px;
@@ -1470,35 +1466,42 @@ function getVirtualExpenses(targetDate, allExpenses) {
   allExpenses.forEach(exp => {
     if (exp.recorrencia === 'none' || exp.status === 'excluida') return;
     const expDate = new Date(exp.vencimento + 'T12:00:00');
-    if (expDate.getFullYear() > targetY || (expDate.getFullYear() === targetY && expDate.getMonth() >= targetM)) return;
+    if (expDate.getFullYear() > targetY || (expDate.getFullYear() === targetY && expDate.getMonth() > targetM)) return;
+    
     let projDate = new Date(expDate);
     let loopCount = 0;
     let currentParcela = exp.parcelaAtual || 1;
-    while (projDate.getFullYear() < targetY || (projDate.getFullYear() === targetY && projDate.getMonth() < targetM)) {
+
+    while (true) {
+      if (projDate.getFullYear() > targetY || (projDate.getFullYear() === targetY && projDate.getMonth() > targetM)) {
+        break;
+      }
+      if (loopCount > 0 && projDate.getFullYear() === targetY && projDate.getMonth() === targetM) {
+        if (exp.recorrencia === 'installments' && currentParcela > exp.parcelasTotais) break;
+        let projId = `${exp.id}-proj-${currentParcela}`;
+        const exists = allExpenses.some(e => e.id === projId || (e.descricao === exp.descricao && e.vencimento === projDate.toISOString().split('T')[0] && e.status !== 'excluida'));
+        if (!exists) {
+          virtuals.push({
+            ...exp,
+            id: projId,
+            vencimento: projDate.toISOString().split('T')[0],
+            status: 'projetado',
+            parcelaAtual: currentParcela,
+            isVirtual: true
+          });
+        }
+      }
       if (exp.frequencia === 'daily') projDate.setDate(projDate.getDate() + 1);
       else if (exp.frequencia === 'weekly') projDate.setDate(projDate.getDate() + 7);
       else if (exp.frequencia === 'biweekly') projDate.setDate(projDate.getDate() + 15);
       else if (exp.frequencia === 'monthly') projDate.setMonth(projDate.getMonth() + 1);
       else if (exp.frequencia === 'semester') projDate.setMonth(projDate.getMonth() + 6);
       else if (exp.frequencia === 'yearly') projDate.setFullYear(projDate.getFullYear() + 1);
+      else break;
+      
       currentParcela++;
       loopCount++;
-      if (loopCount > 500) break; 
-    }
-    if (projDate.getFullYear() === targetY && projDate.getMonth() === targetM) {
-      if (exp.recorrencia === 'installments' && currentParcela > exp.parcelasTotais) return;
-      let projId = `${exp.id}-proj-${currentParcela}`;
-      const exists = allExpenses.some(e => e.id === projId || (e.descricao === exp.descricao && e.vencimento === projDate.toISOString().split('T')[0]));
-      if (!exists) {
-        virtuals.push({
-          ...exp,
-          id: projId,
-          vencimento: projDate.toISOString().split('T')[0],
-          status: 'projetado',
-          parcelaAtual: currentParcela,
-          isVirtual: true
-        });
-      }
+      if (loopCount > 500) break;
     }
   });
   return virtuals;
@@ -1589,9 +1592,8 @@ function renderExpenses() {
     bg.className = "swipe-bg";
     bg.innerHTML = `<span style="color:var(--md-sys-color-error)">Excluir</span><span style="color:var(--md-sys-color-primary)">Pagar/Pend.</span>`;
     let isPaidClass = exp.status === 'pago' ? 'is-paid' : '';
-    let isVirtualClass = exp.isVirtual ? 'is-virtual' : '';
     const card = document.createElement("div");
-    card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${exp.prioridade ? 'priority-card' : ''} ${isPaidClass} ${isVirtualClass}`;
+    card.className = `expense-card ${isOverdue ? 'overdue' : ''} ${exp.prioridade ? 'priority-card' : ''} ${isPaidClass}`;
     const bestDay = getBestPayday(exp.vencimento);
     let thTag = "";
     if (exp.status !== "pago") {
@@ -1681,11 +1683,12 @@ async function fastPayToggle(id) {
     headers: { "x-pin": cachedPin, "Content-Type": "application/json" },
     body: JSON.stringify(exp)
   });
+  updateBulkUI([]);
   fetchExpenses();
   showToast(exp.status === "pago" ? "Despesa paga" : "Despesa pendente");
 }
 async function fastDelete(id) {
-  if (confirm("Tem certeza que deseja excluir esta despesa?")) {
+  if (confirm("Tem certeza que deseja excluir esta despesa (apenas este mês)?")) {
     let exp = expensesData.find(e => e.id === id);
     if(!exp) {
       const virtuals = getVirtualExpenses(currentViewDate, expensesData);
@@ -1700,6 +1703,7 @@ async function fastDelete(id) {
         body: JSON.stringify(exp)
       });
       if(selectedIds.has(id)) selectedIds.delete(id);
+      updateBulkUI([]);
       fetchExpenses();
       showToast("Excluída com sucesso");
     }
@@ -1725,12 +1729,13 @@ document.getElementById('btnBulkPay').addEventListener('click', async () => {
     body: JSON.stringify(payloads)
   });
   selectedIds.clear();
+  updateBulkUI([]);
   fetchExpenses();
   showToast("Despesas selecionadas foram pagas!");
 });
 document.getElementById('btnBulkDelete').addEventListener('click', async () => {
   if(selectedIds.size === 0) return;
-  if(confirm("Tem certeza que deseja excluir as selecionadas?")) {
+  if(confirm("Tem certeza que deseja excluir as selecionadas (apenas este mês)?")) {
     const ids = Array.from(selectedIds);
     let payloads = [];
     const virtuals = getVirtualExpenses(currentViewDate, expensesData);
@@ -1749,6 +1754,7 @@ document.getElementById('btnBulkDelete').addEventListener('click', async () => {
       body: JSON.stringify(payloads)
     });
     selectedIds.clear();
+    updateBulkUI([]);
     fetchExpenses();
     showToast("Excluídas em lote");
   }
